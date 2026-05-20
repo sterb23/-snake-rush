@@ -70,8 +70,8 @@
         }
 
         .skin-coins-display {
-            color: #0ff;
-            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffa500;
             font-size: 20px;
             margin-bottom: 15px;
             font-weight: bold;
@@ -351,6 +351,7 @@
         .crate-card.premium { border-color: #f0f; box-shadow: 0 0 15px rgba(255,0,255,0.2); }
         .crate-title { font-weight: bold; font-size: 15px; margin-bottom: 5px; text-transform: uppercase; color: #fff; }
         .crate-desc { font-size: 11px; color: #aaa; margin-bottom: 10px; text-align: center; min-height: 28px;}
+        .rarity-metrics { font-size: 10px; color: #7f8fa6; margin-top: 5px; text-align: left; width: 100%; border-top: 1px dashed #334; padding-top: 5px;}
 
         .skin-inventory-grid {
             display: grid;
@@ -376,7 +377,7 @@
 
         .inventory-card.active-skin {
             background: rgba(0, 255, 255, 0.08);
-            box-shadow: 0 0 15px currentColor;
+            box-shadow: 0 0 15px interstate;
         }
 
         .inventory-card.locked-skin {
@@ -566,6 +567,61 @@
             cursor: not-allowed;
         }
 
+        /* Daily Quest Interface Elements */
+        .daily-quest-wrapper {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.05) 0%, rgba(255, 165, 0, 0.1) 100%);
+            border: 1px dashed #ffd700;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            box-sizing: border-box;
+            text-align: left;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+        .quest-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+            margin-bottom: 6px;
+        }
+        .quest-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .quest-progress-track {
+            flex: 1;
+            height: 14px;
+            background: #0d0d1a;
+            border: 1px solid #ffa500;
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+        }
+        .quest-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffa500 0%, #ffd700 100%);
+            box-shadow: 0 0 8px #ffd700;
+            transition: width 0.3s ease;
+        }
+        .quest-progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 0;
+            left: 0;
+            font-size: 10px;
+            line-height: 14px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
         .tabs-header {
             display: flex;
             gap: 10px;
@@ -620,6 +676,23 @@
             <div style="display: flex; justify-content: center; gap: 20px;">
                 <div class="star-points-display">⭐ STAR POINTS: <span id="menu-sp">0</span></div>
                 <div class="skin-coins-display">🪙 SKIN COINS: <span id="menu-sc">0</span></div>
+            </div>
+
+            <div class="daily-quest-wrapper">
+                <div class="quest-header">
+                    <span>📅 DAILY TARGET SYSTEM</span>
+                    <span id="quest-reset-timer" style="color: #aaa; font-size: 11px;">RESETS AT 9:00 AM</span>
+                </div>
+                <div class="quest-body">
+                    <div style="font-size: 11px; color:#e0e0ff; width:95px; font-weight:bold;" id="quest-label">Eliminate Objects:</div>
+                    <div class="quest-progress-track">
+                        <div id="quest-bar-fill" class="quest-progress-fill"></div>
+                        <div id="quest-bar-text" class="quest-progress-text">0 / 0 KILLS</div>
+                    </div>
+                </div>
+                <div style="font-size: 10px; color: #ffd700; margin-top: 5px; text-align: center; font-weight: bold;">
+                    🎁 REWARD: +100 XP RECON & 5 SKIN COINS
+                </div>
             </div>
 
             <div class="global-progression-wrapper">
@@ -743,11 +816,17 @@
                         <div class="crate-title">Omni Crate</div>
                         <div class="crate-desc">Standard drop rates across all available skins.</div>
                         <button id="crate-btn-omni" class="action-btn" style="font-size:14px; padding:10px; color:#0ff; border-color:#0ff;">50 🪙 SPIN</button>
+                        <div class="rarity-metrics">
+                            🟢 Com: 50% | 🔵 Unc: 28%<br>🟣 Rare: 14% | 🔴 Epic: 6%<br>🟡 Myth: 2%
+                        </div>
                     </div>
                     <div class="crate-card premium">
                         <div class="crate-title">Cyber Crate</div>
                         <div class="crate-desc">Highly increased drop chance for Epic & Mythical skins.</div>
                         <button id="crate-btn-premium" class="action-btn secondary" style="font-size:14px; padding:10px; color:#f0f; border-color:#f0f;">200 🪙 SPIN</button>
+                        <div class="rarity-metrics">
+                            🟢 Com: 10% | 🔵 Unc: 15%<br>🟣 Rare: 20% | 🔴 Epic: 35%<br>🟡 Myth: 20%
+                        </div>
                     </div>
                 </div>
 
@@ -779,7 +858,8 @@
                 <p>Final Score: <strong id="final-score" style="color:#0ff; font-size: 24px;">0</strong></p>
                 <p>Objects Obliterated: <strong id="run-kills-text" style="color:#ff5555;">0</strong></p>
                 <p style="font-size: 18px; color: #ff0; font-weight: bold; margin-top:10px;">⭐ Earned: <span id="earned-sp">0</span></p>
-                <p style="font-size: 18px; color: #0ff; font-weight: bold;">🪙 Skin Coins Harvested: <span id="earned-sc">0</span></p>
+                <p style="font-size: 18px; color: #ffd700; font-weight: bold;">🪙 Skin Coins Harvested: <span id="earned-sc">0</span></p>
+                <p id="level-up-bonus-msg" style="font-size: 14px; color: #0ff; font-weight: bold; margin-top: 5px; display: none;"></p>
             </div>
             <div class="btn-group" style="flex-direction: column;">
                 <button id="restart-btn" class="action-btn">Reboot System</button>
@@ -801,11 +881,21 @@
             unlockedSkins: ['default'],
             equippedSkin: 'default',
             sfxVolume: 50,
-            musicVolume: 50
+            musicVolume: 50,
+            // Daily Quest Persistent Data Architecture
+            dailyQuest: {
+                targetKills: 0,
+                currentKills: 0,
+                lastAssignedTimestamp: 0, 
+                completed: false
+            }
         };
 
         if (gameData.sfxVolume === undefined) gameData.sfxVolume = 50;
         if (gameData.musicVolume === undefined) gameData.musicVolume = 50;
+        if (!gameData.dailyQuest) {
+            gameData.dailyQuest = { targetKills: 0, currentKills: 0, lastAssignedTimestamp: 0, completed: false };
+        }
 
         const UPGRADE_CONFIG = {
             fireRate: { max: 5, baseCost: 5, costMult: 5, action: (lvl) => 120 - (lvl * 16) },
@@ -864,6 +954,57 @@
 
         let audioCtx = null;
         let musicInterval = null;
+
+        // Daily Quest Lifecycle Controller Engine
+        function processDailyQuestValidation() {
+            const now = new Date();
+            let currentQuestDayMarker = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0, 0);
+            
+            if (now < currentQuestDayMarker) {
+                currentQuestDayMarker.setDate(currentQuestDayMarker.getDate() - 1);
+            }
+            
+            const targetTimestamp = currentQuestDayMarker.getTime();
+            
+            if (gameData.dailyQuest.lastAssignedTimestamp < targetTimestamp) {
+                gameData.dailyQuest.targetKills = Math.floor(Math.random() * 41) + 20; // Rolls random target: 20 to 60 Kills
+                gameData.dailyQuest.currentKills = 0;
+                gameData.dailyQuest.lastAssignedTimestamp = targetTimestamp;
+                gameData.dailyQuest.completed = false;
+                localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
+            }
+            updateDailyQuestUI();
+        }
+
+        function updateDailyQuestUI() {
+            const dq = gameData.dailyQuest;
+            const percentage = Math.min(100, (dq.currentKills / dq.targetKills) * 100);
+            
+            document.getElementById('quest-bar-fill').style.width = `${percentage}%`;
+            document.getElementById('quest-bar-text').innerText = `${dq.currentKills} / ${dq.targetKills} KILLS`;
+            
+            if (dq.completed) {
+                document.getElementById('quest-bar-fill').style.background = 'linear-gradient(90deg, #00FF87 0%, #60EFFF 100%)';
+                document.getElementById('quest-bar-text').innerText = `QUEST COMPLETED (+$100 XP / 5🪙)`;
+            } else {
+                document.getElementById('quest-bar-fill').style.background = 'linear-gradient(90deg, #ffa500 0%, #ffd700 100%)';
+            }
+        }
+
+        function trackDailyQuestProgression(killsCount) {
+            const dq = gameData.dailyQuest;
+            if (dq.completed) return;
+            
+            dq.currentKills += killsCount;
+            if (dq.currentKills >= dq.targetKills) {
+                dq.currentKills = dq.targetKills;
+                dq.completed = true;
+                gameData.lifetimeKills += 100; // Gives 100 XP (Equivalent to 100 Kills metric space)
+                gameData.skinCoins += 5;       // Gives 5 Skin Coins bonus
+            }
+            localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
+            updateDailyQuestUI();
+        }
 
         function initAudioEngine() {
             if (audioCtx) return;
@@ -939,6 +1080,7 @@
             localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
             updateShopUI();
             updateProgressionUI();
+            updateDailyQuestUI();
         }
 
         const screens = {
@@ -1301,6 +1443,7 @@
             Object.values(screens).forEach(s => s.classList.add('hidden'));
             if (screenName === 'start') {
                 screens.start.classList.remove('hidden');
+                processDailyQuestValidation();
                 updateShopUI(); updateProgressionUI();
             } else if (screenName === 'shop') {
                 screens.shop.classList.remove('hidden');
@@ -1355,6 +1498,7 @@
         let score = 0;
         let level = 1;
         let killsThisRun = 0;
+        let levelUpsThisRun = 0; // Tracks live level milestones for skin coin distributions
         let coinsCollectedThisRun = 0;
         let animationId;
         
@@ -1441,7 +1585,7 @@
 
         function harvestSkinCoin(idx) {
             playCoinSound();
-            createExplosion(skinCoins[idx].x, skinCoins[idx].y, '#0ffff');
+            createExplosion(skinCoins[idx].x, skinCoins[idx].y, '#ffd700');
             gameData.skinCoins++;
             coinsCollectedThisRun++;
             uiElements.hudSc.innerText = gameData.skinCoins;
@@ -1483,6 +1627,7 @@
             for(let i=0; i<25; i++) matrixStreams.push({x: Math.random()*vWidth, y: Math.random()*vHeight - vHeight, s: Math.random()*4+3, len: Math.floor(Math.random()*10)+5});
         }
 
+        // Prettier & Higher Visibility Skin Coin Entity Graphics Engine Code
         class SkinCoinEntity {
             constructor() {
                 this.x = Math.random() * (vWidth - 60) + 30;
@@ -1490,38 +1635,52 @@
                 this.vx = (Math.random() - 0.5) * 2.5;
                 this.vy = Math.random() * 1.5 + 1.2;
                 this.angle = Math.random() * Math.PI;
-                this.rotSpeed = Math.random() * 0.04 + 0.02;
+                this.rotSpeed = Math.random() * 0.05 + 0.03;
                 this.pulse = 0;
-                this.size = 14;
+                this.size = 16; // Increased core dimensions
             }
             update() {
-                this.x += this.vx; this.y += this.vy; this.angle += this.rotSpeed; this.pulse += 0.08;
+                this.x += this.vx; this.y += this.vy; this.angle += this.rotSpeed; this.pulse += 0.1;
                 if(this.x < 10 || this.x > vWidth - 10) this.vx *= -1;
 
                 ctx.save();
                 if(shadowPower > 0) {
-                    ctx.shadowBlur = shadowPower; ctx.shadowColor = '#0ffff';
+                    ctx.shadowBlur = shadowPower + 15; 
+                    ctx.shadowColor = '#ffd700';
                 }
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
                 
-                if (graphicsQuality === 'high' && Math.random() > 0.4) {
-                    particles.push(new Particle(this.x, this.y, {x: -this.vx * 0.3, y: -this.vy * 0.3}, Math.random() * 2 + 1, 'rgba(0, 255, 255, 0.4)'));
+                if (graphicsQuality === 'high' && Math.random() > 0.3) {
+                    particles.push(new Particle(this.x, this.y, {x: -this.vx * 0.4, y: -this.vy * 0.4}, Math.random() * 3 + 1.5, '#ffa500'));
                 }
 
-                ctx.strokeStyle = '#0ffff'; ctx.lineWidth = 2;
-                ctx.fillStyle = `rgba(0, 255, 255, ${0.25 + Math.sin(this.pulse)*0.15})`;
-                ctx.beginPath();
-                ctx.moveTo(0, -this.size);
-                ctx.lineTo(this.size * 0.7, 0);
-                ctx.lineTo(0, this.size);
-                ctx.lineTo(-this.size * 0.7, 0);
-                ctx.closePath(); ctx.fill(); ctx.stroke();
+                // Complex beautiful multi-layered concentric coin presentation rendering structures
+                let scalePulse = 1.0 + Math.sin(this.pulse) * 0.12;
+                ctx.scale(scalePulse, scalePulse);
 
+                // External Core Ring Glow
+                ctx.strokeStyle = '#ffa500'; ctx.lineWidth = 3;
+                ctx.fillStyle = '#ffd700';
                 ctx.beginPath();
-                ctx.moveTo(-this.size * 0.7, 0); ctx.lineTo(this.size * 0.7, 0);
-                ctx.moveTo(0, -this.size); ctx.lineTo(0, this.size);
-                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill(); ctx.stroke();
+
+                // Inner Decorative Concentric Ring Layer Structure
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size * 0.65, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Center Embedded Star Glyph
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                for (let idx = 0; idx < 5; idx++) {
+                    ctx.lineTo(Math.cos((18 + idx * 72) * Math.PI / 180) * (this.size * 0.4), Math.sin((18 + idx * 72) * Math.PI / 180) * (this.size * 0.4));
+                    ctx.lineTo(Math.cos((54 + idx * 72) * Math.PI / 180) * (this.size * 0.18), Math.sin((54 + idx * 72) * Math.PI / 180) * (this.size * 0.18));
+                }
+                ctx.closePath(); ctx.fill();
+
                 ctx.restore();
             }
         }
@@ -1844,7 +2003,7 @@
             }
             update() {
                 if (this.type === 'chaser') {
-                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - x);
+                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - this.x);
                     this.velocity.x += Math.cos(angleToPlayer) * 0.05; this.velocity.y += Math.sin(angleToPlayer) * 0.05;
                     let spd = Math.hypot(this.velocity.x, this.velocity.y);
                     if(spd > this.speed) { this.velocity.x = (this.velocity.x/spd)*this.speed; this.velocity.y = (this.velocity.y/spd)*this.speed; }
@@ -1914,26 +2073,33 @@
             let newLevel = Math.floor(score / 1000) + 1;
             if (newLevel > level) {
                 level = newLevel; uiElements.level.innerText = level;
+                levelUpsThisRun++; // For live level up payouts tracking mechanics
+                
+                // Payout Level Up Reward (+10 Skin Coins)
+                gameData.skinCoins += 10;
+                uiElements.hudSc.innerText = gameData.skinCoins;
+                
                 spawnDelay = Math.max(180, 1000 - (level * 90));
                 
                 let mapNames = ["", "CYBER GRID", "CRIMSON NEBULA", "QUANTUM VOID", "VOID CORE", "PLASMA REEF", "ASTEROID BELTWAY", "SINGULARITY HORIZON", "COSMIC METRIC", "OMEGA SURGE"];
-                uiElements.levelUp.innerText = `LEVEL ${level}: ${level <= 9 ? mapNames[level-1] : "HYPERDRIVE OMNI"}`;
+                uiElements.levelUp.innerText = `LEVEL ${level}: ${level <= 9 ? mapNames[level-1] : "HYPERDRIVE OMNI"}\n🪙 +10 COINS`;
                 uiElements.levelUp.classList.add('level-up-active');
                 
-                createExplosion(player.x, player.y, '#fff');
+                createExplosion(player.x, player.y, '#ffd700');
                 setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2200);
             }
         }
 
         function startGame() {
             initAudioEngine();
+            processDailyQuestValidation();
             switchScreen('hud');
             document.getElementById('mobile-controls').style.display = controlMode === 'joystick' ? 'block' : 'none';
 
             player = new Player();
             mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
             projectiles = []; enemies = []; particles = []; skinCoins = [];
-            score = 0; level = 1; killsThisRun = 0; coinsCollectedThisRun = 0; spawnDelay = 1000;
+            score = 0; level = 1; killsThisRun = 0; levelUpsThisRun = 0; coinsCollectedThisRun = 0; spawnDelay = 1000;
             uiElements.score.innerText = score; uiElements.level.innerText = level;
             
             initBackgrounds();
@@ -1954,6 +2120,9 @@
             const earnedSp = Math.floor(score / 100);
             gameData.starPoints += earnedSp;
             gameData.lifetimeKills += killsThisRun; 
+            
+            // Sync Daily Quest Achievements Progress Engine Data State
+            trackDailyQuestProgression(killsThisRun);
             saveData();
 
             setTimeout(() => {
@@ -1963,6 +2132,16 @@
                 uiElements.earnedSp.innerText = earnedSp;
                 uiElements.earnedSc.innerText = coinsCollectedThisRun;
                 document.getElementById('run-kills-text').innerText = killsThisRun;
+                
+                // Show Level-Up Bonus Summary Inside Terminal Overlay Text
+                const lvlBonusMsg = document.getElementById('level-up-bonus-msg');
+                if (levelUpsThisRun > 0) {
+                    lvlBonusMsg.innerText = `Level Up Metric Bonuses: +${levelUpsThisRun * 10} 🪙 Skin Coins!`;
+                    lvlBonusMsg.style.display = 'block';
+                } else {
+                    lvlBonusMsg.style.display = 'none';
+                }
+                
                 screens.hud.style.display = 'none';
             }, 1000);
         }
@@ -2101,8 +2280,10 @@
             ctx.filter = "none";
         }
 
+        // Main Menu Assembly Lifecycle Bootstrapper Sequence
         initBackgrounds();
         drawMapBackground();
+        processDailyQuestValidation();
         updateShopUI();
         updateProgressionUI();
     </script>
