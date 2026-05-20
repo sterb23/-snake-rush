@@ -1,285 +1,547 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Snake Game - Joystick Edition</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Surge</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
 
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  height: 100%;
-  background: #111;
-  font-family: Arial;
-  color: white;
-  touch-action: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+        canvas {
+            display: block;
+        }
 
-h2 { margin: 10px 0; }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
 
-canvas {
-  background: black;
-  border: 2px solid #0f0;
-}
+        #score-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            display: none;
+        }
 
-.hud {
-  display: flex;
-  gap: 20px;
-  margin: 8px;
-}
+        .panel {
+            background: rgba(10, 10, 25, 0.85);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #0ff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.2);
+            text-align: center;
+            pointer-events: auto;
+            transition: opacity 0.3s ease;
+        }
 
-#joystick-area {
-  margin-top: 15px;
-  width: 140px;
-  height: 140px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+        h1 {
+            margin-top: 0;
+            font-size: 48px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 40px #f0f;
+        }
 
-#joystick-base {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 2px solid #0f0;
-  background: rgba(0,255,0,0.08);
-  position: relative;
-  touch-action: none;
-}
+        .tutorial-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #e0e0ff;
+        }
 
-#joystick-stick {
-  width: 50px;
-  height: 50px;
-  background: #0f0;
-  border-radius: 50%;
-  position: absolute;
-  top: 35px;
-  left: 35px;
-  transition: transform 0.05s linear;
-}
+        .key {
+            display: inline-block;
+            background: #222;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            color: #0ff;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #111;
+            margin: 0 5px;
+        }
 
-button {
-  margin: 5px;
-  padding: 6px 10px;
-  background: #0f0;
-  border: none;
-  font-weight: bold;
-}
-</style>
+        button {
+            background: transparent;
+            color: #0ff;
+            border: 2px solid #0ff;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
-
 <body>
 
-<h2>🐍 Snake Joystick Game</h2>
+    <canvas id="gameCanvas"></canvas>
 
-<div class="hud">
-  <div>Score: <span id="score">0</span></div>
-  <div>High: <span id="high">0</span></div>
-</div>
+    <div id="ui-layer">
+        <div id="score-display">SCORE: <span id="score">0</span></div>
 
-<canvas id="game" width="400" height="400"></canvas>
+        <!-- Start / Tutorial Screen -->
+        <div id="start-screen" class="panel">
+            <h1>Neon Surge</h1>
+            <div class="tutorial-text">
+                <p><strong>HOW TO PLAY:</strong></p>
+                <p>Move Mouse to steer your ship.</p>
+                <p>Hold <span class="key">Left Click</span> or <span class="key">Spacebar</span> to shoot.</p>
+                <p>Destroy the glowing shapes. Don't let them touch you!</p>
+            </div>
+            <button id="start-btn">Initialize</button>
+        </div>
 
-<!-- JOYSTICK -->
-<div id="joystick-area">
-  <div id="joystick-base">
-    <div id="joystick-stick"></div>
-  </div>
-</div>
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="panel hidden">
+            <h1 style="text-shadow: 0 0 10px #f00, 0 0 20px #f00, 0 0 40px #f00;">SYSTEM FAILURE</h1>
+            <div class="tutorial-text">
+                <p>Final Score: <strong id="final-score" style="color: #0ff; font-size: 24px;">0</strong></p>
+            </div>
+            <button id="restart-btn">Reboot System</button>
+        </div>
+    </div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const scoreDisplay = document.getElementById('score-display');
+        const scoreElement = document.getElementById('score');
+        const finalScoreElement = document.getElementById('final-score');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
 
-const box = 20;
+        // Game State
+        let gameActive = false;
+        let score = 0;
+        let animationId;
+        let spawnInterval;
 
-let snake, food, direction, score, high, speed, game, paused;
+        // Entities
+        let player;
+        let projectiles = [];
+        let enemies = [];
+        let particles = [];
+        let stars = [];
 
-high = localStorage.getItem("snakeHigh") || 0;
-document.getElementById("high").innerText = high;
+        // Input
+        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let isShooting = false;
+        let lastShotTime = 0;
+        const fireRate = 100; // ms between shots
 
-function init() {
-  snake = [{ x: 9 * box, y: 9 * box }];
-  direction = "RIGHT";
-  score = 0;
-  speed = 150;
-  paused = false;
+        // Resize Canvas
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
-  food = randomFood();
+        // Event Listeners
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
 
-  document.getElementById("score").innerText = score;
+        window.addEventListener('mousedown', () => isShooting = true);
+        window.addEventListener('mouseup', () => isShooting = false);
+        window.addEventListener('keydown', (e) => { if(e.code === 'Space') isShooting = true; });
+        window.addEventListener('keyup', (e) => { if(e.code === 'Space') isShooting = false; });
 
-  clearInterval(game);
-  game = setInterval(draw, speed);
-}
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
 
-function randomFood() {
-  return {
-    x: Math.floor(Math.random() * 20) * box,
-    y: Math.floor(Math.random() * 20) * box
-  };
-}
+        // Classes
+        class Player {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.radius = 15;
+                this.color = '#0ff';
+                this.velocity = { x: 0, y: 0 };
+                this.friction = 0.85;
+            }
 
-function collision(head, arr) {
-  return arr.some(p => p.x === head.x && p.y === head.y);
-}
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = this.color;
+                ctx.stroke();
 
-// ================= JOYSTICK =================
-let joyBase = document.getElementById("joystick-base");
-let joyStick = document.getElementById("joystick-stick");
+                // Draw ship core
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius / 2, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
 
-let dragging = false;
-let joyX = 0;
-let joyY = 0;
+            update() {
+                // Smooth follow mouse
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                this.velocity.x += dx * 0.05;
+                this.velocity.y += dy * 0.05;
 
-const maxDist = 40;
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
 
-function setStick(x, y) {
-  joyStick.style.transform = `translate(${x}px, ${y}px)`;
-}
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
 
-joyBase.addEventListener("pointerdown", (e) => {
-  dragging = true;
-  joyBase.setPointerCapture(e.pointerId);
-});
+                // Keep in bounds
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
 
-joyBase.addEventListener("pointerup", () => {
-  dragging = false;
-  startReset();
-});
+                this.draw();
+            }
+        }
 
-joyBase.addEventListener("pointercancel", () => {
-  dragging = false;
-  startReset();
-});
+        class Projectile {
+            constructor(x, y, velocity) {
+                this.x = x;
+                this.y = y;
+                this.velocity = velocity;
+                this.radius = 4;
+                this.color = '#ff0';
+            }
 
-joyBase.addEventListener("pointermove", (e) => {
-  if (!dragging) return;
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                ctx.restore();
+            }
 
-  let rect = joyBase.getBoundingClientRect();
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.draw();
+            }
+        }
 
-  let x = e.clientX - rect.left - rect.width / 2;
-  let y = e.clientY - rect.top - rect.height / 2;
+        class Enemy {
+            constructor(x, y, radius, color, velocity) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.velocity = velocity;
+                this.edges = Math.floor(Math.random() * 4) + 3; // Triangles, squares, pentagons, hexagons
+                this.angle = 0;
+                this.spin = (Math.random() - 0.5) * 0.1;
+            }
 
-  let dist = Math.sqrt(x*x + y*y);
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                
+                ctx.beginPath();
+                for (let i = 0; i < this.edges; i++) {
+                    const a = (Math.PI * 2 * i) / this.edges;
+                    const px = Math.cos(a) * this.radius;
+                    const py = Math.sin(a) * this.radius;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = this.color;
+                ctx.stroke();
+                
+                // Inner glow
+                ctx.fillStyle = this.color.replace(')', ', 0.2)').replace('rgb', 'rgba');
+                ctx.fill();
+                ctx.restore();
+            }
 
-  if (dist > maxDist) {
-    x = (x / dist) * maxDist;
-    y = (y / dist) * maxDist;
-  }
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.angle += this.spin;
+                this.draw();
+            }
+        }
 
-  joyX = x / maxDist;
-  joyY = y / maxDist;
+        class Particle {
+            constructor(x, y, velocity, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.velocity = velocity;
+                this.radius = radius;
+                this.color = color;
+                this.alpha = 1;
+                this.friction = 0.98;
+            }
 
-  setStick(x, y);
-});
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
 
-// smooth retract
-let resetAnim;
-function startReset() {
-  cancelAnimationFrame(resetAnim);
+            update() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.015;
+                this.draw();
+            }
+        }
 
-  function animate() {
-    joyX *= 0.8;
-    joyY *= 0.8;
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 1.5;
+                this.alpha = Math.random();
+                this.speed = Math.random() * 0.5 + 0.1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) {
+                    this.y = 0;
+                    this.x = Math.random() * canvas.width;
+                }
+                this.draw();
+            }
+        }
 
-    let x = joyX * maxDist;
-    let y = joyY * maxDist;
+        // Functions
+        function initStars() {
+            stars = [];
+            for(let i=0; i<100; i++) {
+                stars.push(new Star());
+            }
+        }
 
-    setStick(x, y);
+        function spawnEnemies() {
+            spawnInterval = setInterval(() => {
+                const radius = Math.random() * 20 + 15;
+                let x, y;
 
-    if (Math.abs(x) < 0.5 && Math.abs(y) < 0.5) {
-      setStick(0, 0);
-      joyX = 0;
-      joyY = 0;
-      return;
-    }
+                if (Math.random() < 0.5) {
+                    x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+                    y = Math.random() * canvas.height;
+                } else {
+                    x = Math.random() * canvas.width;
+                    y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
+                }
 
-    resetAnim = requestAnimationFrame(animate);
-  }
+                const colors = ['#f0f', '#0f0', '#f00', '#ff8800'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x);
+                
+                // Increase difficulty based on score
+                const speedMult = 1 + (score * 0.002);
+                const velocity = {
+                    x: Math.cos(angle) * (Math.random() * 1.5 + 0.5) * speedMult,
+                    y: Math.sin(angle) * (Math.random() * 1.5 + 0.5) * speedMult
+                };
 
-  animate();
-}
+                enemies.push(new Enemy(x, y, radius, color, velocity));
+            }, 1000);
+        }
 
-// convert joystick to direction
-function updateDirectionFromJoystick() {
-  if (Math.abs(joyX) > Math.abs(joyY)) {
-    if (joyX > 0.5 && direction !== "LEFT") direction = "RIGHT";
-    else if (joyX < -0.5 && direction !== "RIGHT") direction = "LEFT";
-  } else {
-    if (joyY > 0.5 && direction !== "UP") direction = "DOWN";
-    else if (joyY < -0.5 && direction !== "DOWN") direction = "UP";
-  }
-}
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                const velocity = {
+                    x: (Math.random() - 0.5) * (Math.random() * 6),
+                    y: (Math.random() - 0.5) * (Math.random() * 6)
+                };
+                particles.push(new Particle(x, y, velocity, Math.random() * 3 + 1, color));
+            }
+        }
 
-// ================= GAME =================
-function draw() {
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, 400, 400);
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            scoreDisplay.style.display = 'block';
+            
+            player = new Player();
+            projectiles = [];
+            enemies = [];
+            particles = [];
+            score = 0;
+            scoreElement.innerText = score;
+            gameActive = true;
+            isShooting = false;
+            
+            initStars();
+            spawnEnemies();
+            animate();
+        }
 
-  updateDirectionFromJoystick();
+        function gameOver() {
+            gameActive = false;
+            cancelAnimationFrame(animationId);
+            clearInterval(spawnInterval);
+            
+            // Death explosion
+            createExplosion(player.x, player.y, player.color);
+            createExplosion(player.x, player.y, '#fff');
 
-  snake.forEach((p, i) => {
-    ctx.fillStyle = i === 0 ? "#0f0" : "#0a0";
-    ctx.fillRect(p.x, p.y, box, box);
-  });
+            // Draw one last frame to show player exploding
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.update());
 
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
+            setTimeout(() => {
+                gameOverScreen.classList.remove('hidden');
+                finalScoreElement.innerText = score;
+                scoreDisplay.style.display = 'none';
+            }, 1000);
+        }
 
-  let headX = snake[0].x;
-  let headY = snake[0].y;
+        function handleShooting() {
+            const currentTime = Date.now();
+            if (isShooting && currentTime - lastShotTime > fireRate) {
+                // Shoot straight up relative to screen
+                const velocity = { x: 0, y: -15 };
+                projectiles.push(new Projectile(player.x, player.y - player.radius, velocity));
+                
+                // Add slight recoil effect
+                player.y += 2;
+                lastShotTime = currentTime;
+            }
+        }
 
-  if (direction === "LEFT") headX -= box;
-  if (direction === "RIGHT") headX += box;
-  if (direction === "UP") headY -= box;
-  if (direction === "DOWN") headY += box;
+        function animate() {
+            if (!gameActive) return;
+            animationId = requestAnimationFrame(animate);
 
-  let newHead = { x: headX, y: headY };
+            // Trails effect
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (
-    headX < 0 || headY < 0 ||
-    headX >= 400 || headY >= 400 ||
-    collision(newHead, snake)
-  ) {
-    if (score > high) {
-      high = score;
-      localStorage.setItem("snakeHigh", high);
-      document.getElementById("high").innerText = high;
-    }
-    init();
-    return;
-  }
+            // Background
+            stars.forEach(star => star.update());
 
-  snake.unshift(newHead);
+            player.update();
+            handleShooting();
 
-  if (headX === food.x && headY === food.y) {
-    score++;
-    document.getElementById("score").innerText = score;
-    food = randomFood();
+            // Render Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    p.update();
+                }
+            }
 
-    if (score % 3 === 0 && speed > 60) {
-      speed -= 10;
-      clearInterval(game);
-      game = setInterval(draw, speed);
-    }
-  } else {
-    snake.pop();
-  }
-}
+            // Render Projectiles
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const proj = projectiles[i];
+                proj.update();
 
-// lock screen attempt
-document.addEventListener("touchstart", () => {
-  const el = document.documentElement;
-  if (el.requestFullscreen) el.requestFullscreen();
-}, { once: true });
+                // Remove off-screen
+                if (proj.x < 0 || proj.x > canvas.width || proj.y < 0 || proj.y > canvas.height) {
+                    projectiles.splice(i, 1);
+                }
+            }
 
-init();
-</script>
+            // Render Enemies & Collision Detection
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                enemy.update();
 
+                // Enemy vs Player collision
+                const distPlayer = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                if (distPlayer - enemy.radius - player.radius < 0) {
+                    gameOver();
+                    return; // Stop processing to prevent errors
+                }
+
+                // Enemy vs Projectile collision
+                for (let j = projectiles.length - 1; j >= 0; j--) {
+                    const proj = projectiles[j];
+                    const distProj = Math.hypot(proj.x - enemy.x, proj.y - enemy.y);
+
+                    if (distProj - enemy.radius - proj.radius < 0) {
+                        createExplosion(enemy.x, enemy.y, enemy.color);
+                        score += 10;
+                        scoreElement.innerText = score;
+                        
+                        enemies.splice(i, 1);
+                        projectiles.splice(j, 1);
+                        break; // Move to next enemy
+                    }
+                }
+            }
+        }
+
+        // Draw initial static background
+        initStars();
+        ctx.fillStyle = '#050510';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(star => star.draw());
+
+    </script>
 </body>
 </html>
