@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Snake Game Ultimate</title>
+<title>Snake Game - Joystick Edition</title>
 
 <style>
 html, body {
@@ -11,55 +11,71 @@ html, body {
   padding: 0;
   overflow: hidden;
   height: 100%;
-  touch-action: none;
   background: #111;
   font-family: Arial;
   color: white;
-}
-
-body {
+  touch-action: none;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+h2 { margin: 10px 0; }
+
 canvas {
   background: black;
   border: 2px solid #0f0;
-  margin-top: 10px;
 }
 
 .hud {
   display: flex;
   gap: 20px;
-  margin-top: 10px;
+  margin: 8px;
+}
+
+#joystick-area {
+  margin-top: 15px;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#joystick-base {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid #0f0;
+  background: rgba(0,255,0,0.08);
+  position: relative;
+  touch-action: none;
+}
+
+#joystick-stick {
+  width: 50px;
+  height: 50px;
+  background: #0f0;
+  border-radius: 50%;
+  position: absolute;
+  top: 35px;
+  left: 35px;
+  transition: transform 0.05s linear;
 }
 
 button {
-  padding: 8px 12px;
+  margin: 5px;
+  padding: 6px 10px;
   background: #0f0;
   border: none;
   font-weight: bold;
-}
-
-.controls {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(3, 60px);
-  gap: 5px;
-}
-
-.controls button {
-  width: 60px;
-  height: 60px;
-  font-size: 18px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🐍 Snake Game</h2>
+<h2>🐍 Snake Joystick Game</h2>
 
 <div class="hud">
   <div>Score: <span id="score">0</span></div>
@@ -68,19 +84,11 @@ button {
 
 <canvas id="game" width="400" height="400"></canvas>
 
-<div class="hud">
-  <button onclick="restart()">Restart</button>
-  <button onclick="togglePause()">Pause</button>
-</div>
-
-<div class="controls">
-  <div></div>
-  <button onclick="setDir('UP')">⬆️</button>
-  <div></div>
-
-  <button onclick="setDir('LEFT')">⬅️</button>
-  <button onclick="setDir('DOWN')">⬇️</button>
-  <button onclick="setDir('RIGHT')">➡️</button>
+<!-- JOYSTICK -->
+<div id="joystick-area">
+  <div id="joystick-base">
+    <div id="joystick-stick"></div>
+  </div>
 </div>
 
 <script>
@@ -89,7 +97,7 @@ const ctx = canvas.getContext("2d");
 
 const box = 20;
 
-let snake, food, direction, score, high, game, speed, paused;
+let snake, food, direction, score, high, speed, game, paused;
 
 high = localStorage.getItem("snakeHigh") || 0;
 document.getElementById("high").innerText = high;
@@ -116,83 +124,104 @@ function randomFood() {
   };
 }
 
-function setDir(dir) {
-  if (dir === "LEFT" && direction !== "RIGHT") direction = dir;
-  if (dir === "RIGHT" && direction !== "LEFT") direction = dir;
-  if (dir === "UP" && direction !== "DOWN") direction = dir;
-  if (dir === "DOWN" && direction !== "UP") direction = dir;
-}
-
-document.addEventListener("keydown", e => {
-  if (e.key === " ") return togglePause();
-
-  if (e.keyCode === 37) setDir("LEFT");
-  if (e.keyCode === 38) setDir("UP");
-  if (e.keyCode === 39) setDir("RIGHT");
-  if (e.keyCode === 40) setDir("DOWN");
-});
-
-// ===== SWIPE CONTROLS (IMPROVED) =====
-let startX = 0;
-let startY = 0;
-const threshold = 30;
-
-document.addEventListener("touchstart", e => {
-  const t = e.touches[0];
-  startX = t.clientX;
-  startY = t.clientY;
-});
-
-document.addEventListener("touchend", e => {
-  const t = e.changedTouches[0];
-
-  let dx = t.clientX - startX;
-  let dy = t.clientY - startY;
-
-  if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
-
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 0) setDir("RIGHT");
-    else setDir("LEFT");
-  } else {
-    if (dy > 0) setDir("DOWN");
-    else setDir("UP");
-  }
-});
-
-// ===== LOCK SCREEN / FULLSCREEN =====
-function lockScreen() {
-  const elem = document.documentElement;
-
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  }
-
-  if (screen.orientation && screen.orientation.lock) {
-    screen.orientation.lock("portrait").catch(() => {});
-  }
-}
-
-document.addEventListener("touchstart", lockScreen, { once: true });
-document.addEventListener("click", lockScreen, { once: true });
-
-function togglePause() {
-  paused = !paused;
-}
-
-function restart() {
-  init();
-}
-
 function collision(head, arr) {
   return arr.some(p => p.x === head.x && p.y === head.y);
 }
 
-function draw() {
-  if (paused) return;
+// ================= JOYSTICK =================
+let joyBase = document.getElementById("joystick-base");
+let joyStick = document.getElementById("joystick-stick");
 
+let dragging = false;
+let joyX = 0;
+let joyY = 0;
+
+const maxDist = 40;
+
+function setStick(x, y) {
+  joyStick.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+joyBase.addEventListener("pointerdown", (e) => {
+  dragging = true;
+  joyBase.setPointerCapture(e.pointerId);
+});
+
+joyBase.addEventListener("pointerup", () => {
+  dragging = false;
+  startReset();
+});
+
+joyBase.addEventListener("pointercancel", () => {
+  dragging = false;
+  startReset();
+});
+
+joyBase.addEventListener("pointermove", (e) => {
+  if (!dragging) return;
+
+  let rect = joyBase.getBoundingClientRect();
+
+  let x = e.clientX - rect.left - rect.width / 2;
+  let y = e.clientY - rect.top - rect.height / 2;
+
+  let dist = Math.sqrt(x*x + y*y);
+
+  if (dist > maxDist) {
+    x = (x / dist) * maxDist;
+    y = (y / dist) * maxDist;
+  }
+
+  joyX = x / maxDist;
+  joyY = y / maxDist;
+
+  setStick(x, y);
+});
+
+// smooth retract
+let resetAnim;
+function startReset() {
+  cancelAnimationFrame(resetAnim);
+
+  function animate() {
+    joyX *= 0.8;
+    joyY *= 0.8;
+
+    let x = joyX * maxDist;
+    let y = joyY * maxDist;
+
+    setStick(x, y);
+
+    if (Math.abs(x) < 0.5 && Math.abs(y) < 0.5) {
+      setStick(0, 0);
+      joyX = 0;
+      joyY = 0;
+      return;
+    }
+
+    resetAnim = requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+// convert joystick to direction
+function updateDirectionFromJoystick() {
+  if (Math.abs(joyX) > Math.abs(joyY)) {
+    if (joyX > 0.5 && direction !== "LEFT") direction = "RIGHT";
+    else if (joyX < -0.5 && direction !== "RIGHT") direction = "LEFT";
+  } else {
+    if (joyY > 0.5 && direction !== "UP") direction = "DOWN";
+    else if (joyY < -0.5 && direction !== "DOWN") direction = "UP";
+  }
+}
+
+// ================= GAME =================
+function draw() {
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, 400, 400);
+
+  updateDirectionFromJoystick();
 
   snake.forEach((p, i) => {
     ctx.fillStyle = i === 0 ? "#0f0" : "#0a0";
@@ -210,9 +239,8 @@ function draw() {
   if (direction === "UP") headY -= box;
   if (direction === "DOWN") headY += box;
 
-  const newHead = { x: headX, y: headY };
+  let newHead = { x: headX, y: headY };
 
-  // GAME OVER
   if (
     headX < 0 || headY < 0 ||
     headX >= 400 || headY >= 400 ||
@@ -243,6 +271,12 @@ function draw() {
     snake.pop();
   }
 }
+
+// lock screen attempt
+document.addEventListener("touchstart", () => {
+  const el = document.documentElement;
+  if (el.requestFullscreen) el.requestFullscreen();
+}, { once: true });
 
 init();
 </script>
