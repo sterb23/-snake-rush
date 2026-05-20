@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Ultimate Polished</title>
+<title>Snake Grid Pro</title>
 
 <style>
 html, body {
@@ -12,7 +12,7 @@ html, body {
   overflow: hidden;
   height: 100%;
   touch-action: none;
-  background: radial-gradient(circle, #050505, #000);
+  background: radial-gradient(circle, #070707, #000);
   font-family: Arial;
   color: white;
 }
@@ -32,9 +32,10 @@ canvas {
   top: 10px;
   left: 10px;
   font-size: 14px;
+  text-shadow: 0 0 10px #00ffcc;
 }
 
-/* START */
+/* START SCREEN */
 #startScreen {
   position: fixed;
   width: 100%;
@@ -47,11 +48,20 @@ canvas {
   z-index: 10;
 }
 
+button {
+  padding: 12px 25px;
+  background: #00ffcc;
+  border: none;
+  border-radius: 10px;
+  color: black;
+  font-weight: bold;
+}
+
 /* JOYSTICK */
 #joy {
   position: absolute;
-  bottom: 30px;
-  left: 30px;
+  bottom: 25px;
+  left: 25px;
   width: 110px;
   height: 110px;
   border-radius: 50%;
@@ -73,22 +83,19 @@ canvas {
 <body>
 
 <div id="startScreen">
-  <h1>🐍 Snake Ultimate Polished</h1>
-  <button onclick="startGame()">Play</button>
+  <h1>🐍 Snake Grid Pro</h1>
+  <button onclick="startGame()">Start</button>
 </div>
 
 <div id="ui">
 Score: <span id="score">0</span><br>
 High: <span id="high">0</span><br>
-Skin: <span id="skin">Neon</span>
+Speed: <span id="speed">1</span>
 </div>
 
 <canvas id="game" width="420" height="420"></canvas>
 
 <div id="joy"><div id="stick"></div></div>
-
-<audio id="eat" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
-<audio id="die" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 <script>
 const canvas = document.getElementById("game");
@@ -96,125 +103,172 @@ const ctx = canvas.getContext("2d");
 
 const box = 20;
 
-let snake, dir, food, particles;
+let snake, dir, food;
 let score = 0;
 let high = localStorage.getItem("snakeHigh") || 0;
 
-let skins = ["#00ffcc","#ff4444","#ffcc00","#aa66ff"];
-let skinIndex = 0;
-
-let speed = 140;
+let speed = 150;
+let level = 1;
 let loop;
-
-let shake = 0;
 
 document.getElementById("high").innerText = high;
 
 /* INIT */
-function init(){
-  snake=[{x:10*box,y:10*box}];
-  dir="RIGHT";
-  food=spawnFood();
-  particles=[];
-  score=0;
-  shake=0;
+function init() {
+  snake = [{ x: 10 * box, y: 10 * box }];
+  dir = "RIGHT";
+  food = spawnFood();
+  score = 0;
+  speed = 150;
+  level = 1;
   updateUI();
 }
 
-/* FOOD */
-function spawnFood(){
+/* SAFE FOOD */
+function spawnFood() {
   return {
-    x:Math.floor(Math.random()*21)*box,
-    y:Math.floor(Math.random()*21)*box
+    x: Math.floor(Math.random() * (canvas.width / box)) * box,
+    y: Math.floor(Math.random() * (canvas.height / box)) * box
   };
 }
 
 /* CONTROLS */
-document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft") dir="LEFT";
-  if(e.key==="ArrowRight") dir="RIGHT";
-  if(e.key==="ArrowUp") dir="UP";
-  if(e.key==="ArrowDown") dir="DOWN";
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") dir = "LEFT";
+  if (e.key === "ArrowRight") dir = "RIGHT";
+  if (e.key === "ArrowUp") dir = "UP";
+  if (e.key === "ArrowDown") dir = "DOWN";
+});
+
+/* SWIPE */
+let sx, sy;
+
+document.addEventListener("touchstart", e => {
+  sx = e.touches[0].clientX;
+  sy = e.touches[0].clientY;
+});
+
+document.addEventListener("touchend", e => {
+  let dx = e.changedTouches[0].clientX - sx;
+  let dy = e.changedTouches[0].clientY - sy;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0) dir = "RIGHT";
+    else dir = "LEFT";
+  } else {
+    if (dy > 0) dir = "DOWN";
+    else dir = "UP";
+  }
 });
 
 /* JOYSTICK */
-let joy=document.getElementById("joy");
-let stick=document.getElementById("stick");
+let joy = document.getElementById("joy");
+let stick = document.getElementById("stick");
 
-joy.addEventListener("touchmove",e=>{
-  let t=e.touches[0];
-  let r=joy.getBoundingClientRect();
+joy.addEventListener("touchmove", e => {
+  let t = e.touches[0];
+  let r = joy.getBoundingClientRect();
 
-  let x=t.clientX-r.left-55;
-  let y=t.clientY-r.top-55;
+  let x = t.clientX - r.left - 55;
+  let y = t.clientY - r.top - 55;
 
-  stick.style.transform=`translate(${x}px,${y}px)`;
+  stick.style.transform = `translate(${x}px,${y}px)`;
 
-  if(Math.abs(x)>Math.abs(y)){
-    dir=x>0?"RIGHT":"LEFT";
+  if (Math.abs(x) > Math.abs(y)) {
+    dir = x > 0 ? "RIGHT" : "LEFT";
   } else {
-    dir=y>0?"DOWN":"UP";
+    dir = y > 0 ? "DOWN" : "UP";
   }
 });
 
-/* PARTICLES */
-function burst(x,y,color){
-  for(let i=0;i<10;i++){
-    particles.push({
-      x,y,
-      dx:(Math.random()-0.5)*4,
-      dy:(Math.random()-0.5)*4,
-      life:20,
-      color
-    });
+/* GRID */
+function drawGrid() {
+  ctx.strokeStyle = "rgba(0,255,204,0.18)";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i <= canvas.width; i += box) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
+    ctx.stroke();
   }
 }
 
-/* GAME */
-function game(){
+/* SNAKE (MARKER STYLE) */
+function drawSnake() {
+  ctx.lineWidth = 14;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#00ffcc";
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00ffcc";
 
-  ctx.save();
-  if(shake>0){
-    let sx=(Math.random()-0.5)*shake;
-    let sy=(Math.random()-0.5)*shake;
-    ctx.translate(sx,sy);
-    shake*=0.9;
+  ctx.beginPath();
+  for (let i = 0; i < snake.length; i++) {
+    let s = snake[i];
+    if (i === 0) ctx.moveTo(s.x + 10, s.y + 10);
+    else ctx.lineTo(s.x + 10, s.y + 10);
   }
+  ctx.stroke();
 
-  ctx.fillStyle="rgba(0,0,0,0.35)";
-  ctx.fillRect(0,0,420,420);
+  ctx.shadowBlur = 0;
+}
 
-  let head={...snake[0]};
+/* FOOD */
+function drawFood() {
+  let pulse = Math.sin(Date.now() / 200) * 2;
 
-  if(dir==="RIGHT") head.x+=box;
-  if(dir==="LEFT") head.x-=box;
-  if(dir==="UP") head.y-=box;
-  if(dir==="DOWN") head.y+=box;
+  let grad = ctx.createRadialGradient(
+    food.x + 10, food.y + 10, 2,
+    food.x + 10, food.y + 10, 15 + pulse
+  );
 
-  if(head.x<0||head.y<0||head.x>=420||head.y>=420) return die();
+  grad.addColorStop(0, "#ff5555");
+  grad.addColorStop(1, "#aa0000");
 
-  for(let s of snake){
-    if(s.x===head.x&&s.y===head.y) return die();
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(food.x + 10, food.y + 10, 10 + pulse, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/* GAME LOOP */
+function game() {
+
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawGrid();
+
+  let head = { ...snake[0] };
+
+  if (dir === "RIGHT") head.x += box;
+  if (dir === "LEFT") head.x -= box;
+  if (dir === "UP") head.y -= box;
+  if (dir === "DOWN") head.y += box;
+
+  if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height)
+    return die();
+
+  for (let s of snake) {
+    if (s.x === head.x && s.y === head.y) return die();
   }
 
   snake.unshift(head);
 
-  if(head.x===food.x&&head.y===food.y){
+  if (head.x === food.x && head.y === food.y) {
     score++;
-    document.getElementById("eat").play();
+    food = spawnFood();
 
-    burst(food.x+10,food.y+10,"#ff5555");
-    food=spawnFood();
-
-    if(score%5===0){
-      skinIndex=(skinIndex+1)%skins.length;
-      document.getElementById("skin").innerText="Skin "+(skinIndex+1);
-    }
-
-    if(score%3===0 && speed>70){
-      speed-=10;
+    if (score % 3 === 0 && speed > 60) {
+      level++;
+      speed -= 15;
       clearInterval(loop);
-      loop=setInterval(game,speed);
+      loop = setInterval(game, speed);
     }
 
   } else {
@@ -223,78 +277,34 @@ function game(){
 
   drawFood();
   drawSnake();
-  drawParticles();
 
   updateUI();
-
-  ctx.restore();
-}
-
-/* DRAW SNAKE */
-function drawSnake(){
-  ctx.lineWidth=14;
-  ctx.lineCap="round";
-  ctx.strokeStyle=skins[skinIndex];
-  ctx.shadowBlur=20;
-  ctx.shadowColor=skins[skinIndex];
-
-  ctx.beginPath();
-  for(let i=0;i<snake.length;i++){
-    let s=snake[i];
-    if(i===0) ctx.moveTo(s.x+10,s.y+10);
-    else ctx.lineTo(s.x+10,s.y+10);
-  }
-  ctx.stroke();
-  ctx.shadowBlur=0;
-}
-
-/* FOOD */
-function drawFood(){
-  ctx.fillStyle="#ff4444";
-  ctx.beginPath();
-  ctx.arc(food.x+10,food.y+10,10,0,Math.PI*2);
-  ctx.fill();
-}
-
-/* PARTICLES */
-function drawParticles(){
-  particles.forEach((p,i)=>{
-    p.x+=p.dx;
-    p.y+=p.dy;
-    p.life--;
-
-    ctx.fillStyle=p.color;
-    ctx.fillRect(p.x,p.y,3,3);
-
-    if(p.life<=0) particles.splice(i,1);
-  });
 }
 
 /* UI */
-function updateUI(){
-  document.getElementById("score").innerText=score;
+function updateUI() {
+  document.getElementById("score").innerText = score;
+  document.getElementById("speed").innerText = level;
 
-  if(score>high){
-    high=score;
-    localStorage.setItem("snakeHigh",high);
-    document.getElementById("high").innerText=high;
+  if (score > high) {
+    high = score;
+    localStorage.setItem("snakeHigh", high);
+    document.getElementById("high").innerText = high;
   }
 }
 
 /* START */
-function startGame(){
-  document.getElementById("startScreen").style.display="none";
+function startGame() {
+  document.getElementById("startScreen").style.display = "none";
   init();
-  loop=setInterval(game,speed);
+  loop = setInterval(game, speed);
 }
 
-/* DIE */
-function die(){
-  shake=15;
-  document.getElementById("die").play();
+/* GAME OVER */
+function die() {
   clearInterval(loop);
-  alert("Game Over! Score: "+score);
-  document.getElementById("startScreen").style.display="flex";
+  alert("Game Over! Score: " + score);
+  document.getElementById("startScreen").style.display = "flex";
 }
 </script>
 
