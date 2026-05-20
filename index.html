@@ -3,27 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Snake Fixed</title>
+<title>Neon Snake Mobile</title>
 
 <style>
 html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: black;
+  background: #000;
   touch-action: none;
+  font-family: Arial;
 }
 
+/* CANVAS */
 canvas {
   display: block;
   margin: auto;
   background: #000;
-  border: 2px solid #00ffcc;
+}
+
+/* UI */
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #00ffcc;
+  font-size: 14px;
+}
+
+/* START SCREEN */
+#start {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  background: #00ffcc;
+  font-weight: bold;
+  border-radius: 8px;
 }
 </style>
 </head>
 
 <body>
+
+<div id="start">
+  <h1>🐍 Neon Snake</h1>
+  <button onclick="startGame()">Play</button>
+</div>
+
+<div id="ui">
+Score: <span id="score">0</span>
+</div>
 
 <canvas id="game"></canvas>
 
@@ -35,12 +75,12 @@ const ctx = canvas.getContext("2d");
 const box = 20;
 
 let cols, rows;
-let snake = [];
-let food = {};
-let dir = "RIGHT";
+let snake, food, dir;
+let score = 0;
+let speed = 150;
 let loop;
 
-/* 🔥 ALWAYS VALID CANVAS */
+/* RESIZE */
 function resize() {
   canvas.width = Math.floor(window.innerWidth / box) * box;
   canvas.height = Math.floor(window.innerHeight / box) * box;
@@ -48,24 +88,27 @@ function resize() {
   cols = canvas.width / box;
   rows = canvas.height / box;
 }
-
 window.addEventListener("resize", resize);
 resize();
 
-/* 🔥 SAFE INIT */
+/* INIT */
 function init() {
-  const cx = Math.floor(cols / 2) * box;
-  const cy = Math.floor(rows / 2) * box;
+  snake = [{
+    x: Math.floor(cols / 2) * box,
+    y: Math.floor(rows / 2) * box
+  }];
 
-  snake = [{ x: cx, y: cy }];
   dir = "RIGHT";
+  score = 0;
+  speed = 150;
+  food = spawnFood();
 
-  spawnFood();
+  updateUI();
 }
 
 /* FOOD */
 function spawnFood() {
-  food = {
+  return {
     x: Math.floor(Math.random() * cols) * box,
     y: Math.floor(Math.random() * rows) * box
   };
@@ -79,11 +122,32 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowDown") dir = "DOWN";
 });
 
+/* SWIPE */
+let sx, sy;
+
+document.addEventListener("touchstart", e => {
+  sx = e.touches[0].clientX;
+  sy = e.touches[0].clientY;
+});
+
+document.addEventListener("touchend", e => {
+  let dx = e.changedTouches[0].clientX - sx;
+  let dy = e.changedTouches[0].clientY - sy;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    dir = dx > 0 ? "RIGHT" : "LEFT";
+  } else {
+    dir = dy > 0 ? "DOWN" : "UP";
+  }
+});
+
 /* GAME */
 function game() {
 
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawGrid();
 
   let head = { ...snake[0] };
 
@@ -92,30 +156,32 @@ function game() {
   if (dir === "UP") head.y -= box;
   if (dir === "DOWN") head.y += box;
 
-  /* WALL */
-  if (
-    head.x < 0 ||
-    head.y < 0 ||
-    head.x >= canvas.width ||
-    head.y >= canvas.height
-  ) return restart();
+  if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height)
+    return die();
 
-  /* SELF */
   for (let s of snake) {
-    if (s.x === head.x && s.y === head.y) return restart();
+    if (s.x === head.x && s.y === head.y) return die();
   }
 
   snake.unshift(head);
 
   if (head.x === food.x && head.y === food.y) {
-    spawnFood();
+    score++;
+    food = spawnFood();
+
+    if (score % 3 === 0 && speed > 60) {
+      speed -= 15;
+      clearInterval(loop);
+      loop = setInterval(game, speed);
+    }
   } else {
     snake.pop();
   }
 
-  drawGrid();
   drawFood();
   drawSnake();
+
+  updateUI();
 }
 
 /* GRID */
@@ -150,11 +216,8 @@ function drawSnake() {
   for (let i = 0; i < snake.length; i++) {
     let s = snake[i];
 
-    if (i === 0) {
-      ctx.moveTo(s.x + box / 2, s.y + box / 2);
-    } else {
-      ctx.lineTo(s.x + box / 2, s.y + box / 2);
-    }
+    if (i === 0) ctx.moveTo(s.x + box / 2, s.y + box / 2);
+    else ctx.lineTo(s.x + box / 2, s.y + box / 2);
   }
 
   ctx.stroke();
@@ -163,29 +226,30 @@ function drawSnake() {
 
 /* FOOD */
 function drawFood() {
-  ctx.fillStyle = "red";
+  ctx.fillStyle = "#ff4444";
   ctx.beginPath();
   ctx.arc(food.x + box / 2, food.y + box / 2, 8, 0, Math.PI * 2);
   ctx.fill();
 }
 
-/* START SAFE */
-function start() {
-  resize();   // MUST be first
-  init();     // MUST be after resize
-
-  clearInterval(loop);
-  loop = setInterval(game, 120);
+/* UI */
+function updateUI() {
+  document.getElementById("score").innerText = score;
 }
 
-/* RESTART */
-function restart() {
-  clearInterval(loop);
-  start();
+/* START */
+function startGame() {
+  document.getElementById("start").style.display = "none";
+  init();
+  loop = setInterval(game, speed);
 }
 
-/* BOOT GAME */
-start();
+/* GAME OVER */
+function die() {
+  clearInterval(loop);
+  alert("Game Over! Score: " + score);
+  document.getElementById("start").style.display = "flex";
+}
 
 </script>
 
