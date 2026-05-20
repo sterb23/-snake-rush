@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Game</title>
+<title>Snake Game Pro</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: #0f0f0f;
+  background: #0b0b0b;
   color: white;
   display: flex;
   justify-content: center;
@@ -19,13 +19,14 @@ body {
 }
 
 canvas {
-  background: black;
+  background: #000;
   border: 2px solid #00ff99;
+  box-shadow: 0 0 20px #00ff99;
 }
 
 #ui {
-  text-align: center;
   margin-top: 10px;
+  text-align: center;
 }
 
 button {
@@ -40,17 +41,13 @@ button {
 
 #startScreen {
   position: absolute;
-  background: rgba(0,0,0,0.9);
   width: 100%;
   height: 100%;
+  background: rgba(0,0,0,0.95);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-#startScreen button {
-  font-size: 18px;
 }
 </style>
 </head>
@@ -58,8 +55,8 @@ button {
 <body>
 
 <div id="startScreen">
-  <h1>🐍 Snake Game</h1>
-  <button onclick="startGame()">Start Game</button>
+  <h1>🐍 Snake Pro</h1>
+  <button onclick="startGame()">Start</button>
 </div>
 
 <canvas id="game" width="400" height="400"></canvas>
@@ -67,8 +64,13 @@ button {
 <div id="ui">
   <div>Score: <span id="score">0</span></div>
   <div>High Score: <span id="highScore">0</span></div>
+  <div>Speed: <span id="speed">1</span></div>
   <button onclick="restart()">Restart</button>
 </div>
+
+<!-- SOUND -->
+<audio id="eatSound" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+<audio id="gameOverSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 <script>
 const canvas = document.getElementById("game");
@@ -76,20 +78,25 @@ const ctx = canvas.getContext("2d");
 
 const box = 20;
 
-let snake, direction, food, score, game;
+let snake, direction, food, bonusFood, score, speed, game;
 
-// 🏆 High score
 let highScore = localStorage.getItem("snakeHigh") || 0;
 document.getElementById("highScore").innerText = highScore;
 
-// INIT GAME
+const eatSound = document.getElementById("eatSound");
+const gameOverSound = document.getElementById("gameOverSound");
+
 function init() {
   snake = [{ x: 9 * box, y: 9 * box }];
   direction = "RIGHT";
   score = 0;
+  speed = 1;
 
   food = randomFood();
+  bonusFood = null;
+
   document.getElementById("score").innerText = score;
+  document.getElementById("speed").innerText = speed;
 }
 
 function randomFood() {
@@ -99,28 +106,25 @@ function randomFood() {
   };
 }
 
-// KEYBOARD CONTROLS
+// KEYBOARD
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-  else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-  else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-  else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+  if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+  if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
 });
 
-// 📱 SWIPE CONTROLS
+// SWIPE
 let startX, startY;
 
-document.addEventListener("touchstart", (e) => {
+document.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
 });
 
-document.addEventListener("touchend", (e) => {
-  let endX = e.changedTouches[0].clientX;
-  let endY = e.changedTouches[0].clientY;
-
-  let dx = endX - startX;
-  let dy = endY - startY;
+document.addEventListener("touchend", e => {
+  let dx = e.changedTouches[0].clientX - startX;
+  let dy = e.changedTouches[0].clientY - startY;
 
   if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0 && direction !== "LEFT") direction = "RIGHT";
@@ -146,6 +150,16 @@ function draw() {
   ctx.fillStyle = "red";
   ctx.fillRect(food.x, food.y, box, box);
 
+  // bonus food (yellow, rare)
+  if (score > 0 && score % 5 === 0) {
+    if (!bonusFood) bonusFood = randomFood();
+
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(bonusFood.x, bonusFood.y, box, box);
+  } else {
+    bonusFood = null;
+  }
+
   let headX = snake[0].x;
   let headY = snake[0].y;
 
@@ -154,12 +168,25 @@ function draw() {
   if (direction === "UP") headY -= box;
   if (direction === "DOWN") headY += box;
 
-  // eat food
+  // eat normal food
   if (headX === food.x && headY === food.y) {
     score++;
-    document.getElementById("score").innerText = score;
+    eatSound.play();
+
     food = randomFood();
-  } else {
+
+    increaseSpeed();
+  }
+
+  // eat bonus food
+  if (bonusFood && headX === bonusFood.x && headY === bonusFood.y) {
+    score += 3;
+    eatSound.play();
+    bonusFood = null;
+    increaseSpeed();
+  }
+
+  else {
     snake.pop();
   }
 
@@ -167,19 +194,29 @@ function draw() {
 
   // collision wall
   if (headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
-    endGame();
-    return;
+    return endGame();
   }
 
   // collision self
   for (let i = 0; i < snake.length; i++) {
     if (headX === snake[i].x && headY === snake[i].y) {
-      endGame();
-      return;
+      return endGame();
     }
   }
 
   snake.unshift(newHead);
+
+  document.getElementById("score").innerText = score;
+}
+
+function increaseSpeed() {
+  if (score % 3 === 0) {
+    speed++;
+    document.getElementById("speed").innerText = speed;
+
+    clearInterval(game);
+    game = setInterval(draw, Math.max(60, 120 - speed * 10));
+  }
 }
 
 function startGame() {
@@ -196,6 +233,7 @@ function restart() {
 
 function endGame() {
   clearInterval(game);
+  gameOverSound.play();
 
   if (score > highScore) {
     highScore = score;
