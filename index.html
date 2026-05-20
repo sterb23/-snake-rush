@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mobile Snake Fit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Fixed Spawn</title>
 
 <style>
 html, body {
@@ -11,89 +11,35 @@ html, body {
   padding: 0;
   overflow: hidden;
   height: 100%;
-  background: #050505;
+  background: #000;
   touch-action: none;
   font-family: Arial;
+  color: white;
 }
 
-/* CANVAS FITS SCREEN */
 canvas {
   display: block;
-  background: #000;
   margin: auto;
+  background: #000;
   border: 2px solid #00ffcc;
-  box-shadow: 0 0 25px #00ffcc;
+  box-shadow: 0 0 20px #00ffcc;
 }
 
-/* UI */
 #ui {
   position: absolute;
   top: 10px;
   left: 10px;
-  color: white;
-  font-size: 14px;
-}
-
-/* START */
-#startScreen {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.95);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
-
-button {
-  padding: 12px 20px;
-  background: #00ffcc;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-/* JOYSTICK */
-#joy {
-  position: absolute;
-  bottom: 30px;
-  left: 30px;
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  border: 2px solid #00ffcc;
-}
-
-#stick {
-  width: 40px;
-  height: 40px;
-  background: #00ffcc;
-  border-radius: 50%;
-  position: absolute;
-  top: 35px;
-  left: 35px;
-  transition: 0.15s;
 }
 </style>
 </head>
 
 <body>
 
-<div id="startScreen">
-  <h1>🐍 Mobile Snake</h1>
-  <button onclick="startGame()">Play</button>
-</div>
-
 <div id="ui">
-Score: <span id="score">0</span><br>
-High: <span id="high">0</span>
+Score: <span id="score">0</span>
 </div>
 
 <canvas id="game"></canvas>
-
-<div id="joy"><div id="stick"></div></div>
 
 <script>
 
@@ -103,38 +49,40 @@ const ctx = canvas.getContext("2d");
 const box = 20;
 
 let cols, rows;
+let snake, food, dir, score = 0;
+let loop;
 
+/* 🔥 SAFE RESIZE FIRST */
 function resize() {
   canvas.width = Math.floor(window.innerWidth / box) * box;
-  canvas.height = Math.floor((window.innerHeight - 100) / box) * box;
+  canvas.height = Math.floor(window.innerHeight / box) * box;
 
   cols = canvas.width / box;
   rows = canvas.height / box;
 }
+
 window.addEventListener("resize", resize);
 resize();
 
-/* GAME STATE */
-let snake, dir, food;
-let score = 0;
-let high = localStorage.getItem("snakeHigh") || 0;
-let loop;
-
-/* CENTER SPAWN */
+/* ✅ SAFE SPAWN (ONLY AFTER RESIZE) */
 function init() {
+  const startX = Math.floor(cols / 2);
+  const startY = Math.floor(rows / 2);
+
   snake = [{
-    x: Math.floor(cols / 2) * box,
-    y: Math.floor(rows / 2) * box
+    x: startX * box,
+    y: startY * box
   }];
 
   dir = "RIGHT";
   score = 0;
+
   food = spawnFood();
 
-  updateUI();
+  document.getElementById("score").innerText = score;
 }
 
-/* FOOD */
+/* FOOD SAFE */
 function spawnFood() {
   return {
     x: Math.floor(Math.random() * cols) * box,
@@ -142,7 +90,7 @@ function spawnFood() {
   };
 }
 
-/* KEYBOARD */
+/* CONTROLS */
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowLeft") dir = "LEFT";
   if (e.key === "ArrowRight") dir = "RIGHT";
@@ -150,63 +98,28 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowDown") dir = "DOWN";
 });
 
-/* JOYSTICK WITH RETRACT */
-let joy = document.getElementById("joy");
-let stick = document.getElementById("stick");
-
-let touching = false;
-let lastDir = "RIGHT";
-
-joy.addEventListener("touchstart", e => {
-  touching = true;
-});
-
-joy.addEventListener("touchmove", e => {
-  let t = e.touches[0];
-  let r = joy.getBoundingClientRect();
-
-  let x = t.clientX - r.left - 55;
-  let y = t.clientY - r.top - 55;
-
-  stick.style.transform = `translate(${x}px,${y}px)`;
-
-  if (Math.abs(x) > Math.abs(y)) {
-    dir = x > 0 ? "RIGHT" : "LEFT";
-  } else {
-    dir = y > 0 ? "DOWN" : "UP";
-  }
-
-  lastDir = dir;
-});
-
-joy.addEventListener("touchend", () => {
-  touching = false;
-
-  // RETRACT ANIMATION
-  stick.style.transform = "translate(0px,0px)";
-
-  // keep last direction (no sudden stop)
-  dir = lastDir;
-});
-
 /* GAME LOOP */
 function game() {
 
   ctx.fillStyle = "rgba(0,0,0,0.35)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  let head = { ...snake[0] };
+  let head = {...snake[0]};
 
   if (dir === "RIGHT") head.x += box;
   if (dir === "LEFT") head.x -= box;
   if (dir === "UP") head.y -= box;
   if (dir === "DOWN") head.y += box;
 
-  /* WALL COLLISION */
-  if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height)
-    return die();
+  /* WALLS */
+  if (
+    head.x < 0 ||
+    head.y < 0 ||
+    head.x >= canvas.width ||
+    head.y >= canvas.height
+  ) return die();
 
-  /* SELF COLLISION */
+  /* SELF */
   for (let s of snake) {
     if (s.x === head.x && s.y === head.y) return die();
   }
@@ -222,32 +135,32 @@ function game() {
   }
 
   drawGrid();
-  drawFood();
   drawSnake();
+  drawFood();
 
-  updateUI();
+  document.getElementById("score").innerText = score;
 }
 
-/* GRID FIT TO PHONE */
+/* GRID */
 function drawGrid() {
   ctx.strokeStyle = "rgba(0,255,204,0.15)";
 
   for (let i = 0; i <= canvas.width; i += box) {
     ctx.beginPath();
-    ctx.moveTo(i, 0);
-    ctx.lineTo(i, canvas.height);
+    ctx.moveTo(i,0);
+    ctx.lineTo(i,canvas.height);
     ctx.stroke();
   }
 
   for (let i = 0; i <= canvas.height; i += box) {
     ctx.beginPath();
-    ctx.moveTo(0, i);
-    ctx.lineTo(canvas.width, i);
+    ctx.moveTo(0,i);
+    ctx.lineTo(canvas.width,i);
     ctx.stroke();
   }
 }
 
-/* SNAKE (MARKER STYLE) */
+/* SNAKE */
 function drawSnake() {
   ctx.lineWidth = 14;
   ctx.lineCap = "round";
@@ -271,34 +184,25 @@ function drawSnake() {
 function drawFood() {
   ctx.fillStyle = "#ff4444";
   ctx.beginPath();
-  ctx.arc(food.x + box/2, food.y + box/2, 8, 0, Math.PI * 2);
+  ctx.arc(food.x + box/2, food.y + box/2, 8, 0, Math.PI*2);
   ctx.fill();
 }
 
-/* UI */
-function updateUI() {
-  document.getElementById("score").innerText = score;
-
-  if (score > high) {
-    high = score;
-    localStorage.setItem("snakeHigh", high);
-    document.getElementById("high").innerText = high;
-  }
+/* DIE */
+function die() {
+  clearInterval(loop);
+  alert("Game Over!");
+  start();
 }
 
 /* START */
-function startGame() {
-  document.getElementById("startScreen").style.display = "none";
-  init();
+function start() {
+  resize();   // 🔥 IMPORTANT FIX
+  init();     // 🔥 SAFE NOW
   loop = setInterval(game, 120);
 }
 
-/* GAME OVER */
-function die() {
-  clearInterval(loop);
-  alert("Game Over! Score: " + score);
-  document.getElementById("startScreen").style.display = "flex";
-}
+start();
 
 </script>
 
