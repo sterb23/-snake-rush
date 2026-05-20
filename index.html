@@ -3,32 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Game Pro</title>
+<title>Snake Pro</title>
 
 <style>
-body {
+/* 🔒 LOCK SCREEN (NO SCROLL) */
+html, body {
   margin: 0;
-  font-family: Arial;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  touch-action: none;
   background: #0b0b0b;
+  font-family: Arial;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   flex-direction: column;
 }
 
+/* GAME CANVAS */
 canvas {
-  background: #000;
+  background: black;
   border: 2px solid #00ff99;
   box-shadow: 0 0 20px #00ff99;
 }
 
+/* UI */
 #ui {
   margin-top: 10px;
   text-align: center;
 }
 
+/* BUTTON */
 button {
   padding: 10px 20px;
   margin-top: 10px;
@@ -36,11 +43,11 @@ button {
   background: #00aa66;
   color: white;
   border-radius: 8px;
-  cursor: pointer;
 }
 
+/* START SCREEN */
 #startScreen {
-  position: absolute;
+  position: fixed;
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.95);
@@ -48,17 +55,20 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 10;
 }
 </style>
 </head>
 
 <body>
 
+<!-- START SCREEN -->
 <div id="startScreen">
   <h1>🐍 Snake Pro</h1>
-  <button onclick="startGame()">Start</button>
+  <button onclick="startGame()">Start Game</button>
 </div>
 
+<!-- GAME -->
 <canvas id="game" width="400" height="400"></canvas>
 
 <div id="ui">
@@ -68,37 +78,46 @@ button {
   <button onclick="restart()">Restart</button>
 </div>
 
-<!-- SOUND -->
+<!-- SOUNDS -->
 <audio id="eatSound" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
 <audio id="gameOverSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 <script>
+
+/* 🚫 BLOCK PAGE SCROLL */
+document.addEventListener("touchmove", function(e) {
+  e.preventDefault();
+}, { passive: false });
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const box = 20;
 
-let snake, direction, food, bonusFood, score, speed, game;
-
-let highScore = localStorage.getItem("snakeHigh") || 0;
-document.getElementById("highScore").innerText = highScore;
+let snake, direction, food, bonusFood;
+let score = 0;
+let speed = 1;
+let game;
 
 const eatSound = document.getElementById("eatSound");
 const gameOverSound = document.getElementById("gameOverSound");
 
+let highScore = localStorage.getItem("snakeHigh") || 0;
+document.getElementById("highScore").innerText = highScore;
+
+/* INIT */
 function init() {
   snake = [{ x: 9 * box, y: 9 * box }];
   direction = "RIGHT";
   score = 0;
   speed = 1;
-
   food = randomFood();
   bonusFood = null;
 
-  document.getElementById("score").innerText = score;
-  document.getElementById("speed").innerText = speed;
+  updateUI();
 }
 
+/* RANDOM FOOD */
 function randomFood() {
   return {
     x: Math.floor(Math.random() * 20) * box,
@@ -106,7 +125,7 @@ function randomFood() {
   };
 }
 
-// KEYBOARD
+/* KEYBOARD */
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
   if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
@@ -114,15 +133,15 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
 });
 
-// SWIPE
+/* 📱 SWIPE CONTROLS */
 let startX, startY;
 
-document.addEventListener("touchstart", e => {
+document.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
 });
 
-document.addEventListener("touchend", e => {
+document.addEventListener("touchend", (e) => {
   let dx = e.changedTouches[0].clientX - startX;
   let dy = e.changedTouches[0].clientY - startY;
 
@@ -135,8 +154,9 @@ document.addEventListener("touchend", e => {
   }
 });
 
-// GAME LOOP
+/* GAME LOOP */
 function draw() {
+
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, 400, 400);
 
@@ -150,7 +170,7 @@ function draw() {
   ctx.fillStyle = "red";
   ctx.fillRect(food.x, food.y, box, box);
 
-  // bonus food (yellow, rare)
+  // bonus food
   if (score > 0 && score % 5 === 0) {
     if (!bonusFood) bonusFood = randomFood();
 
@@ -168,18 +188,16 @@ function draw() {
   if (direction === "UP") headY -= box;
   if (direction === "DOWN") headY += box;
 
-  // eat normal food
+  // eat food
   if (headX === food.x && headY === food.y) {
     score++;
     eatSound.play();
-
     food = randomFood();
-
     increaseSpeed();
   }
 
-  // eat bonus food
-  if (bonusFood && headX === bonusFood.x && headY === bonusFood.y) {
+  // bonus food
+  else if (bonusFood && headX === bonusFood.x && headY === bonusFood.y) {
     score += 3;
     eatSound.play();
     bonusFood = null;
@@ -192,12 +210,12 @@ function draw() {
 
   let newHead = { x: headX, y: headY };
 
-  // collision wall
+  // wall collision
   if (headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
     return endGame();
   }
 
-  // collision self
+  // self collision
   for (let i = 0; i < snake.length; i++) {
     if (headX === snake[i].x && headY === snake[i].y) {
       return endGame();
@@ -206,31 +224,39 @@ function draw() {
 
   snake.unshift(newHead);
 
-  document.getElementById("score").innerText = score;
+  updateUI();
 }
 
+/* SPEED SYSTEM */
 function increaseSpeed() {
   if (score % 3 === 0) {
     speed++;
-    document.getElementById("speed").innerText = speed;
-
     clearInterval(game);
     game = setInterval(draw, Math.max(60, 120 - speed * 10));
   }
 }
 
+/* UI */
+function updateUI() {
+  document.getElementById("score").innerText = score;
+  document.getElementById("speed").innerText = speed;
+}
+
+/* START */
 function startGame() {
   document.getElementById("startScreen").style.display = "none";
   init();
   game = setInterval(draw, 120);
 }
 
+/* RESTART */
 function restart() {
   clearInterval(game);
   init();
   game = setInterval(draw, 120);
 }
 
+/* GAME OVER */
 function endGame() {
   clearInterval(game);
   gameOverSound.play();
@@ -244,6 +270,7 @@ function endGame() {
   alert("Game Over! Score: " + score);
   document.getElementById("startScreen").style.display = "flex";
 }
+
 </script>
 
 </body>
