@@ -51,11 +51,13 @@
         .hud-stats {
             display: flex;
             gap: 20px;
+            align-items: center;
         }
 
         #level-display {
             text-shadow: 0 0 10px #f0f, 0 0 20px #f0f;
             color: #f0f;
+            text-align: right;
         }
 
         .star-points-display {
@@ -69,10 +71,11 @@
         #level-up-announcement {
             position: absolute;
             top: 30%;
-            font-size: 48px;
+            font-size: 40px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 5px;
+            text-align: center;
+            letter-spacing: 3px;
             text-shadow: 0 0 20px #fff, 0 0 40px #0ff;
             opacity: 0;
             transform: scale(0.5);
@@ -339,10 +342,10 @@
                 <div id="score-display">SCORE: <span id="score">0</span></div>
                 <div class="star-points-display" style="margin:0; font-size:24px;">⭐ <span id="hud-sp">0</span></div>
             </div>
-            <div id="level-display">LEVEL: <span id="level">1</span></div>
+            <div id="level-display">LEVEL: <span id="level">1</span><br><span style="font-size:12px; color:#aaa; text-shadow:none;">KILLS: <span id="kill-count-hud">0</span>/500</span></div>
         </div>
 
-        <div id="level-up-announcement">LEVEL UP</div>
+        <div id="level-up-announcement">LEVEL UP<br><span style="color:#ff0; font-size: 24px;">+5 STAR POINTS</span></div>
 
         <div id="start-screen" class="panel">
             <h1>Neon Surge</h1>
@@ -367,7 +370,8 @@
                 <div id="desc-touch" class="hidden"><strong>Drag anywhere</strong> to steer. Auto-fires while moving.</div>
                 <div id="desc-joystick" class="hidden">Use <strong>Virtual Joystick</strong>. Hold <strong>FIRE</strong> to shoot.</div>
                 <br>
-                <p style="color:#ff5555; font-weight:bold; font-size:12px; margin:0;">Earn 1 ⭐ for every 100 points scored.</p>
+                <p style="color:#ff5555; font-weight:bold; font-size:12px; margin:0;">Destroy 500 enemies to level up and earn 5 ⭐!</p>
+                <p style="color:#ff5555; font-weight:bold; font-size:12px; margin:5px 0 0 0;">Earn 1 ⭐ for every 100 points scored on Game Over.</p>
             </div>
             <div class="btn-group">
                 <button id="start-btn" class="action-btn">Initialize</button>
@@ -436,8 +440,9 @@
             <h1 style="text-shadow: 0 0 10px #f00, 0 0 20px #f00;">SYSTEM FAILURE</h1>
             <div class="tutorial-text">
                 <p>Level Reached: <strong id="final-level" style="color:#f0f;">1</strong></p>
+                <p>Total Kills: <strong id="final-kills" style="color:#ff8800;">0</strong></p>
                 <p>Final Score: <strong id="final-score" style="color:#0ff; font-size: 24px;">0</strong></p>
-                <p style="font-size: 20px; color: #ff0; font-weight: bold; margin-top:15px;">⭐ Earned: <span id="earned-sp">0</span></p>
+                <p style="font-size: 20px; color: #ff0; font-weight: bold; margin-top:15px;">⭐ Score Bonus Earned: <span id="earned-sp">0</span></p>
             </div>
             <div class="btn-group" style="flex-direction: column;">
                 <button id="restart-btn" class="action-btn">Reboot System</button>
@@ -495,11 +500,13 @@
         const uiElements = {
             score: document.getElementById('score'),
             level: document.getElementById('level'),
+            killCountHud: document.getElementById('kill-count-hud'),
             hudSp: document.getElementById('hud-sp'),
             menuSp: document.getElementById('menu-sp'),
             shopSp: document.getElementById('shop-sp'),
             finalScore: document.getElementById('final-score'),
             finalLevel: document.getElementById('final-level'),
+            finalKills: document.getElementById('final-kills'),
             earnedSp: document.getElementById('earned-sp'),
             levelUp: document.getElementById('level-up-announcement')
         };
@@ -627,6 +634,7 @@
         let gameActive = false;
         let score = 0;
         let level = 1;
+        let killCount = 0; // New progression variable
         let animationId;
         
         let player;
@@ -721,7 +729,6 @@
                     ctx.globalAlpha = Math.random() > 0.5 ? 0.4 : 1.0;
                 }
 
-                // Ultra Mode Exclusive: Multi-pass Vector Chromatic Aberration Trails
                 if (ultraMotionBlur && this.history.length > 1) {
                     ctx.save();
                     ctx.globalCompositeOperation = 'lighter';
@@ -757,7 +764,6 @@
                     ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
 
-                // Sharp Arrow Starfighter Vector Implementation
                 ctx.beginPath();
                 ctx.moveTo(this.x, this.y - this.radius * 1.5); 
                 ctx.lineTo(this.x + this.radius * 1.2, this.y + this.radius); 
@@ -768,7 +774,6 @@
                 ctx.fillStyle = '#fff'; ctx.fill(); 
                 ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
                 
-                // Thermal Core Thrust Exhaust Indicator
                 ctx.beginPath();
                 ctx.moveTo(this.x - this.radius * 0.4, this.y + this.radius * 0.6);
                 ctx.lineTo(this.x, this.y + this.radius * (ultraMotionBlur ? 1.6 : 1.2));
@@ -777,7 +782,6 @@
                 ctx.fillStyle = Math.random() > 0.5 ? '#ff00ff' : '#00ffff';
                 ctx.fill();
 
-                // Layered Shields Ring
                 if (this.shields > 0) {
                     if (shadowPower > 0) ctx.shadowColor = '#0f0';
                     ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.2)})`;
@@ -817,7 +821,7 @@
                     this.shields--;
                     this.invulnerable = true;
                     createExplosion(this.x, this.y, '#0f0');
-                    screenShakeIntensity = 25; // Trigger powerful dynamic vibration
+                    screenShakeIntensity = 25; 
                     
                     enemies.forEach((enemy, i) => {
                         if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 150) {
@@ -852,7 +856,6 @@
                 }
 
                 if (ultraMotionBlur) {
-                    // Draw a continuous high-speed optical streak laser trail
                     ctx.beginPath();
                     ctx.lineWidth = this.radius * 2.2;
                     ctx.lineCap = 'round';
@@ -861,7 +864,6 @@
                     ctx.lineTo(this.x - this.velocity.x * 1.5, this.y - this.velocity.y * 1.5);
                     ctx.stroke();
 
-                    // Core bright internal flash line
                     ctx.beginPath();
                     ctx.lineWidth = this.radius * 0.8;
                     ctx.strokeStyle = '#fff';
@@ -881,7 +883,7 @@
                 this.x = x; this.y = y; this.type = type;
                 this.angle = 0;
                 this.history = [];
-                let speedScale = 1 + (score * 0.0002);
+                let speedScale = 1 + (level * 0.05); // Adapted to scale with level instead of raw score
                 let angleToPlayer = Math.atan2(player.y - y, player.x - x);
 
                 if (type === 'basic') {
@@ -909,7 +911,6 @@
             draw() {
                 ctx.save();
                 
-                // Motion blur vector echo trails for Ultra High graphics setting
                 if (ultraMotionBlur && this.history.length > 0) {
                     ctx.save();
                     for (let i = 0; i < this.history.length; i++) {
@@ -980,7 +981,6 @@
                 ctx.save(); ctx.globalAlpha = this.alpha; 
                 
                 if (ultraMotionBlur) {
-                    // Ultra Mode Exclusive: Spark expansion lines
                     if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
                     ctx.lineWidth = this.radius;
                     ctx.strokeStyle = this.color;
@@ -1023,24 +1023,33 @@
                 particles.push(new Particle(x, y, {x: (Math.random()-0.5)*speedMult, y: (Math.random()-0.5)*speedMult}, Math.random()*3+1, color));
             }
             if (ultraMotionBlur) {
-                screenShakeIntensity = Math.min(18, screenShakeIntensity + 8); // Add structured screen shake metrics
+                screenShakeIntensity = Math.min(18, screenShakeIntensity + 8);
             }
         }
 
         function checkLevelUp() {
-            let newLevel = Math.floor(score / 1000) + 1;
+            let newLevel = Math.floor(killCount / 500) + 1;
+            
+            uiElements.killCountHud.innerText = killCount % 500; // Update the kills remaining HUD display
+
             if (newLevel > level) {
-                level = newLevel; uiElements.level.innerText = level;
+                level = newLevel; 
+                uiElements.level.innerText = level;
+                
+                // Reward 5 Star Points instantly
+                gameData.starPoints += 5;
+                saveData(); // Commit to local storage and update shop text
+
                 spawnDelay = Math.max(250, 1000 - (level * 150));
                 
                 let mapNames = ["", "CYBER GRID", "CRIMSON NEBULA", "QUANTUM VOID", "VOID CORE"];
                 let mapName = level <= 4 ? mapNames[level-1] : "MAXIMUM OVERDRIVE";
-                uiElements.levelUp.innerText = `LEVEL ${level}: ${mapName}`;
+                uiElements.levelUp.innerHTML = `LEVEL ${level}: ${mapName}<br><span style="color:#ff0; font-size: 24px;">+5 STAR POINTS</span>`;
                 uiElements.levelUp.classList.add('level-up-active');
                 
                 createExplosion(player.x, player.y, '#fff'); createExplosion(player.x, player.y, '#0ff');
                 if(ultraMotionBlur) screenShakeIntensity = 20;
-                setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2500);
+                setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 3000);
             }
         }
 
@@ -1051,8 +1060,16 @@
             player = new Player();
             mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
             projectiles = []; enemies = []; particles = [];
-            score = 0; level = 1; spawnDelay = 1000; screenShakeIntensity = 0;
-            uiElements.score.innerText = score; uiElements.level.innerText = level;
+            
+            score = 0; 
+            level = 1; 
+            killCount = 0; 
+            spawnDelay = 1000; 
+            screenShakeIntensity = 0;
+            
+            uiElements.score.innerText = score; 
+            uiElements.level.innerText = level;
+            uiElements.killCountHud.innerText = "0";
             
             initBackgrounds();
             gameActive = true; isShooting = false;
@@ -1070,6 +1087,7 @@
             ctx.fillStyle = 'rgba(5, 5, 16, 0.7)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => p.update());
 
+            // You still get the passive score bonus on game over as well
             const earnedSp = Math.floor(score / 100);
             gameData.starPoints += earnedSp;
             saveData();
@@ -1078,6 +1096,7 @@
                 switchScreen('gameover');
                 uiElements.finalScore.innerText = score;
                 uiElements.finalLevel.innerText = level;
+                uiElements.finalKills.innerText = killCount;
                 uiElements.earnedSp.innerText = earnedSp;
                 screens.hud.style.display = 'none';
             }, 1200);
@@ -1123,17 +1142,15 @@
             
             ctx.save();
             
-            // Ultra Mode Shader Physics: Screen Shake Transformation matrix
             if (ultraMotionBlur && screenShakeIntensity > 0.1) {
                 let dx = (Math.random() - 0.5) * screenShakeIntensity;
                 let dy = (Math.random() - 0.5) * screenShakeIntensity;
                 ctx.translate(dx, dy);
-                screenShakeIntensity *= 0.92; // Decay over time
+                screenShakeIntensity *= 0.92;
             }
 
             ctx.scale(renderScale, renderScale);
 
-            // Turn on Additive Blending Compositing Filters for High Intensity Glows
             if (ultraMotionBlur) {
                 ctx.globalCompositeOperation = 'source-over';
             }
@@ -1166,7 +1183,6 @@
                 lastShotTime = currentTime;
             }
 
-            // High Intensity Additive pass for lighting up projectiles and blast zones
             if (ultraMotionBlur) ctx.globalCompositeOperation = 'lighter';
 
             for (let i = particles.length - 1; i >= 0; i--) {
@@ -1199,9 +1215,13 @@
                         if (enemy.hp <= 0) {
                             createExplosion(enemy.x, enemy.y, enemy.color);
                             score += enemy.scoreVal;
+                            
+                            // Progression logic integration
+                            killCount++;
+                            checkLevelUp();
+                            
                             uiElements.score.innerText = score;
                             enemies.splice(i, 1);
-                            checkLevelUp();
                         } else {
                             enemy.radius *= 0.9; setTimeout(()=> {if(enemy) enemy.radius /= 0.9}, 50);
                         }
