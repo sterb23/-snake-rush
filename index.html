@@ -299,7 +299,6 @@
     </div>
 
     <div id="ui-layer">
-        <!-- HUD -->
         <div class="hud-top" id="hud">
             <div class="hud-stats">
                 <div id="score-display">SCORE: <span id="score">0</span></div>
@@ -315,7 +314,6 @@
 
         <div id="level-up-announcement">LEVEL UP</div>
 
-        <!-- Login / Register Screen -->
         <div id="login-screen" class="panel">
             <h1>Neon Surge</h1>
             <h2>Player Authentication</h2>
@@ -329,7 +327,6 @@
             <p style="font-size: 12px; color: #888; margin-top: 20px;">Your progress and purchases are saved to your account securely via local storage.</p>
         </div>
 
-        <!-- Main Menu -->
         <div id="start-screen" class="panel hidden">
             <h1>Neon Surge</h1>
             
@@ -352,7 +349,6 @@
             </div>
         </div>
 
-        <!-- Settings Screen -->
         <div id="settings-screen" class="panel hidden">
             <h1 style="color:#ff0; text-shadow:0 0 10px #ff0;">SETTINGS</h1>
             <h3 style="color: #fff;">Graphics Resolution</h3>
@@ -372,7 +368,6 @@
             <button id="close-settings-btn" class="action-btn secondary">Back to Menu</button>
         </div>
 
-        <!-- Shop Screen -->
         <div id="shop-screen" class="panel hidden">
             <h1 style="color:#0ff; text-shadow:0 0 10px #0ff;">ARMORY</h1>
             <div class="star-points-display">⭐ AVAILABLE: <span id="shop-sp">0</span></div>
@@ -424,7 +419,6 @@
             <button id="close-shop-btn" class="action-btn" style="margin-top:15px; width: 100%;">Return to Menu</button>
         </div>
 
-        <!-- Game Over -->
         <div id="game-over-screen" class="panel hidden">
             <h1 style="text-shadow: 0 0 10px #f00, 0 0 20px #f00;">SYSTEM FAILURE</h1>
             <div style="font-size: 16px; margin-bottom: 15px;">
@@ -450,7 +444,14 @@
         const ctx = canvas.getContext('2d');
         
         // --- Database & User Management ---
-        let usersDB = JSON.parse(localStorage.getItem('neonSurgeUsersDB')) || {};
+        let usersDB = {};
+        try {
+            usersDB = JSON.parse(localStorage.getItem('neonSurgeUsersDB')) || {};
+        } catch (e) {
+            console.warn("Corrupted or incompatible save database found. Initializing safe baseline.");
+            usersDB = {};
+        }
+        
         let currentUser = localStorage.getItem('neonSurgeCurrentUser') || null;
         let gameData = null;
 
@@ -505,6 +506,15 @@
 
         document.getElementById('login-btn').addEventListener('click', () => handleAuth('login'));
         document.getElementById('register-btn').addEventListener('click', () => handleAuth('register'));
+        
+        // Keypress addition for login workflow fluidity
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAuth('login');
+        });
+        document.getElementById('username').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('password').focus();
+        });
+
         document.getElementById('logout-btn').addEventListener('click', () => {
             currentUser = null; gameData = null; localStorage.removeItem('neonSurgeCurrentUser'); switchScreen('login');
         });
@@ -513,6 +523,9 @@
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
             const err = document.getElementById('login-error');
+            
+            // Explicitly force error styling back to crimson warning color per click context
+            err.style.color = '#ff5555';
             
             if (user.length < 3 || pass.length < 3) { err.innerText = "Username and password must be at least 3 chars."; return; }
             
@@ -541,7 +554,7 @@
             switchScreen('start');
         }
 
-        // Auto-login
+        // Auto-login configuration
         if (currentUser && usersDB[currentUser]) doLogin(currentUser); else switchScreen('login');
 
         // --- Menu & Shop Logic ---
@@ -633,7 +646,7 @@
         let lastSpawnTime = 0; let spawnDelay = 1000;
 
         function resize() {
-            const ratios = { 'low': 0.5, 'med': 0.75, 'high': 1.0 }; // Device Pixel Ratio effectively
+            const ratios = { 'low': 0.5, 'med': 0.75, 'high': 1.0 }; 
             const dpr = window.devicePixelRatio || 1;
             const scale = ratios[currentRes] * (currentRes === 'high' ? dpr : 1);
             
@@ -761,7 +774,6 @@
                     const dx = mouse.x - this.x; const dy = mouse.y - this.y;
                     this.velocity.x += dx * 0.1; this.velocity.y += dy * 0.1;
                     this.velocity.x *= 0.8; this.velocity.y *= 0.8; // friction
-                    // Cap speed loosely
                     if(Math.abs(this.velocity.x) > maxSpeed*1.5) this.velocity.x = Math.sign(this.velocity.x)*maxSpeed*1.5;
                 } else if (controlMode === 'joystick') {
                     this.velocity.x = joystickVector.x * maxSpeed;
@@ -781,7 +793,7 @@
                 if (this.shields > 0) {
                     this.shields--; this.invulnerable = true; screenShake = 10;
                     createExplosion(this.x, this.y, '#0f0', 20);
-                    // Shockwave
+                    // Shockwave Burst
                     effects.push(new Shockwave(this.x, this.y, '#0f0'));
                     enemies.forEach((enemy) => {
                         if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 200) {
@@ -799,7 +811,7 @@
             constructor(x, y, velocity, color='#0ff', radius=4, piercing=false) {
                 this.x = x; this.y = y; this.velocity = velocity; this.radius = radius; 
                 this.color = color; this.piercing = piercing;
-                this.hitList = []; // For piercing
+                this.hitList = [];
             }
             update() {
                 this.x += this.velocity.x; this.y += this.velocity.y;
@@ -807,7 +819,6 @@
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
                 
-                // Trail particle randomly
                 if(Math.random() < 0.3) particles.push(new Particle(this.x, this.y, {x:0,y:0}, 1, this.color, 0.5));
             }
         }
@@ -842,7 +853,6 @@
                 }
                 ctx.closePath(); ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
                 
-                // Inner gradient
                 let grad = ctx.createRadialGradient(0,0,0, 0,0,this.radius);
                 grad.addColorStop(0, '#fff'); grad.addColorStop(1, this.color.replace(')', ', 0.2)').replace('rgb', 'rgba'));
                 ctx.fillStyle = grad; ctx.fill(); ctx.restore();
@@ -900,7 +910,6 @@
         function drawMapBackground() {
             ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
             
-            // Nebulas
             nebulaClouds.forEach(c => {
                 c.y += c.vy; if(c.y - c.r > window.innerHeight) { c.y = -c.r; c.x = Math.random()*window.innerWidth; }
                 let grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r);
@@ -908,7 +917,6 @@
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
             });
 
-            // Grid (Zone 2+)
             if (level >= 2) {
                 ctx.strokeStyle = `rgba(0, 255, 255, ${0.05 + (level*0.02)})`; ctx.lineWidth = 1;
                 gridY += level; if(gridY > 50) gridY = 0;
@@ -918,7 +926,6 @@
                 ctx.stroke();
             }
 
-            // Stars
             ctx.fillStyle = '#fff';
             stars.forEach(s => { s.y += s.s * (1 + level*0.2); if(s.y > window.innerHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
         }
@@ -965,7 +972,7 @@
                 leveledUp = true;
                 
                 spGained += 10;
-                if (gameData.accountLevel % 20 === 0) spGained += 10; // Bonus
+                if (gameData.accountLevel % 20 === 0) spGained += 10; 
             }
             
             gameData.starPoints += spGained;
@@ -997,7 +1004,6 @@
             
             createExplosion(player.x, player.y, '#0ff', 50); createExplosion(player.x, player.y, '#f00', 30);
             
-            // Calc Rewards
             const runSp = Math.floor(score / 100);
             gameData.starPoints += runSp;
             const xpResult = processAccountXP(score);
@@ -1033,7 +1039,6 @@
 
             drawMapBackground();
 
-            // Ability CD UI
             if (abilityCooldown > 0) {
                 abilityCooldown--;
                 document.getElementById('cooldown-fill').style.width = `${100 - (abilityCooldown/ABILITY_MAX_CD)*100}%`;
@@ -1051,7 +1056,6 @@
 
             if (isShooting && currentTime - lastShotTime > fireRate) {
                 let col = spreadLvl === 3 ? '#f0f' : (spreadLvl > 0 ? '#ff0' : '#0ff');
-                // Main
                 projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: -20 }, col));
                 
                 if (spreadLvl >= 1) {
@@ -1062,13 +1066,12 @@
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -8, y: -16 }, col, 3));
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 8, y: -16 }, col, 3));
                 }
-                if (spreadLvl >= 3) { // Back shot
+                if (spreadLvl >= 3) { 
                     projectiles.push(new Projectile(player.x, player.y + player.radius, { x: 0, y: 15 }, col, 3));
                 }
                 lastShotTime = currentTime;
             }
 
-            // Update Arrays
             effects.forEach((e, i) => { e.update(); if (e.alpha <= 0) effects.splice(i, 1); });
             particles.forEach((p, i) => { p.update(); if (p.alpha <= 0) particles.splice(i, 1); });
 
@@ -1080,12 +1083,10 @@
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i]; enemy.update();
 
-                // Player Hit
                 if (Math.hypot(player.x - enemy.x, player.y - enemy.y) < enemy.radius + player.radius - 5) {
                     if (player.takeDamage()) { gameOver(); ctx.restore(); return; }
                 }
 
-                // Proj Hit
                 for (let j = projectiles.length - 1; j >= 0; j--) {
                     const proj = projectiles[j];
                     if (proj.hitList && proj.hitList.includes(enemy)) continue;
@@ -1109,7 +1110,6 @@
             }
             ctx.restore();
         }
-
     </script>
 </body>
 </html>
