@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Surge - Ultimate Evolution</title>
     <style>
+        /* [STYLES REMAIN THE SAME FOR UI/HUD TO PRESERVE YOUR DESIGN] */
         body {
             margin: 0;
             padding: 0;
@@ -616,7 +617,7 @@
                     <div class="radio-btn purple active" id="gq-high">HIGH Engine</div>
                 </div>
 
-                <div id="desc-desktop">Move <strong>Mouse</strong>. Hold <span class="key">L-Click</span> or <span class="key">Space</span> to shoot. Grab flying 🪙 <strong>Skin Coins</strong> with your mouse pointer or ship!</div>
+                <div id="desc-desktop">Move <strong>Mouse</strong>. Hold <span class="key">L-Click</span> or <span class="key">Space</span> to shoot. Grab flying 🪙 <strong>Skin Coins</strong>!</div>
                 <div id="desc-touch" class="hidden"><strong>Drag anywhere</strong> to steer. Auto-fires. Intercept drifting 🪙 tokens!</div>
                 <div id="desc-joystick" class="hidden">Use <strong>Virtual Joystick</strong>. Hold <strong>FIRE</strong> to shoot. Collect flying 🪙 coins!</div>
             </div>
@@ -757,7 +758,7 @@
             amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) }
         };
 
-        // --- DYNAMICALLY GENERATE 100 SKINS (20 per tier) ---
+        // --- DYNAMICALLY GENERATE 100 UNIQUE PROCEDURAL SKINS ---
         const SKIN_REGISTRY = {};
         const rarities = ['common', 'uncommon', 'rare', 'epic', 'mythical'];
         const rarityColors = { 
@@ -768,14 +769,27 @@
             mythical: '#ffff00' 
         };
         
-        rarities.forEach(tier => {
+        rarities.forEach((tier, tierIdx) => {
             for(let i = 1; i <= 20; i++) {
                 let id = (tier === 'common' && i === 1) ? 'default' : `${tier}_${i}`;
                 let name = (tier === 'common' && i === 1) ? 'Factory Standard' : `${tier.toUpperCase()} MK-${i}`;
+                
+                // Procedural seeds for unique textures, shapes, and effects
+                // Using pseudo-random based on tier & index so they stay consistent
+                let seed1 = Math.abs(Math.sin(tierIdx * 100 + i)) * 1; 
+                let seed2 = Math.abs(Math.cos(tierIdx * 50 + i * 3)) * 1;
+                let hue = Math.floor((seed1 * 360 + tierIdx * 72) % 360);
+                
                 SKIN_REGISTRY[id] = {
                     name: name,
                     tier: tier,
                     color: rarityColors[tier],
+                    secColor: `hsl(${hue}, 100%, 60%)`,
+                    terColor: `hsl(${(hue + 120) % 360}, 100%, 60%)`,
+                    seed1: seed1, 
+                    seed2: seed2, 
+                    glowMult: 0.2 + (tierIdx * 0.7) + (seed1 * 0.5), // Scales drastically by tier
+                    effectYield: tierIdx * 3 + Math.floor(seed2 * 2), // How many particles per frame
                     bg: '#222'
                 };
             }
@@ -1011,52 +1025,72 @@
             cCtx.save();
             cCtx.translate(40, 43);
             
-            cCtx.shadowBlur = 10;
+            cCtx.shadowBlur = 10 * skin.glowMult;
             cCtx.shadowColor = skin.color;
             
+            let wingBase = 12;
+            let wingspan = wingBase * (1 + skin.seed1 * 0.4);
+            let nose = wingBase * (1.5 + skin.seed2 * 0.5);
+
             if (skin.tier === 'mythical') {
-                let r = 14;
                 cCtx.beginPath();
-                cCtx.arc(0, -2, r + 4, 0, Math.PI*2);
-                cCtx.strokeStyle = "rgba(255, 255, 0, 0.3)";
+                cCtx.arc(0, 0, wingBase + 4, 0, Math.PI*2);
+                cCtx.strokeStyle = skin.terColor;
                 cCtx.lineWidth = 3;
                 cCtx.stroke();
                 
                 cCtx.beginPath();
-                cCtx.moveTo(0, -r * 1.6);
-                cCtx.lineTo(r * 1.4, r);
-                cCtx.lineTo(0, r * 0.4);
-                cCtx.lineTo(-r * 1.4, r);
+                cCtx.moveTo(0, -nose * 1.2);
+                cCtx.lineTo(wingspan * 1.1, wingBase);
+                cCtx.lineTo(0, wingBase * 0.4);
+                cCtx.lineTo(-wingspan * 1.1, wingBase);
                 cCtx.closePath();
-                cCtx.fillStyle = '#fff'; cCtx.fill();
+                let grad = cCtx.createLinearGradient(-10, 0, 10, 0);
+                grad.addColorStop(0, skin.secColor); grad.addColorStop(0.5, '#fff'); grad.addColorStop(1, skin.secColor);
+                cCtx.fillStyle = grad; cCtx.fill();
                 cCtx.strokeStyle = skin.color; cCtx.lineWidth = 3; cCtx.stroke();
                 
-                cCtx.fillStyle = '#ff8800';
-                cCtx.fillRect(-3, 16, 6, 6);
+                // Procedural internal lines
+                cCtx.strokeStyle = '#000'; cCtx.lineWidth = 1.5;
+                cCtx.beginPath();
+                cCtx.moveTo(0, -nose); cCtx.lineTo(0, wingBase * 0.2);
+                cCtx.moveTo(-wingspan*0.5, 0); cCtx.lineTo(wingspan*0.5, 0);
+                cCtx.stroke();
             } 
             else if (skin.tier === 'epic') {
-                let r = 13;
                 cCtx.beginPath();
-                cCtx.moveTo(0, -r * 1.5);
-                cCtx.lineTo(r * 1.3, r);
-                cCtx.lineTo(-r * 1.3, r);
+                cCtx.moveTo(0, -nose);
+                cCtx.lineTo(wingspan, wingBase);
+                cCtx.lineTo(-wingspan, wingBase);
                 cCtx.closePath();
                 cCtx.fillStyle = '#111'; cCtx.fill();
                 cCtx.strokeStyle = skin.color; cCtx.lineWidth = 3; cCtx.stroke();
+                
+                // Epic Texture
                 cCtx.beginPath();
-                cCtx.moveTo(0, -r*1.5); cCtx.lineTo(0, r);
-                cCtx.strokeStyle = '#fff'; cCtx.lineWidth = 1; cCtx.stroke();
+                cCtx.moveTo(0, -nose); cCtx.lineTo(0, wingBase);
+                cCtx.moveTo(-wingspan*0.7, wingBase*0.5); cCtx.lineTo(wingspan*0.7, wingBase*0.5);
+                cCtx.strokeStyle = skin.secColor; cCtx.lineWidth = 2; cCtx.stroke();
             } 
-            else {
-                let r = 12;
+            else if (skin.tier === 'rare') {
                 cCtx.beginPath();
-                cCtx.moveTo(0, -r * 1.5);
-                cCtx.lineTo(r, r);
-                cCtx.lineTo(0, r * 0.3);
-                cCtx.lineTo(-r, r);
+                cCtx.moveTo(0, -nose);
+                cCtx.lineTo(wingspan, wingBase);
+                cCtx.lineTo(0, wingBase * 0.3);
+                cCtx.lineTo(-wingspan, wingBase);
                 cCtx.closePath();
-                cCtx.fillStyle = skin.color; cCtx.fill();
-                cCtx.strokeStyle = '#fff'; cCtx.lineWidth = 1.5; cCtx.stroke();
+                cCtx.fillStyle = skin.secColor; cCtx.fill();
+                cCtx.strokeStyle = skin.color; cCtx.lineWidth = 2; cCtx.stroke();
+            }
+            else {
+                cCtx.beginPath();
+                cCtx.moveTo(0, -nose); 
+                cCtx.lineTo(wingspan, wingBase); 
+                cCtx.lineTo(0, wingBase * 0.3); 
+                cCtx.lineTo(-wingspan, wingBase); 
+                cCtx.closePath();
+                cCtx.fillStyle = skin.tier === 'uncommon' ? '#fff' : '#aaa'; cCtx.fill(); 
+                cCtx.lineWidth = 2; cCtx.strokeStyle = skin.color; cCtx.stroke();
             }
             cCtx.restore();
         }
@@ -1403,8 +1437,9 @@
             constructor() {
                 this.x = vWidth / 2; this.y = vHeight * 0.7;
                 this.radius = 15;
-                this.color = SKIN_REGISTRY[gameData.equippedSkin].color;
-                this.tier = SKIN_REGISTRY[gameData.equippedSkin].tier;
+                this.skin = SKIN_REGISTRY[gameData.equippedSkin];
+                this.color = this.skin.color;
+                this.tier = this.skin.tier;
                 this.velocity = { x: 0, y: 0 };
                 this.joystickSpeed = UPGRADE_CONFIG.speed.action(gameData.upgrades.speed);
                 this.shields = UPGRADE_CONFIG.shield.action(gameData.upgrades.shield);
@@ -1415,90 +1450,101 @@
                 ctx.save();
                 if (this.invulnerable) ctx.globalAlpha = Math.random() > 0.5 ? 0.3 : 0.9;
                 
+                let wingspan = this.radius * (1 + this.skin.seed1 * 0.4);
+                let nose = this.radius * (1.5 + this.skin.seed2 * 0.5);
+
+                // Tier-based Glowing
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower * this.skin.glowMult;
+                    ctx.shadowColor = this.color;
+                }
+
                 if (this.tier === 'mythical') {
+                    // Intense Pulsing Aura
                     let pulseRadius = this.radius * (1.4 + Math.sin(performance.now() * 0.008) * 0.25);
                     ctx.save();
-                    ctx.shadowBlur = shadowPower * 1.5;
-                    ctx.shadowColor = '#ffff00';
-                    ctx.strokeStyle = 'rgba(255, 255, 0, 0.4)';
+                    ctx.strokeStyle = `rgba(${parseInt(this.skin.terColor.slice(4,-1).split(',')[0])}, 255, 0, 0.4)`;
                     ctx.lineWidth = 3;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
                     ctx.stroke();
                     ctx.restore();
                     
-                    ctx.save();
-                    ctx.shadowBlur = shadowPower;
-                    ctx.shadowColor = this.color;
+                    // Mythical Body shape with Procedural Width/Length
                     ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - this.radius * 2.2);
-                    ctx.lineTo(this.x + this.radius * 1.6, this.y + this.radius * 1.2);
+                    ctx.moveTo(this.x, this.y - nose * 1.2);
+                    ctx.lineTo(this.x + wingspan * 1.1, this.y + this.radius);
                     ctx.lineTo(this.x + this.radius * 0.5, this.y + this.radius * 0.4);
                     ctx.lineTo(this.x - this.radius * 0.5, this.y + this.radius * 0.4);
-                    ctx.lineTo(this.x - this.radius * 1.6, this.y + this.radius * 1.2);
+                    ctx.lineTo(this.x - wingspan * 1.1, this.y + this.radius);
                     ctx.closePath();
-                    let grad = ctx.createLinearGradient(this.x - 20, this.y, this.x + 20, this.y);
-                    grad.addColorStop(0, '#d4af37'); grad.addColorStop(0.5, '#fff'); grad.addColorStop(1, '#aa7c11');
-                    ctx.fillStyle = grad; ctx.fill();
-                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke();
                     
-                    ctx.fillStyle = '#ff0055';
+                    let grad = ctx.createLinearGradient(this.x - wingspan, this.y, this.x + wingspan, this.y);
+                    grad.addColorStop(0, this.skin.secColor); grad.addColorStop(0.5, '#fff'); grad.addColorStop(1, this.skin.secColor);
+                    ctx.fillStyle = grad; ctx.fill();
+                    ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.stroke();
+                    
+                    // Procedural Textures (Lines on ship)
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y - nose); ctx.lineTo(this.x, this.y + this.radius * 0.2);
+                    ctx.moveTo(this.x - wingspan*0.5, this.y); ctx.lineTo(this.x + wingspan*0.5, this.y);
+                    ctx.stroke();
+
+                    // Active Core
+                    ctx.fillStyle = this.skin.terColor;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y - 2, 5, 0, Math.PI*2);
                     ctx.fill();
-                    ctx.restore();
                 } 
                 else if (this.tier === 'epic') {
-                    ctx.save();
-                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                     ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - this.radius * 1.8);
-                    ctx.lineTo(this.x + this.radius * 1.3, this.y + this.radius);
-                    ctx.lineTo(this.x - this.radius * 1.3, this.y + this.radius);
+                    ctx.moveTo(this.x, this.y - nose);
+                    ctx.lineTo(this.x + wingspan, this.y + this.radius);
+                    ctx.lineTo(this.x - wingspan, this.y + this.radius);
                     ctx.closePath();
                     ctx.fillStyle = '#111222'; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
                     
-                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+                    // Epic Procedural Texture Lines
+                    ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(this.x - 8, this.y); ctx.lineTo(this.x + 8, this.y);
-                    ctx.moveTo(this.x, this.y - 12); ctx.lineTo(this.x, this.y + 8);
+                    ctx.moveTo(this.x, this.y - nose); ctx.lineTo(this.x, this.y + this.radius);
+                    ctx.moveTo(this.x - wingspan*0.7, this.y + this.radius*0.5); ctx.lineTo(this.x + wingspan*0.7, this.y + this.radius*0.5);
                     ctx.stroke();
-                    ctx.restore();
                 } 
                 else if (this.tier === 'rare') {
-                    ctx.save();
-                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                     ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - this.radius * 1.5);
-                    ctx.lineTo(this.x + this.radius * 1.1, this.y + this.radius);
+                    ctx.moveTo(this.x, this.y - nose);
+                    ctx.lineTo(this.x + wingspan, this.y + this.radius);
                     ctx.lineTo(this.x, this.y + this.radius * 0.2);
-                    ctx.lineTo(this.x - this.radius * 1.1, this.y + this.radius);
+                    ctx.lineTo(this.x - wingspan, this.y + this.radius);
                     ctx.closePath();
-                    ctx.fillStyle = 'rgba(0, 220, 255, 0.4)'; ctx.fill();
+                    ctx.fillStyle = this.skin.secColor; ctx.globalAlpha = 0.6; ctx.fill(); ctx.globalAlpha = 1.0;
                     ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.stroke();
-                    ctx.restore();
                 }
                 else {
-                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                     ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - this.radius * 1.5); 
-                    ctx.lineTo(this.x + this.radius * 1.2, this.y + this.radius); 
+                    ctx.moveTo(this.x, this.y - nose); 
+                    ctx.lineTo(this.x + wingspan, this.y + this.radius); 
                     ctx.lineTo(this.x, this.y + this.radius * 0.3); 
-                    ctx.lineTo(this.x - this.radius * 1.2, this.y + this.radius); 
+                    ctx.lineTo(this.x - wingspan, this.y + this.radius); 
                     ctx.closePath();
-                    ctx.fillStyle = '#fff'; ctx.fill(); 
+                    ctx.fillStyle = this.tier === 'uncommon' ? '#fff' : '#aaa'; ctx.fill(); 
                     ctx.lineWidth = 2; ctx.strokeStyle = this.color; ctx.stroke();
                 }
                 
+                // Engine Thrusters Flare (Affected by Procedural Seeds)
                 ctx.beginPath();
-                ctx.moveTo(this.x - this.radius * 0.4, this.y + this.radius * 0.6);
+                let thrustW = this.radius * (0.3 + this.skin.seed2 * 0.2);
+                ctx.moveTo(this.x - thrustW, this.y + this.radius * 0.6);
                 ctx.lineTo(this.x, this.y + this.radius * (1.4 + Math.random() * 0.6));
-                ctx.lineTo(this.x + this.radius * 0.4, this.y + this.radius * 0.6);
+                ctx.lineTo(this.x + thrustW, this.y + this.radius * 0.6);
                 ctx.closePath();
-                ctx.fillStyle = this.tier === 'mythical' ? '#ff3300' : (this.tier === 'epic' ? '#00ffff' : '#ff00ff');
+                ctx.fillStyle = this.tier === 'mythical' ? this.skin.secColor : (this.tier === 'epic' ? '#00ffff' : '#ff00ff');
                 ctx.fill();
 
+                // Shield drawing
                 if (this.shields > 0) {
                     if (shadowPower > 0) ctx.shadowColor = '#0f0';
                     ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.2)})`;
@@ -1523,25 +1569,32 @@
                 this.history.push({x: this.x, y: this.y});
                 if(this.history.length > 15) this.history.shift();
 
-                if (this.tier === 'mythical') {
-                    if (maxParticlesAllowed > 0 && Math.random() > 0.1) {
-                        particles.push(new Particle(this.x + (Math.random() - 0.5) * 24, this.y + 12, {x: (Math.random() - 0.5) * 3, y: Math.random() * 4 + 4}, Math.random() * 4 + 2, '#ffff00', 0.015));
-                        particles.push(new Particle(this.x + (Math.random() - 0.5) * 10, this.y + 10, {x: (Math.random() - 0.5) * 1, y: Math.random() * 2 + 1}, Math.random() * 3 + 1, '#ff3300', 0.02));
+                // Advanced Particle Engine using 'effectYield'
+                if (maxParticlesAllowed > 0) {
+                    let yieldCount = this.skin.effectYield;
+                    for(let i=0; i<yieldCount; i++) {
+                        if (Math.random() > 0.5) continue; // Randomize a bit per frame
+
+                        if (this.tier === 'mythical') {
+                            particles.push(new Particle(this.x + (Math.random() - 0.5) * 24, this.y + 12, {x: (Math.random() - 0.5) * 3, y: Math.random() * 4 + 4}, Math.random() * 4 + 2, this.skin.terColor, 0.015));
+                            particles.push(new Particle(this.x + (Math.random() - 0.5) * 10, this.y + 10, {x: (Math.random() - 0.5) * 1, y: Math.random() * 2 + 1}, Math.random() * 3 + 1, this.skin.secColor, 0.02));
+                        } 
+                        else if (this.tier === 'epic') {
+                            particles.push(new Particle(this.x + (Math.random() - 0.5) * 15, this.y + 10, {x: (Math.random() - 0.5) * 2, y: Math.random() * 3 + 2}, Math.random() * 3 + 2, this.skin.secColor, 0.025));
+                        } 
+                        else if (this.tier === 'rare') {
+                            particles.push(new Particle(this.x, this.y + 10, {x: (Math.random()-0.5)*2, y: Math.random()*2+2}, Math.random()*5+2, 'rgba(0,223,255,0.4)', 0.04));
+                        }
                     }
-                } 
-                else if (this.tier === 'epic') {
-                    if(this.history.length > 8 && Math.random() > 0.5) {
-                        ctx.save(); ctx.globalAlpha = 0.35;
-                        ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 1.5;
-                        let pos = this.history[Math.floor(Math.random()*this.history.length)];
-                        ctx.beginPath(); ctx.arc(pos.x + (Math.random()-0.5)*15, pos.y, this.radius * 1.2, 0, Math.PI*2); ctx.stroke();
-                        ctx.restore();
-                    }
-                } 
-                else if (this.tier === 'rare') {
-                    if(Math.random() > 0.5 && maxParticlesAllowed > 0) {
-                        particles.push(new Particle(this.x, this.y + 10, {x: (Math.random()-0.5)*2, y: Math.random()*2+2}, Math.random()*5+3, 'rgba(0,223,255,0.25)', 0.03));
-                    }
+                }
+
+                // Epic Afterimage Effect
+                if (this.tier === 'epic' && this.history.length > 8 && Math.random() > 0.4) {
+                    ctx.save(); ctx.globalAlpha = 0.25;
+                    ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 1.5;
+                    let pos = this.history[Math.floor(Math.random()*this.history.length)];
+                    ctx.beginPath(); ctx.arc(pos.x + (Math.random()-0.5)*15, pos.y, this.radius * 1.2, 0, Math.PI*2); ctx.stroke();
+                    ctx.restore();
                 }
 
                 this.draw();
@@ -1566,42 +1619,51 @@
         }
 
         class Projectile {
-            constructor(x, y, velocity, color='#0ff', radius=4) {
+            constructor(x, y, velocity, skin, radius=4) {
                 this.x = x; this.y = y; this.velocity = velocity; 
+                this.skin = skin;
                 this.radius = radius + (UPGRADE_CONFIG.amplitude.action(gameData.upgrades.amplitude) - 4); 
-                this.color = color;
-                this.tier = SKIN_REGISTRY[gameData.equippedSkin].tier;
+                this.color = skin.color;
+                this.tier = skin.tier;
                 this.isMythicalWave = (this.tier === 'mythical');
             }
             update() {
                 this.x += this.velocity.x; this.y += this.velocity.y;
                 
                 ctx.save(); 
-                if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
+                // Scaling glow by tier for projectiles too
+                if (shadowPower > 0) { ctx.shadowBlur = shadowPower * this.skin.glowMult; ctx.shadowColor = this.color; }
 
                 if (this.isMythicalWave) {
                     let waveWidth = this.radius * 4.5 + Math.sin(performance.now() * 0.08) * 12;
-                    ctx.fillStyle = 'rgba(255, 255, 0, 0.25)';
-                    ctx.strokeStyle = '#ffff00';
+                    ctx.fillStyle = this.skin.secColor;
+                    ctx.globalAlpha = 0.5;
+                    ctx.strokeStyle = this.color;
                     ctx.lineWidth = 3;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, waveWidth, Math.PI, 0); 
                     ctx.closePath();
                     ctx.fill(); ctx.stroke();
                     
+                    ctx.globalAlpha = 1.0;
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(this.x - waveWidth * 0.7, this.y - 2, waveWidth * 1.4, 4);
+                    
+                    // Trail particles for wave
+                    if(maxParticlesAllowed > 0 && Math.random() > 0.5) {
+                        particles.push(new Particle(this.x + (Math.random()-0.5)*waveWidth*2, this.y, {x:0,y:2}, 2, this.skin.terColor, 0.05));
+                    }
                 } 
                 else if (this.tier === 'epic') {
                     ctx.fillStyle = '#fff';
-                    ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 3;
-                    ctx.fillRect(this.x - 3, this.y - 12, 6, 24);
-                    ctx.strokeRect(this.x - 3, this.y - 12, 6, 24);
+                    ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 3;
+                    ctx.fillRect(this.x - 3, this.y - 14, 6, 28);
+                    ctx.strokeRect(this.x - 3, this.y - 14, 6, 28);
                 } 
                 else if (this.tier === 'rare') {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.PI * 2);
-                    ctx.fillStyle = '#00dfff'; ctx.fill();
+                    ctx.fillStyle = this.skin.secColor; ctx.fill();
                     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
                 }
                 else {
@@ -1846,29 +1908,31 @@
             const spreadLvl = UPGRADE_CONFIG.spread.action(gameData.upgrades.spread);
 
             if (isShooting && currentTime - lastShotTime > dynamicFireRate) {
-                let baseColor = player.color;
+                let skinConfig = player.skin;
                 playShootSound();
 
+                // Add muzzle flash particles driven by skin effect yields
                 if(player.tier !== 'common' && maxParticlesAllowed > 0) {
-                    for(let i=0; i<4; i++) {
-                        particles.push(new Particle(player.x, player.y - 15, {x: (Math.random()-0.5)*6, y: -Math.random()*4 - 2}, 2, baseColor, 0.05));
+                    for(let i=0; i<skinConfig.effectYield; i++) {
+                        particles.push(new Particle(player.x, player.y - 15, {x: (Math.random()-0.5)*6, y: -Math.random()*4 - 2}, 2, skinConfig.secColor, 0.05));
                     }
                 }
 
                 let RecoilOffset = player.tier === 'mythical' ? -14 : -16;
 
-                projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: RecoilOffset }, baseColor));
+                // Pass the whole skin config to the Projectile class
+                projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: RecoilOffset }, skinConfig));
                 if (spreadLvl >= 1) {
-                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -3, y: RecoilOffset + 1 }, baseColor, 3));
-                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 3, y: RecoilOffset + 1 }, baseColor, 3));
+                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -3, y: RecoilOffset + 1 }, skinConfig, 3));
+                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 3, y: RecoilOffset + 1 }, skinConfig, 3));
                 }
                 if (spreadLvl >= 2) {
-                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -6, y: RecoilOffset + 2 }, baseColor, 3));
-                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 6, y: RecoilOffset + 2 }, baseColor, 3));
+                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -6, y: RecoilOffset + 2 }, skinConfig, 3));
+                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 6, y: RecoilOffset + 2 }, skinConfig, 3));
                 }
                 if (spreadLvl >= 3) {
-                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -9, y: RecoilOffset + 3 }, baseColor, 3));
-                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 9, y: RecoilOffset + 3 }, baseColor, 3));
+                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -9, y: RecoilOffset + 3 }, skinConfig, 3));
+                    projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 9, y: RecoilOffset + 3 }, skinConfig, 3));
                 }
                 lastShotTime = currentTime;
             }
