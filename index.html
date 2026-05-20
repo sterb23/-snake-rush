@@ -897,6 +897,8 @@
         if (gameData.renderScaleInput === undefined) gameData.renderScaleInput = 100;
         if (gameData.maxParticlesAllowed === undefined) gameData.maxParticlesAllowed = 200;
         if (gameData.motionBlurAmount === undefined) gameData.motionBlurAmount = 30;
+        if (!gameData.unlockedSkins || gameData.unlockedSkins.length === 0) gameData.unlockedSkins = ['default'];
+        if (!gameData.equippedSkin) gameData.equippedSkin = 'default';
 
         const UPGRADE_CONFIG = {
             fireRate: { max: 5, baseCost: 5, costMult: 5, action: (lvl) => 120 - (lvl * 16) },
@@ -986,6 +988,8 @@
             const descEl = document.getElementById('quest-description');
             const progressFill = document.getElementById('quest-progress-fill');
             const statusText = document.getElementById('quest-status-text');
+
+            if (!descEl || !progressFill || !statusText) return;
 
             if (gameData.dailyQuestCompleted) {
                 descEl.innerHTML = `<span style="color:#0ff; font-weight:bold;">✓ CONTRACT FULLFILLED</span> (Earned +${gameData.dailyQuestReward} 🪙)`;
@@ -1225,6 +1229,7 @@
 
         function renderGraphicalSkinInventory() {
             const container = document.getElementById('skin-inventory-container');
+            if (!container) return;
             container.innerHTML = "";
             
             Object.keys(SKIN_REGISTRY).forEach(id => {
@@ -1413,30 +1418,35 @@
         setupShopButton(btnFortune, 'fortune');
 
         function updateShopUI() {
-            uiElements.menuSp.innerText = gameData.starPoints;
-            uiElements.menuSc.innerText = gameData.skinCoins;
-            uiElements.shopSp.innerText = gameData.starPoints;
-            uiElements.shopSc.innerText = gameData.skinCoins;
-            uiElements.hudSp.innerText = gameData.starPoints;
-            uiElements.hudSc.innerText = gameData.skinCoins;
+            if (uiElements.menuSp) uiElements.menuSp.innerText = gameData.starPoints;
+            if (uiElements.menuSc) uiElements.menuSc.innerText = gameData.skinCoins;
+            if (uiElements.shopSp) uiElements.shopSp.innerText = gameData.starPoints;
+            if (uiElements.shopSc) uiElements.shopSc.innerText = gameData.skinCoins;
+            if (uiElements.hudSp) uiElements.hudSp.innerText = gameData.starPoints;
+            if (uiElements.hudSc) uiElements.hudSc.innerText = gameData.skinCoins;
 
             const updateItem = (type, lvlId, costId, btnId, costTxtId) => {
                 const lvl = gameData.upgrades[type];
                 const cfg = UPGRADE_CONFIG[type];
                 const cost = cfg.baseCost + (lvl * cfg.costMult);
                 
-                document.getElementById(lvlId).innerText = lvl;
+                const lvlEl = document.getElementById(lvlId);
                 const btn = document.getElementById(btnId);
                 const costTxt = document.getElementById(costTxtId);
 
-                if (lvl >= cfg.max) {
-                    costTxt.innerText = "MAX LEVEL";
-                    btn.innerText = "Maxed";
-                    btn.disabled = true;
-                } else {
-                    document.getElementById(costId).innerText = cost;
-                    btn.disabled = gameData.starPoints < cost;
-                    btn.innerText = "Upgrade";
+                if (lvlEl) lvlEl.innerText = lvl;
+
+                if (btn && costTxt) {
+                    if (lvl >= cfg.max) {
+                        costTxt.innerText = "MAX LEVEL";
+                        btn.innerText = "Maxed";
+                        btn.disabled = true;
+                    } else {
+                        const costEl = document.getElementById(costId);
+                        if (costEl) costEl.innerText = cost;
+                        btn.disabled = gameData.starPoints < cost;
+                        btn.innerText = "Upgrade";
+                    }
                 }
             };
 
@@ -1460,51 +1470,69 @@
             const currentRankProgress = kills % 500;
             const progressPercent = (currentRankProgress / 500) * 100;
 
-            document.getElementById('lifetime-lvl-text').innerText = currentRank;
-            document.getElementById('lifetime-bar-fill').style.width = `${progressPercent}%`;
-            document.getElementById('lifetime-bar-text').innerText = `${currentRankProgress} / 500 KILLS`;
+            const rankTxt = document.getElementById('lifetime-lvl-text');
+            const barFill = document.getElementById('lifetime-bar-fill');
+            const barTxt = document.getElementById('lifetime-bar-text');
 
-            const claimableUnclaimedTiers = (currentRank - 1) - gameData.claimedKillsMilestones;
-            if (claimableUnclaimedTiers > 0) {
-                claimBtn.disabled = false;
-                claimBtn.innerText = `CLAIM (+${claimableUnclaimedTiers * 5})`;
-                claimBtn.style.background = '#ff0';
-            } else {
-                claimBtn.disabled = true;
-                claimBtn.innerText = 'CLAIM';
-                claimBtn.style.background = '#444';
+            if (rankTxt) rankTxt.innerText = currentRank;
+            if (barFill) barFill.style.width = `${progressPercent}%`;
+            if (barTxt) barTxt.innerText = `${currentRankProgress} / 500 KILLS`;
+
+            if (claimBtn) {
+                const claimableUnclaimedTiers = (currentRank - 1) - gameData.claimedKillsMilestones;
+                if (claimableUnclaimedTiers > 0) {
+                    claimBtn.disabled = false;
+                    claimBtn.innerText = `CLAIM (+${claimableUnclaimedTiers * 5})`;
+                    claimBtn.style.background = '#ff0';
+                } else {
+                    claimBtn.disabled = true;
+                    claimBtn.innerText = 'CLAIM';
+                    claimBtn.style.background = '#444';
+                }
             }
         }
 
         function switchScreen(screenName) {
-            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            Object.values(screens).forEach(s => { if(s) s.classList.add('hidden'); });
             if (screenName === 'start') {
-                screens.start.classList.remove('hidden');
+                if (screens.start) screens.start.classList.remove('hidden');
                 checkDailyQuestRefresh();
                 updateShopUI(); updateProgressionUI();
             } else if (screenName === 'shop') {
-                screens.shop.classList.remove('hidden');
+                if (screens.shop) screens.shop.classList.remove('hidden');
                 toggleShopTab('upgrades');
                 updateShopUI();
             } else if (screenName === 'gameover') {
-                screens.gameOver.classList.remove('hidden');
+                if (screens.gameOver) screens.gameOver.classList.remove('hidden');
             } else if (screenName === 'pause') {
-                screens.pause.classList.remove('hidden');
-                screens.hud.classList.remove('hidden');
-                screens.hud.style.display = 'flex';
+                if (screens.pause) screens.pause.classList.remove('hidden');
+                if (screens.hud) {
+                    screens.hud.classList.remove('hidden');
+                    screens.hud.style.display = 'flex';
+                }
             } else if (screenName === 'hud') {
-                screens.hud.classList.remove('hidden');
-                screens.hud.style.display = 'flex';
+                if (screens.hud) {
+                    screens.hud.classList.remove('hidden');
+                    screens.hud.style.display = 'flex';
+                }
             }
         }
 
         let controlMode = 'desktop';
         function setControlMode(mode) {
             controlMode = mode;
-            ['opt-desktop', 'opt-touch', 'opt-joystick'].forEach(id => document.getElementById(id).classList.remove('active'));
-            ['desc-desktop', 'desc-touch', 'desc-joystick'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById(`opt-${mode}`).classList.add('active');
-            document.getElementById(`desc-${mode}`).classList.remove('hidden');
+            ['opt-desktop', 'opt-touch', 'opt-joystick'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            ['desc-desktop', 'desc-touch', 'desc-joystick'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            const activeOpt = document.getElementById(`opt-${mode}`);
+            if (activeOpt) activeOpt.classList.add('active');
+            const activeDesc = document.getElementById(`desc-${mode}`);
+            if (activeDesc) activeDesc.classList.remove('hidden');
         }
         document.getElementById('opt-desktop').addEventListener('click', () => setControlMode('desktop'));
         document.getElementById('opt-touch').addEventListener('click', () => setControlMode('touch'));
@@ -1587,8 +1615,9 @@
 
         function checkMouseCoinHarvest(mx, my) {
             if(!gameActive || isPaused) return;
+            let activeInternalScale = gameData.renderScaleInput / 100;
             for(let i = skinCoins.length - 1; i >= 0; i--) {
-                if(Math.hypot(skinCoins[i].x - mx, skinCoins[i].y - my) < 55) {
+                if(Math.hypot((skinCoins[i].x * activeInternalScale) - mx, (skinCoins[i].y * activeInternalScale) - my) < 55) {
                     harvestSkinCoin(i);
                 }
             }
@@ -1603,8 +1632,9 @@
             gameData.skinCoins += payoutValue;
             coinsCollectedThisRun += payoutValue;
             
-            uiElements.hudSc.innerText = gameData.skinCoins;
+            if (uiElements.hudSc) uiElements.hudSc.innerText = gameData.skinCoins;
             skinCoins.splice(idx, 1);
+            saveData();
         }
 
         const joystickZone = document.getElementById('joystick-zone');
@@ -1699,7 +1729,7 @@
             constructor() {
                 this.x = window.innerWidth / 2; this.y = window.innerHeight * 0.7;
                 this.radius = 15;
-                this.skin = SKIN_REGISTRY[gameData.equippedSkin];
+                this.skin = SKIN_REGISTRY[gameData.equippedSkin] || SKIN_REGISTRY['default'];
                 this.color = this.skin.color;
                 this.tier = this.skin.tier;
                 this.velocity = { x: 0, y: 0 };
@@ -1784,17 +1814,20 @@
                 ctx.restore();
             }
             update() {
+                let activeInternalScale = gameData.renderScaleInput / 100;
                 if (controlMode === 'desktop' || controlMode === 'touch') {
                     let accelerationFactor = (gameData.upgrades.speed * 0.02) + 0.08;
-                    this.velocity.x += (mouse.x - this.x) * accelerationFactor;
-                    this.velocity.y += (mouse.y - this.y) * accelerationFactor;
+                    let targetX = mouse.x / activeInternalScale;
+                    let targetY = mouse.y / activeInternalScale;
+                    this.velocity.x += (targetX - this.x) * accelerationFactor;
+                    this.velocity.y += (targetY - this.y) * accelerationFactor;
                     this.velocity.x *= 0.8; this.velocity.y *= 0.8;
                 } else if (controlMode === 'joystick') {
                     this.velocity.x = joystickVector.x * this.joystickSpeed;
                     this.velocity.y = joystickVector.y * this.joystickSpeed;
                 }
-                this.x = Math.max(this.radius, Math.min(window.innerWidth - this.radius, this.x + this.velocity.x));
-                this.y = Math.max(this.radius, Math.min(window.innerHeight - this.radius, this.y + this.velocity.y));
+                this.x = Math.max(this.radius, Math.min((window.innerWidth) - this.radius, this.x + this.velocity.x));
+                this.y = Math.max(this.radius, Math.min((window.innerHeight) - this.radius, this.y + this.velocity.y));
 
                 this.draw();
             }
@@ -1805,7 +1838,6 @@
                     screenShake = 15;
                     createExplosion(this.x, this.y, '#0f0');
                     
-                    // Fixed stage 3 safe removal parsing utilizing instant evaluation arrays
                     let adjacentEnemies = [];
                     enemies.forEach(e => {
                         if (Math.hypot(this.x - e.x, this.y - e.y) < 140) adjacentEnemies.push(e);
@@ -1872,58 +1904,58 @@
 
                 if (type === 'basic') {
                     this.radius = Math.random() * 14 + 10; this.color = '#f0f'; this.edges = Math.floor(Math.random() * 3) + 3;
-                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 10); this.spin = 0.05;
+                    this.hp = 1; this.scoreVal = 10; this.spin = 0.05;
                     this.velocity = { x: Math.cos(angleToPlayer) * (Math.random() + 1) * speedScale, y: Math.sin(angleToPlayer) * (Math.random() + 1) * speedScale };
                 } 
                 else if (type === 'tank') {
                     this.radius = 32; this.color = '#0f0'; this.edges = 4;
-                    this.hp = 5; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 30); this.spin = 0.02;
+                    this.hp = 5; this.scoreVal = 30; this.spin = 0.02;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.5 * speedScale, y: Math.sin(angleToPlayer) * 0.5 * speedScale };
                 }
                 else if (type === 'chaser') {
                     this.radius = 12; this.color = '#f00'; this.edges = 3;
-                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 20); this.spin = 0.1; this.speed = 2.4 * speedScale;
+                    this.hp = 1; this.scoreVal = 20; this.spin = 0.1; this.speed = 2.4 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
                 }
                 else if (type === 'waver') {
                     this.radius = 15; this.color = '#ff8800'; this.edges = 5;
-                    this.hp = 2; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 25); this.spin = 0.08; this.baseAngle = angleToPlayer;
+                    this.hp = 2; this.scoreVal = 25; this.spin = 0.08; this.baseAngle = angleToPlayer;
                     this.speed = 2 * speedScale; this.wavePhase = Math.random() * Math.PI * 2;
                     this.velocity = { x: 0, y: 0 };
                 }
                 else if (type === 'elite_fast') {
                     this.radius = 11; this.color = '#ffd700'; this.edges = 6;
-                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 45); this.spin = 0.15; this.speed = 5.5 * speedScale;
+                    this.hp = 1; this.scoreVal = 45; this.spin = 0.15; this.speed = 5.5 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
                 }
                 else if (type === 'elite_tank') {
                     this.radius = 42; this.color = '#a020f0'; this.edges = 8;
-                    this.hp = 9; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 80); this.spin = 0.01;
+                    this.hp = 9; this.scoreVal = 80; this.spin = 0.01;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.4 * speedScale, y: Math.sin(angleToPlayer) * 0.4 * speedScale };
                 }
                 else if (type === 'yellow_crystal') {
                     this.radius = 20; this.color = '#ffff00'; this.edges = 4;
-                    this.hp = 3; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.04;
+                    this.hp = 3; this.scoreVal = 40; this.spin = 0.04;
                     this.velocity = { x: Math.cos(angleToPlayer) * 1.5 * speedScale, y: Math.sin(angleToPlayer) * 1.5 * speedScale };
                 }
                 else if (type === 'yellow_sphere') {
                     this.radius = 16; this.color = '#e6b800'; this.edges = 12;
-                    this.hp = 2; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = -0.02;
+                    this.hp = 2; this.scoreVal = 35; this.spin = -0.02;
                     this.velocity = { x: Math.cos(angleToPlayer) * 2.2 * speedScale, y: Math.sin(angleToPlayer) * 2.2 * speedScale };
                 }
                 else if (type === 'yellow_star') {
                     this.radius = 24; this.color = '#ffcc00'; this.edges = 5;
-                    this.hp = 4; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.07;
+                    this.hp = 4; this.scoreVal = 50; this.spin = 0.07;
                     this.velocity = { x: Math.cos(angleToPlayer) * 1.2 * speedScale, y: Math.sin(angleToPlayer) * 1.2 * speedScale };
                 }
                 else if (type === 'plasma_shard') {
                     this.radius = 14; this.color = '#33ffff'; this.edges = 3;
-                    this.hp = 2; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.12;
+                    this.hp = 2; this.scoreVal = 35; this.spin = 0.12;
                     this.velocity = { x: Math.cos(angleToPlayer) * 3.0 * speedScale, y: Math.sin(angleToPlayer) * 3.0 * speedScale };
                 }
                 else if (type === 'void_golem') {
                     this.radius = 36; this.color = '#ff3399'; this.edges = 7;
-                    this.hp = 6; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.01;
+                    this.hp = 6; this.scoreVal = 70; this.spin = 0.01;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.7 * speedScale, y: Math.sin(angleToPlayer) * 0.7 * speedScale };
                 }
             }
@@ -1991,7 +2023,6 @@
                 } else {
                     availableTypes.push('basic');
                     if (level >= 2) availableTypes.push('tank', 'elite_fast');
-                    // Stage 3 Spawning Matrix Assignments
                     if (level >= 3) availableTypes.push('chaser', 'elite_tank');
                     if (level >= 4) availableTypes.push('waver', 'elite_fast');
                 }
@@ -2017,15 +2048,17 @@
         function checkLevelUp() {
             let newLevel = Math.floor(score / 1000) + 1;
             if (newLevel > level) {
-                level = newLevel; uiElements.level.innerText = level;
+                level = newLevel; if(uiElements.level) uiElements.level.innerText = level;
                 spawnDelay = Math.max(180, 1000 - (level * 90));
                 
                 let mapNames = ["", "CYBER GRID", "CRIMSON NEBULA", "QUANTUM VOID", "VOID CORE", "PLASMA REEF", "ASTEROID BELTWAY", "SINGULARITY HORIZON", "COSMIC METRIC", "OMEGA SURGE"];
-                uiElements.levelUp.innerText = `LEVEL ${level}: ${level <= 9 ? mapNames[level-1] : "HYPERDRIVE OMNI"}`;
-                uiElements.levelUp.classList.add('level-up-active');
+                if (uiElements.levelUp) {
+                    uiElements.levelUp.innerText = `LEVEL ${level}: ${level <= 9 ? mapNames[level-1] : "HYPERDRIVE OMNI"}`;
+                    uiElements.levelUp.classList.add('level-up-active');
+                    setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2200);
+                }
                 
                 createExplosion(player.x, player.y, '#fff');
-                setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2200);
             }
         }
 
@@ -2038,7 +2071,8 @@
             mouse.x = window.innerWidth / 2; mouse.y = window.innerHeight * 0.7;
             projectiles = []; enemies = []; particles = []; skinCoins = [];
             score = 0; level = 1; killsThisRun = 0; coinsCollectedThisRun = 0; spawnDelay = 1000;
-            uiElements.score.innerText = score; uiElements.level.innerText = level;
+            if(uiElements.score) uiElements.score.innerText = score; 
+            if(uiElements.level) uiElements.level.innerText = level;
             
             initBackgrounds();
             gameActive = true; isPaused = false; isShooting = false;
@@ -2061,19 +2095,18 @@
 
             setTimeout(() => {
                 switchScreen('gameover');
-                uiElements.finalScore.innerText = score;
-                uiElements.finalLevel.innerText = level;
-                uiElements.earnedSp.innerText = earnedSp;
-                uiElements.earnedSc.innerText = coinsCollectedThisRun;
-                document.getElementById('run-kills-text').innerText = killsThisRun;
-                screens.hud.style.display = 'none';
+                if(uiElements.finalScore) uiElements.finalScore.innerText = score;
+                if(uiElements.finalLevel) uiElements.finalLevel.innerText = level;
+                if(uiElements.earnedSp) uiElements.earnedSp.innerText = earnedSp;
+                if(uiElements.earnedSc) uiElements.earnedSc.innerText = coinsCollectedThisRun;
+                const rKills = document.getElementById('run-kills-text');
+                if(rKills) rKills.innerText = killsThisRun;
+                if(screens.hud) screens.hud.style.display = 'none';
             }, 1000);
         }
 
         function drawMapBackground() {
-            // Apply customized alpha values matching the Motion Blur control slider mechanics
             let blurOpacity = (100 - gameData.motionBlurAmount) / 100;
-            // Clean constraint clamps to bypass clearRect clearing errors
             if(blurOpacity < 0.1) blurOpacity = 0.1; 
 
             ctx.fillStyle = `rgba(5, 5, 16, ${blurOpacity})`; 
@@ -2110,7 +2143,7 @@
                 if (screenShake < 0.5) screenShake = 0;
             }
 
-            // High performance internal system scaling multiplier engine
+            // Internal responsive system canvas resolution pipeline
             let activeInternalScale = gameData.renderScaleInput / 100;
             ctx.scale(activeInternalScale, activeInternalScale);
 
@@ -2160,8 +2193,6 @@
                 if (projectiles[i].y < -50 || projectiles[i].x < 0 || projectiles[i].x > window.innerWidth) projectiles.splice(i, 1);
             }
 
-            // CRITICAL FIX: To prevent immediate vanishing and array out-of-bounds mutation errors 
-            // inside Level 3, hit scanning operations have been insulated utilizing targeted removal buffers.
             let flaggedEnemiesToRemove = [];
             let flaggedProjectilesToRemove = [];
 
@@ -2191,10 +2222,9 @@
                             score += enemy.scoreVal; 
                             killsThisRun++; 
                             
-                            // Live runtime tracking evaluations
                             trackQuestKill();
                             
-                            uiElements.score.innerText = score;
+                            if(uiElements.score) uiElements.score.innerText = score;
                             flaggedEnemiesToRemove.push(enemy);
                             checkLevelUp();
                         }
@@ -2203,7 +2233,6 @@
                 }
             }
 
-            // Safely execute targeted removal arrays sequentially without altering loop logic steps
             flaggedEnemiesToRemove.forEach(e => {
                 let index = enemies.indexOf(e);
                 if(index !== -1) enemies.splice(index, 1);
@@ -2217,6 +2246,7 @@
         }
 
         // Initialize Engine Boot Sequence Configuration Elements
+        resize();
         initBackgrounds();
         refreshSliderDisplays();
         checkDailyQuestRefresh();
