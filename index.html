@@ -2,19 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Fixed Spawn</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Snake Fixed</title>
 
 <style>
 html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  height: 100%;
-  background: #000;
+  background: black;
   touch-action: none;
-  font-family: Arial;
-  color: white;
 }
 
 canvas {
@@ -22,22 +19,11 @@ canvas {
   margin: auto;
   background: #000;
   border: 2px solid #00ffcc;
-  box-shadow: 0 0 20px #00ffcc;
-}
-
-#ui {
-  position: absolute;
-  top: 10px;
-  left: 10px;
 }
 </style>
 </head>
 
 <body>
-
-<div id="ui">
-Score: <span id="score">0</span>
-</div>
 
 <canvas id="game"></canvas>
 
@@ -49,10 +35,12 @@ const ctx = canvas.getContext("2d");
 const box = 20;
 
 let cols, rows;
-let snake, food, dir, score = 0;
+let snake = [];
+let food = {};
+let dir = "RIGHT";
 let loop;
 
-/* 🔥 SAFE RESIZE FIRST */
+/* 🔥 ALWAYS VALID CANVAS */
 function resize() {
   canvas.width = Math.floor(window.innerWidth / box) * box;
   canvas.height = Math.floor(window.innerHeight / box) * box;
@@ -64,27 +52,20 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-/* ✅ SAFE SPAWN (ONLY AFTER RESIZE) */
+/* 🔥 SAFE INIT */
 function init() {
-  const startX = Math.floor(cols / 2);
-  const startY = Math.floor(rows / 2);
+  const cx = Math.floor(cols / 2) * box;
+  const cy = Math.floor(rows / 2) * box;
 
-  snake = [{
-    x: startX * box,
-    y: startY * box
-  }];
-
+  snake = [{ x: cx, y: cy }];
   dir = "RIGHT";
-  score = 0;
 
-  food = spawnFood();
-
-  document.getElementById("score").innerText = score;
+  spawnFood();
 }
 
-/* FOOD SAFE */
+/* FOOD */
 function spawnFood() {
-  return {
+  food = {
     x: Math.floor(Math.random() * cols) * box,
     y: Math.floor(Math.random() * rows) * box
   };
@@ -98,47 +79,43 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowDown") dir = "DOWN";
 });
 
-/* GAME LOOP */
+/* GAME */
 function game() {
 
-  ctx.fillStyle = "rgba(0,0,0,0.35)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let head = {...snake[0]};
+  let head = { ...snake[0] };
 
   if (dir === "RIGHT") head.x += box;
   if (dir === "LEFT") head.x -= box;
   if (dir === "UP") head.y -= box;
   if (dir === "DOWN") head.y += box;
 
-  /* WALLS */
+  /* WALL */
   if (
     head.x < 0 ||
     head.y < 0 ||
     head.x >= canvas.width ||
     head.y >= canvas.height
-  ) return die();
+  ) return restart();
 
   /* SELF */
   for (let s of snake) {
-    if (s.x === head.x && s.y === head.y) return die();
+    if (s.x === head.x && s.y === head.y) return restart();
   }
 
   snake.unshift(head);
 
-  /* EAT */
   if (head.x === food.x && head.y === food.y) {
-    score++;
-    food = spawnFood();
+    spawnFood();
   } else {
     snake.pop();
   }
 
   drawGrid();
-  drawSnake();
   drawFood();
-
-  document.getElementById("score").innerText = score;
+  drawSnake();
 }
 
 /* GRID */
@@ -147,15 +124,15 @@ function drawGrid() {
 
   for (let i = 0; i <= canvas.width; i += box) {
     ctx.beginPath();
-    ctx.moveTo(i,0);
-    ctx.lineTo(i,canvas.height);
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
     ctx.stroke();
   }
 
   for (let i = 0; i <= canvas.height; i += box) {
     ctx.beginPath();
-    ctx.moveTo(0,i);
-    ctx.lineTo(canvas.width,i);
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
     ctx.stroke();
   }
 }
@@ -172,8 +149,12 @@ function drawSnake() {
 
   for (let i = 0; i < snake.length; i++) {
     let s = snake[i];
-    if (i === 0) ctx.moveTo(s.x + box/2, s.y + box/2);
-    else ctx.lineTo(s.x + box/2, s.y + box/2);
+
+    if (i === 0) {
+      ctx.moveTo(s.x + box / 2, s.y + box / 2);
+    } else {
+      ctx.lineTo(s.x + box / 2, s.y + box / 2);
+    }
   }
 
   ctx.stroke();
@@ -182,26 +163,28 @@ function drawSnake() {
 
 /* FOOD */
 function drawFood() {
-  ctx.fillStyle = "#ff4444";
+  ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.arc(food.x + box/2, food.y + box/2, 8, 0, Math.PI*2);
+  ctx.arc(food.x + box / 2, food.y + box / 2, 8, 0, Math.PI * 2);
   ctx.fill();
 }
 
-/* DIE */
-function die() {
-  clearInterval(loop);
-  alert("Game Over!");
-  start();
-}
-
-/* START */
+/* START SAFE */
 function start() {
-  resize();   // 🔥 IMPORTANT FIX
-  init();     // 🔥 SAFE NOW
+  resize();   // MUST be first
+  init();     // MUST be after resize
+
+  clearInterval(loop);
   loop = setInterval(game, 120);
 }
 
+/* RESTART */
+function restart() {
+  clearInterval(loop);
+  start();
+}
+
+/* BOOT GAME */
 start();
 
 </script>
