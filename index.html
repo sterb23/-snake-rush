@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Surge - Ultra 3D Edition</title>
+    <title>Neon Surge - Ultra Edition</title>
     <style>
         body {
             margin: 0;
@@ -78,7 +78,6 @@
             transform: scale(0.5);
             transition: all 0.5s ease-out;
             pointer-events: none;
-            text-align: center;
         }
 
         .level-up-active {
@@ -116,63 +115,6 @@
             letter-spacing: 3px;
             color: #fff;
             text-shadow: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 40px #f0f;
-            margin-bottom: 5px;
-        }
-
-        /* Level Bar Component */
-        .xp-container {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #444;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: left;
-        }
-        .xp-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            font-weight: bold;
-            color: #0ff;
-            margin-bottom: 5px;
-        }
-        .xp-bar-bg {
-            background: #111;
-            height: 16px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #333;
-            position: relative;
-        }
-        .xp-bar-fill {
-            background: linear-gradient(90deg, #0ff, #f0f);
-            width: 0%;
-            height: 100%;
-            box-shadow: 0 0 10px #0ff;
-            transition: width 0.4s ease;
-        }
-        .claim-btn {
-            width: 100%;
-            margin-top: 8px;
-            background: #ff0 !important;
-            color: #000 !important;
-            font-weight: bold;
-            border: none !important;
-            padding: 6px !important;
-            box-shadow: 0 0 15px #ff0 !important;
-            animation: pulse 1.5s infinite alternate;
-        }
-        .claim-btn:disabled {
-            background: #333 !important;
-            color: #666 !important;
-            box-shadow: none !important;
-            animation: none;
-            cursor: not-allowed;
-        }
-
-        @keyframes pulse {
-            from { transform: scale(1); box-shadow: 0 0 10px #ff0; }
-            to { transform: scale(1.02); box-shadow: 0 0 20px #ff0; }
         }
 
         .section-title {
@@ -282,6 +224,7 @@
             cursor: not-allowed;
         }
 
+        /* Shop Styles */
         .shop-item {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid #444;
@@ -311,7 +254,13 @@
             font-weight: bold;
             color: #0ff;
         }
+        .shop-item button {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+        }
 
+        /* Mobile Controls */
         #mobile-controls {
             position: absolute;
             bottom: 30px;
@@ -365,6 +314,87 @@
             font-size: 16px;
         }
 
+        #mobile-fire-btn:active {
+            transform: scale(0.9);
+            background: radial-gradient(circle, #f0f 0%, #960096 100%);
+        }
+
+        /* --- GLOBAL LIFETIME PROGRESS UI ELEMENTS --- */
+        .global-progression-wrapper {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #334;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            box-sizing: border-box;
+        }
+        .progression-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #e0e0ff;
+        }
+        .progression-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        .level-bar-track {
+            flex: 1;
+            height: 18px;
+            background: #111122;
+            border: 1px solid #557;
+            border-radius: 9px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+        }
+        .level-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #960096 0%, #f0f 50%, #0ff 100%);
+            box-shadow: 0 0 10px #0ff;
+            transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        .level-bar-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 0;
+            left: 0;
+            font-size: 11px;
+            line-height: 18px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+        button.claim-btn {
+            background: #ff0;
+            color: #000;
+            border: none;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255,255,0,0.5);
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        button.claim-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #ff0;
+        }
+        button.claim-btn:disabled {
+            background: #444;
+            color: #888;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -385,27 +415,30 @@
                 <div id="score-display">SCORE: <span id="score">0</span></div>
                 <div class="star-points-display" style="margin:0; font-size:24px;">⭐ <span id="hud-sp">0</span></div>
             </div>
-            <div id="level-display">STAGE: <span id="level">1</span></div>
+            <div id="level-display">LEVEL: <span id="level">1</span></div>
         </div>
 
-        <div id="level-up-announcement">STAGE CLEAR</div>
+        <div id="level-up-announcement">LEVEL UP</div>
 
         <div id="start-screen" class="panel">
             <h1>Neon Surge</h1>
             
-            <div class="xp-container">
-                <div class="xp-header">
-                    <span id="account-level-txt">ACCOUNT LVL: 1</span>
-                    <span id="account-kills-txt">Kills: 0 / 500</span>
+            <div class="star-points-display">⭐ STAR POINTS: <span id="menu-sp">0</span></div>
+
+            <div class="global-progression-wrapper">
+                <div class="progression-header">
+                    <span>LIFETIME RANK: <span id="lifetime-lvl-text" style="color:#0ff;">1</span></span>
+                    <span style="color:#ff0;">PREMIUM LOOT METRICS</span>
                 </div>
-                <div class="xp-bar-bg">
-                    <div id="xp-bar-fill" class="xp-bar-fill"></div>
+                <div class="progression-container">
+                    <div class="level-bar-track">
+                        <div id="lifetime-bar-fill" class="level-bar-fill"></div>
+                        <div id="lifetime-bar-text" class="level-bar-text">0 / 500 KILLS</div>
+                    </div>
+                    <button id="claim-rewards-btn" class="claim-btn" disabled>CLAIM</button>
                 </div>
-                <button id="claim-rewards-btn" class="action-btn claim-btn" disabled>CLAIM 5 STAR POINTS</button>
             </div>
 
-            <div class="star-points-display">⭐ STAR POINTS: <span id="menu-sp">0</span></div>
-            
             <div class="tutorial-text">
                 <div class="section-title">Control Matrix</div>
                 <div class="control-selection">
@@ -417,18 +450,20 @@
                 <div class="section-title">Graphics Quality Engine</div>
                 <div class="control-selection">
                     <div class="radio-btn purple" id="gq-low">LOW</div>
-                    <div class="radio-btn purple" id="gq-med">MED</div>
-                    <div class="radio-btn purple" id="gq-high">HIGH (3D)</div>
-                    <div class="radio-btn purple active" id="gq-ultra">ULTRA (3D)</div>
+                    <div class="radio-btn purple active" id="gq-med">MED</div>
+                    <div class="radio-btn purple" id="gq-high">HIGH</div>
+                    <div class="radio-btn purple" id="gq-ultra">ULTRA</div>
                 </div>
 
                 <div id="desc-desktop">Move <strong>Mouse</strong>. Hold <span class="key">L-Click</span> or <span class="key">Space</span> to shoot.</div>
                 <div id="desc-touch" class="hidden"><strong>Drag anywhere</strong> to steer. Auto-fires while moving.</div>
                 <div id="desc-joystick" class="hidden">Use <strong>Virtual Joystick</strong>. Hold <strong>FIRE</strong> to shoot.</div>
+                <br>
+                <p style="color:#ff5555; font-weight:bold; font-size:12px; margin:0;">Earn 1 ⭐ for every 100 session points scored.</p>
             </div>
             <div class="btn-group">
                 <button id="start-btn" class="action-btn">Initialize</button>
-                <button id="open-shop-btn" class="action-btn secondary">Upgrades</button>
+                <button id="open-shop-btn" class="action-btn secondary">System Upgrades</button>
             </div>
         </div>
 
@@ -492,9 +527,10 @@
         <div id="game-over-screen" class="panel hidden">
             <h1 style="text-shadow: 0 0 10px #f00, 0 0 20px #f00;">SYSTEM FAILURE</h1>
             <div class="tutorial-text">
-                <p>Stage Reached: <strong id="final-level" style="color:#f0f;">1</strong></p>
+                <p>Level Reached: <strong id="final-level" style="color:#f0f;">1</strong></p>
                 <p>Final Score: <strong id="final-score" style="color:#0ff; font-size: 24px;">0</strong></p>
-                <p>Objects Destroyed: <strong id="game-kills" style="color:#ff0; font-size: 18px;">0</strong></p>
+                <p>Objects Obliterated This Run: <strong id="run-kills-text" style="color:#ff5555;">0</strong></p>
+                <p style="font-size: 20px; color: #ff0; font-weight: bold; margin-top:15px;">⭐ Earned: <span id="earned-sp">0</span></p>
             </div>
             <div class="btn-group" style="flex-direction: column;">
                 <button id="restart-btn" class="action-btn">Reboot System</button>
@@ -507,13 +543,19 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Persistent Profile Database
-        let gameData = JSON.parse(localStorage.getItem('neonSurgeData3D')) || {
+        // --- DATA DECK & EXTENDED LIFETIME TRACKER ---
+        let gameData = JSON.parse(localStorage.getItem('neonSurgeData')) || {
             starPoints: 0,
             upgrades: { fireRate: 0, spread: 0, shield: 0, speed: 0, amplitude: 0 },
-            totalKills: 0,
-            claimedLevelRewards: 0
+            lifetimeKills: 0,
+            claimedKillsMilestones: 0 
         };
+
+        // Safety verification matrices for structural objects
+        if(gameData.upgrades.speed === undefined) gameData.upgrades.speed = 0;
+        if(gameData.upgrades.amplitude === undefined) gameData.upgrades.amplitude = 0;
+        if(gameData.lifetimeKills === undefined) gameData.lifetimeKills = 0;
+        if(gameData.claimedKillsMilestones === undefined) gameData.claimedKillsMilestones = 0;
 
         const UPGRADE_CONFIG = {
             fireRate: { max: 5, baseCost: 5, costMult: 5, action: (lvl) => 120 - (lvl * 16) },
@@ -523,23 +565,29 @@
             amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) }
         };
 
-        // Engine Configuration Matrix
-        let graphicsQuality = 'ultra'; 
+        // Graphics Scaling Matrices
+        let graphicsQuality = 'med'; 
         let renderScale = 1.0;
         let shadowPower = 10;
         let maxParticlesAllowed = 80;
         let ultraMotionBlur = false;
         let screenShakeIntensity = 0;
-        let is3DMode = true; 
 
         let vWidth = window.innerWidth;
         let vHeight = window.innerHeight;
 
         function saveData() {
-            localStorage.setItem('neonSurgeData3D', JSON.stringify(gameData));
-            updateProfileUI();
+            localStorage.setItem('neonSurgeData', JSON.stringify(gameData));
+            updateShopUI();
+            updateProgressionUI();
         }
 
+        // Automatic page execution unload saves (Tab closure/reloading tracking backup)
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('neonSurgeData', JSON.stringify(gameData));
+        });
+
+        // UI Framework Elements
         const screens = {
             start: document.getElementById('start-screen'),
             shop: document.getElementById('shop-screen'),
@@ -555,46 +603,62 @@
             shopSp: document.getElementById('shop-sp'),
             finalScore: document.getElementById('final-score'),
             finalLevel: document.getElementById('final-level'),
-            gameKills: document.getElementById('game-kills'),
+            earnedSp: document.getElementById('earned-sp'),
             levelUp: document.getElementById('level-up-announcement')
         };
 
-        // UI Interactions
+        // UI Button Direct Binding
         document.getElementById('start-btn').addEventListener('click', startGame);
         document.getElementById('restart-btn').addEventListener('click', startGame);
         document.getElementById('open-shop-btn').addEventListener('click', () => switchScreen('shop'));
         document.getElementById('close-shop-btn').addEventListener('click', () => switchScreen('start'));
         document.getElementById('main-menu-btn').addEventListener('click', () => switchScreen('start'));
 
-        // Claim Rewards Logic Engine
+        // Rewards Extraction Click Loop
         const claimBtn = document.getElementById('claim-rewards-btn');
         claimBtn.addEventListener('click', () => {
-            const calculatedLevel = Math.floor(gameData.totalKills / 500) + 1;
-            if (calculatedLevel > gameData.claimedLevelRewards + 1) {
-                gameData.claimedLevelRewards++;
-                gameData.starPoints += 5;
+            const currentTotalRank = Math.floor(gameData.lifetimeKills / 500);
+            const claimableTiers = currentTotalRank - gameData.claimedKillsMilestones;
+            
+            if (claimableTiers > 0) {
+                const calculatedStarReward = claimableTiers * 5;
+                gameData.starPoints += calculatedStarReward;
+                gameData.claimedKillsMilestones = currentTotalRank;
                 saveData();
+                
+                // Add a micro flash effect over the UI layout
+                claimBtn.style.transform = 'scale(1.2)';
+                setTimeout(() => claimBtn.style.transform = 'none', 200);
             }
         });
 
-        function updateProfileUI() {
-            const calculatedLevel = Math.floor(gameData.totalKills / 500) + 1;
-            const currentLevelKills = gameData.totalKills % 500;
-            
-            document.getElementById('account-level-txt').innerText = `ACCOUNT LVL: ${calculatedLevel}`;
-            document.getElementById('account-kills-txt').innerText = `Kills: ${currentLevelKills} / 500`;
-            
-            const xpPercentage = (currentLevelKills / 500) * 100;
-            document.getElementById('xp-bar-fill').style.width = `${xpPercentage}%`;
+        // Shop Module Buttons
+        const btnFire = document.getElementById('buy-fire-btn');
+        const btnSpread = document.getElementById('buy-spread-btn');
+        const btnShield = document.getElementById('buy-shield-btn');
+        const btnSpeed = document.getElementById('buy-speed-btn');
+        const btnAmp = document.getElementById('buy-amp-btn');
 
-            if (calculatedLevel > gameData.claimedLevelRewards + 1) {
-                claimBtn.disabled = false;
-                claimBtn.innerText = `CLAIM 5 STAR POINTS (LVL ${gameData.claimedLevelRewards + 2})`;
-            } else {
-                claimBtn.disabled = true;
-                claimBtn.innerText = `NEXT REWARD AT LVL ${calculatedLevel + 1}`;
-            }
+        function setupShopButton(btn, type) {
+            btn.addEventListener('click', () => {
+                const config = UPGRADE_CONFIG[type];
+                const currentLvl = gameData.upgrades[type];
+                const cost = config.baseCost + (currentLvl * config.costMult);
+                
+                if (currentLvl < config.max && gameData.starPoints >= cost) {
+                    gameData.starPoints -= cost;
+                    gameData.upgrades[type]++;
+                    saveData();
+                }
+            });
+        }
+        setupShopButton(btnFire, 'fireRate');
+        setupShopButton(btnSpread, 'spread');
+        setupShopButton(btnShield, 'shield');
+        setupShopButton(btnSpeed, 'speed');
+        setupShopButton(btnAmp, 'amplitude');
 
+        function updateShopUI() {
             uiElements.menuSp.innerText = gameData.starPoints;
             uiElements.shopSp.innerText = gameData.starPoints;
             uiElements.hudSp.innerText = gameData.starPoints;
@@ -626,14 +690,38 @@
             updateItem('amplitude', 'upg-amp-lvl', 'upg-amp-cost', 'buy-amp-btn', 'upg-amp-cost-text');
         }
 
+        // Progression Tracking Matrix Display
+        function updateProgressionUI() {
+            const kills = gameData.lifetimeKills;
+            const currentRank = Math.floor(kills / 500) + 1;
+            const currentRankProgress = kills % 500;
+            const progressPercent = (currentRankProgress / 500) * 100;
+
+            document.getElementById('lifetime-lvl-text').innerText = currentRank;
+            document.getElementById('lifetime-bar-fill').style.width = `${progressPercent}%`;
+            document.getElementById('lifetime-bar-text').innerText = `${currentRankProgress} / 500 KILLS`;
+
+            const claimableUnclaimedTiers = (currentRank - 1) - gameData.claimedKillsMilestones;
+            if (claimableUnclaimedTiers > 0) {
+                claimBtn.disabled = false;
+                claimBtn.innerText = `CLAIM (+${claimableUnclaimedTiers * 5})`;
+                claimBtn.style.background = '#ff0';
+            } else {
+                claimBtn.disabled = true;
+                claimBtn.innerText = 'CLAIM';
+                claimBtn.style.background = '#444';
+            }
+        }
+
         function switchScreen(screenName) {
             Object.values(screens).forEach(s => s.classList.add('hidden'));
             if (screenName === 'start') {
                 screens.start.classList.remove('hidden');
-                updateProfileUI();
+                updateShopUI();
+                updateProgressionUI();
             } else if (screenName === 'shop') {
                 screens.shop.classList.remove('hidden');
-                updateProfileUI();
+                updateShopUI();
             } else if (screenName === 'gameover') {
                 screens.gameOver.classList.remove('hidden');
             } else if (screenName === 'hud') {
@@ -642,7 +730,7 @@
             }
         }
 
-        // Configuration Control Handlers
+        // Control Matrix Setup
         let controlMode = 'desktop';
         function setControlMode(mode) {
             controlMode = mode;
@@ -656,24 +744,22 @@
         document.getElementById('opt-joystick').addEventListener('click', () => setControlMode('joystick'));
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0) setControlMode('touch');
 
+        // Quality Settings Allocations
         function setGraphicsQuality(quality) {
             graphicsQuality = quality;
             ['gq-low', 'gq-med', 'gq-high', 'gq-ultra'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`gq-${quality}`).classList.add('active');
             
             ultraMotionBlur = false;
-            is3DMode = false;
             if (quality === 'low') {
                 renderScale = 0.75; shadowPower = 0; maxParticlesAllowed = 0;
             } else if (quality === 'med') {
                 renderScale = 1.0; shadowPower = 10; maxParticlesAllowed = 80;
             } else if (quality === 'high') {
                 renderScale = 1.35; shadowPower = 22; maxParticlesAllowed = 250;
-                is3DMode = true;
             } else if (quality === 'ultra') {
                 renderScale = 1.65; shadowPower = 45; maxParticlesAllowed = 600;
                 ultraMotionBlur = true;
-                is3DMode = true;
             }
             resize();
         }
@@ -682,11 +768,11 @@
         document.getElementById('gq-high').addEventListener('click', () => setGraphicsQuality('high'));
         document.getElementById('gq-ultra').addEventListener('click', () => setGraphicsQuality('ultra'));
 
-        // Core Game Engine Properties
+        // Core Environment Setup
         let gameActive = false;
         let score = 0;
         let level = 1;
-        let sessionKills = 0;
+        let killsThisRun = 0;
         let animationId;
         
         let player;
@@ -699,6 +785,7 @@
         let nebulaClouds = [];
         let hyperspaceLines = [];
 
+        // Input Tracking Nodes
         const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         let isShooting = false;
         let lastShotTime = 0;
@@ -719,7 +806,7 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // Control Matrix Handlers
+        // System Input Listeners
         window.addEventListener('mousemove', (e) => { if (controlMode === 'desktop') { mouse.x = e.clientX; mouse.y = e.clientY; }});
         window.addEventListener('mousedown', () => { if(controlMode==='desktop') isShooting = true; });
         window.addEventListener('mouseup', () => { if(controlMode==='desktop') isShooting = false; });
@@ -762,38 +849,12 @@
             for(let i=0; i<60; i++) hyperspaceLines.push({x: Math.random()*vWidth, y: Math.random()*vHeight, len: Math.random()*50+20, s: Math.random()*15+5});
         }
 
-        // 3D Projection Pipeline Engine Tools
-        function project3D(x, y, z, rX, rY, rZ, scale) {
-            // Rotation Matrices around spatial axises
-            let radX = rX, radY = rY, radZ = rZ;
-            
-            // Rotate Y
-            let x1 = x * Math.cos(radY) - z * Math.sin(radY);
-            let z1 = x * Math.sin(radY) + z * Math.cos(radY);
-            
-            // Rotate X
-            let y2 = y * Math.cos(radX) - z1 * Math.sin(radX);
-            let z2 = y * Math.sin(radX) + z1 * Math.cos(radX);
-            
-            // Rotate Z
-            let x3 = x1 * Math.cos(radZ) - y2 * Math.sin(radZ);
-            let y3 = x1 * Math.sin(radZ) + y2 * Math.cos(radZ);
-            
-            // Push Z back into orthographic view space coordinates
-            let distance = 60;
-            let sz = z2 + distance;
-            let fov = 350;
-            
-            return {
-                x: (x3 * fov) / sz * (scale / 20),
-                y: (y3 * fov) / sz * (scale / 20),
-                z: z2
-            };
-        }
-
         class Player {
             constructor() {
-                this.x = vWidth / 2; this.y = vHeight * 0.7; this.radius = 15; this.color = '#0ff';
+                this.x = vWidth / 2;
+                this.y = vHeight * 0.7;
+                this.radius = 15;
+                this.color = '#0ff';
                 this.velocity = { x: 0, y: 0 };
                 this.joystickSpeed = UPGRADE_CONFIG.speed.action(gameData.upgrades.speed);
                 this.shields = UPGRADE_CONFIG.shield.action(gameData.upgrades.shield);
@@ -802,23 +863,42 @@
             }
             draw() {
                 ctx.save();
-                if (this.invulnerable) ctx.globalAlpha = Math.random() > 0.5 ? 0.4 : 1.0;
+                if (this.invulnerable) {
+                    ctx.globalAlpha = Math.random() > 0.5 ? 0.4 : 1.0;
+                }
 
                 if (ultraMotionBlur && this.history.length > 1) {
-                    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter';
                     for (let i = 0; i < this.history.length; i++) {
                         let ratio = (i + 1) / this.history.length;
                         let pt = this.history[i];
                         ctx.globalAlpha = ratio * 0.25;
-                        ctx.strokeStyle = '#f0f'; ctx.beginPath();
-                        ctx.moveTo(pt.x, pt.y - this.radius * 1.5); ctx.lineTo(pt.x + this.radius * 1.2, pt.y + this.radius);
-                        ctx.lineTo(pt.x, pt.y + this.radius * 0.3); ctx.lineTo(pt.x - this.radius * 1.2, pt.y + this.radius);
-                        ctx.closePath(); ctx.stroke();
+                        
+                        ctx.strokeStyle = '#f0f';
+                        ctx.beginPath();
+                        ctx.moveTo(pt.x - 3, pt.y - this.radius * 1.5);
+                        ctx.lineTo(pt.x + this.radius * 1.2 - 3, pt.y + this.radius);
+                        ctx.lineTo(pt.x - 3, pt.y + this.radius * 0.3);
+                        ctx.lineTo(pt.x - this.radius * 1.2 - 3, pt.y + this.radius);
+                        ctx.closePath();
+                        ctx.stroke();
+
+                        ctx.strokeStyle = '#0ff';
+                        ctx.beginPath();
+                        ctx.moveTo(pt.x + 3, pt.y - this.radius * 1.5);
+                        ctx.lineTo(pt.x + this.radius * 1.2 + 3, pt.y + this.radius);
+                        ctx.lineTo(pt.x + 3, pt.y + this.radius * 0.3);
+                        ctx.lineTo(pt.x - this.radius * 1.2 + 3, pt.y + this.radius);
+                        ctx.closePath();
+                        ctx.stroke();
                     }
                     ctx.restore();
                 }
 
-                if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
+                }
 
                 ctx.beginPath();
                 ctx.moveTo(this.x, this.y - this.radius * 1.5); 
@@ -826,43 +906,66 @@
                 ctx.lineTo(this.x, this.y + this.radius * 0.3); 
                 ctx.lineTo(this.x - this.radius * 1.2, this.y + this.radius); 
                 ctx.closePath();
-                ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
+
+                ctx.fillStyle = '#fff'; ctx.fill(); 
+                ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
                 
+                ctx.beginPath();
+                ctx.moveTo(this.x - this.radius * 0.4, this.y + this.radius * 0.6);
+                ctx.lineTo(this.x, this.y + this.radius * (ultraMotionBlur ? 1.6 : 1.2));
+                ctx.lineTo(this.x + this.radius * 0.4, this.y + this.radius * 0.6);
+                ctx.closePath();
+                ctx.fillStyle = Math.random() > 0.5 ? '#ff00ff' : '#00ffff';
+                ctx.fill();
+
                 if (this.shields > 0) {
                     if (shadowPower > 0) ctx.shadowColor = '#0f0';
                     ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.2)})`;
-                    ctx.lineWidth = 2 + this.shields; ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius + 12, 0, Math.PI * 2); ctx.stroke();
+                    ctx.lineWidth = 2 + this.shields;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + 12, 0, Math.PI * 2);
+                    ctx.stroke();
                 }
                 ctx.restore();
             }
             update() {
                 if (controlMode === 'desktop' || controlMode === 'touch') {
-                    let acc = (gameData.upgrades.speed * 0.02) + 0.08;
-                    this.velocity.x += (mouse.x - this.x) * acc; this.velocity.y += (mouse.y - this.y) * acc;
+                    let accelerationFactor = (gameData.upgrades.speed * 0.02) + 0.08;
+                    this.velocity.x += (mouse.x - this.x) * accelerationFactor;
+                    this.velocity.y += (mouse.y - this.y) * accelerationFactor;
                     this.velocity.x *= 0.8; this.velocity.y *= 0.8;
                 } else if (controlMode === 'joystick') {
-                    this.velocity.x = joystickVector.x * this.joystickSpeed; this.velocity.y = joystickVector.y * this.joystickSpeed;
+                    this.velocity.x = joystickVector.x * this.joystickSpeed;
+                    this.velocity.y = joystickVector.y * this.joystickSpeed;
                 }
                 this.x = Math.max(this.radius, Math.min(vWidth - this.radius, this.x + this.velocity.x));
                 this.y = Math.max(this.radius, Math.min(vHeight - this.radius, this.y + this.velocity.y));
                 
                 if (ultraMotionBlur) {
-                    this.history.push({x: this.x, y: this.y}); if (this.history.length > 5) this.history.shift();
-                } else this.history = [];
+                    this.history.push({x: this.x, y: this.y});
+                    if (this.history.length > 5) this.history.shift();
+                } else {
+                    this.history = [];
+                }
+
                 this.draw();
             }
             takeDamage() {
                 if (this.invulnerable) return false;
+                
                 if (this.shields > 0) {
-                    this.shields--; this.invulnerable = true;
-                    createExplosion(this.x, this.y, '#0f0'); screenShakeIntensity = 25;
-                    enemies.forEach((enemy) => {
+                    this.shields--;
+                    this.invulnerable = true;
+                    createExplosion(this.x, this.y, '#0f0');
+                    screenShakeIntensity = 25;
+                    
+                    enemies.forEach((enemy, i) => {
                         if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 150) {
                             createExplosion(enemy.x, enemy.y, enemy.color);
                             setTimeout(() => { if (enemies.includes(enemy)) enemies.splice(enemies.indexOf(enemy), 1); }, 0);
                         }
                     });
+
                     setTimeout(() => { this.invulnerable = false; }, 1500);
                     return false; 
                 }
@@ -875,16 +978,37 @@
                 this.x = x; this.y = y; this.velocity = velocity; 
                 this.radius = radius + (UPGRADE_CONFIG.amplitude.action(gameData.upgrades.amplitude) - 4); 
                 this.color = color;
+                this.lastX = x;
+                this.lastY = y;
             }
             update() {
+                this.lastX = this.x;
+                this.lastY = this.y;
                 this.x += this.velocity.x; this.y += this.velocity.y;
+                
                 ctx.save(); 
-                if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
+                }
+
                 if (ultraMotionBlur) {
-                    ctx.beginPath(); ctx.lineWidth = this.radius * 2.2; ctx.lineCap = 'round'; ctx.strokeStyle = this.color;
-                    ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.velocity.x * 1.5, this.y - this.velocity.y * 1.5); ctx.stroke();
+                    ctx.beginPath();
+                    ctx.lineWidth = this.radius * 2.2;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = this.color;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 1.5, this.y - this.velocity.y * 1.5);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.lineWidth = this.radius * 0.8;
+                    ctx.strokeStyle = '#fff';
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 1.2, this.y - this.velocity.y * 1.2);
+                    ctx.stroke();
                 } else {
-                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff'; ctx.fill();
                 }
                 ctx.restore();
             }
@@ -893,156 +1017,137 @@
         class Enemy {
             constructor(x, y, type) {
                 this.x = x; this.y = y; this.type = type;
-                this.angle = 0; this.history = [];
+                this.angle = 0;
+                this.history = [];
                 let speedScale = 1 + (score * 0.0002);
                 let angleToPlayer = Math.atan2(player.y - y, player.x - x);
 
-                // Setup 3D Specific Rotations and Mesh Buffers
-                this.rotX = Math.random() * Math.PI;
-                this.rotY = Math.random() * Math.PI;
-                this.rotZ = Math.random() * Math.PI;
-                this.rotSpeedX = (Math.random() - 0.5) * 0.04;
-                this.rotSpeedY = (Math.random() - 0.5) * 0.04;
-                this.rotSpeedZ = (Math.random() - 0.5) * 0.04;
-
                 if (type === 'basic') {
-                    this.radius = Math.random() * 15 + 12; this.color = '#f0f'; this.hp = 1; this.scoreVal = 10;
+                    this.radius = Math.random() * 15 + 10; this.color = '#f0f'; this.edges = Math.floor(Math.random() * 3) + 3;
+                    this.hp = 1; this.scoreVal = 10; this.spin = 0.05;
                     this.velocity = { x: Math.cos(angleToPlayer) * (Math.random() + 1) * speedScale, y: Math.sin(angleToPlayer) * (Math.random() + 1) * speedScale };
-                    this.mesh = 'octahedron'; 
                 } 
                 else if (type === 'tank') {
-                    this.radius = 35; this.color = '#0f0'; this.hp = 5; this.scoreVal = 30;
+                    this.radius = 35; this.color = '#0f0'; this.edges = 4;
+                    this.hp = 5; this.scoreVal = 30; this.spin = 0.02;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.5 * speedScale, y: Math.sin(angleToPlayer) * 0.5 * speedScale };
-                    this.mesh = 'cube';
                 }
                 else if (type === 'chaser') {
-                    this.radius = 14; this.color = '#f00'; this.hp = 1; this.scoreVal = 20; this.speed = 2.5 * speedScale;
+                    this.radius = 12; this.color = '#f00'; this.edges = 3;
+                    this.hp = 1; this.scoreVal = 20; this.spin = 0.1; this.speed = 2.5 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
-                    this.mesh = 'pyramid';
                 }
                 else if (type === 'waver') {
-                    this.radius = 16; this.color = '#ff8800'; this.hp = 2; this.scoreVal = 25; this.baseAngle = angleToPlayer;
+                    this.radius = 15; this.color = '#ff8800'; this.edges = 5;
+                    this.hp = 2; this.scoreVal = 25; this.spin = 0.08; this.baseAngle = angleToPlayer;
                     this.speed = 2 * speedScale; this.wavePhase = Math.random() * Math.PI * 2;
                     this.velocity = { x: 0, y: 0 };
-                    this.mesh = 'octahedron';
                 }
             }
-            
-            getGeometry() {
-                // Returns structural nodes [x, y, z] and polygon maps
-                if (this.mesh === 'cube') {
-                    let v = [[-1,-1,-1], [1,-1,-1], [1,1,-1], [-1,1,-1], [-1,-1,1], [1,-1,1], [1,1,1], [-1,1,1]];
-                    let f = [[0,1,2,3], [1,5,6,2], [5,4,7,6], [4,0,3,7], [0,4,5,1], [3,2,6,7]];
-                    return { vertices: v, faces: f };
-                } else if (this.mesh === 'pyramid') {
-                    let v = [[0,-1.2,0], [-1,1,-1], [1,1,-1], [1,1,1], [-1,1,1]];
-                    let f = [[0,1,2], [0,2,3], [0,3,4], [0,4,1], [1,4,3,2]];
-                    return { vertices: v, faces: f };
-                } else { // Octahedron
-                    let v = [[0,-1.5,0], [1,0,0], [0,0,-1], [-1,0,0], [0,0,1], [0,1.5,0]];
-                    let f = [[0,1,2], [0,2,3], [0,3,4], [0,4,1], [5,2,1], [5,3,2], [5,4,3], [5,1,4]];
-                    return { vertices: v, faces: f };
-                }
-            }
-
             draw() {
                 ctx.save();
-                if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
-
-                if (is3DMode) {
-                    // Hyper-advanced Pseudo 3D Engine Projection Pipeline Matrix Execution
-                    let geom = this.getGeometry();
-                    let projected = geom.vertices.map(v => project3D(v[0], v[1], v[2], this.rotX, this.rotY, this.rotZ, this.radius));
-                    
-                    // Transform coordinates mapping vectors back to center point coordinates
-                    projected.forEach(p => { p.x += this.x; p.y += this.y; });
-
-                    // Sort faces based on pseudo depth buffering for lighting synthesis calculations
-                    let faceDepths = geom.faces.map((f, index) => {
-                        let zSum = f.reduce((sum, vIdx) => sum + projected[vIdx].z, 0);
-                        return { index: index, depth: zSum / f.length };
-                    });
-                    faceDepths.sort((a, b) => b.depth - a.depth);
-
-                    // Render mesh faces step by step loop
-                    faceDepths.forEach(fd => {
-                        let face = geom.faces[fd.index];
+                
+                if (ultraMotionBlur && this.history.length > 0) {
+                    ctx.save();
+                    for (let i = 0; i < this.history.length; i++) {
+                        let ratio = (i + 1) / this.history.length;
+                        ctx.globalAlpha = ratio * 0.15;
+                        ctx.save();
+                        ctx.translate(this.history[i].x, this.history[i].y);
+                        ctx.rotate(this.history[i].angle);
                         ctx.beginPath();
-                        ctx.moveTo(projected[face[0]].x, projected[face[0]].y);
-                        for(let i=1; i<face.length; i++) {
-                            ctx.lineTo(projected[face[i]].x, projected[face[i]].y);
+                        for (let j = 0; j < this.edges; j++) {
+                            const a = (Math.PI * 2 * j) / this.edges;
+                            const px = Math.cos(a) * this.radius; const py = Math.sin(a) * this.radius;
+                            if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
                         }
                         ctx.closePath();
-
-                        // Simulated spatial flat shader light calculus direction mapping
-                        let intensity = Math.abs(Math.sin(this.rotX + fd.index));
-                        ctx.fillStyle = this.color.replace(')', `, ${0.15 + intensity * 0.25})`).replace('rgb', 'rgba');
-                        ctx.fill();
-
-                        ctx.lineWidth = 1.5;
                         ctx.strokeStyle = this.color;
+                        ctx.lineWidth = 1;
                         ctx.stroke();
-                    });
-                } else {
-                    // Standard 2D Render Backup Mode
-                    ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-                    ctx.beginPath();
-                    let edges = this.mesh === 'cube' ? 4 : (this.mesh === 'pyramid' ? 3 : 5);
-                    for (let i = 0; i < edges; i++) {
-                        const a = (Math.PI * 2 * i) / edges;
-                        if (i === 0) ctx.moveTo(Math.cos(a) * this.radius, Math.sin(a) * this.radius);
-                        else ctx.lineTo(Math.cos(a) * this.radius, Math.sin(a) * this.radius);
+                        ctx.restore();
                     }
-                    ctx.closePath(); ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
+                    ctx.restore();
                 }
-                ctx.restore();
-            }
 
+                ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
+                }
+                ctx.beginPath();
+                for (let i = 0; i < this.edges; i++) {
+                    const a = (Math.PI * 2 * i) / this.edges;
+                    const px = Math.cos(a) * this.radius; const py = Math.sin(a) * this.radius;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.closePath(); ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
+                ctx.fillStyle = this.color.replace(')', ', 0.2)').replace('rgb', 'rgba'); ctx.fill(); ctx.restore();
+            }
             update() {
                 if (this.type === 'chaser') {
-                    let a = Math.atan2(player.y - this.y, player.x - this.x);
-                    this.velocity.x += Math.cos(a) * 0.05; this.velocity.y += Math.sin(a) * 0.05;
+                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - this.x);
+                    this.velocity.x += Math.cos(angleToPlayer) * 0.05; this.velocity.y += Math.sin(angleToPlayer) * 0.05;
                     let spd = Math.hypot(this.velocity.x, this.velocity.y);
                     if(spd > this.speed) { this.velocity.x = (this.velocity.x/spd)*this.speed; this.velocity.y = (this.velocity.y/spd)*this.speed; }
                 } else if (this.type === 'waver') {
-                    this.wavePhase += 0.1; let offset = Math.sin(this.wavePhase) * 3;
-                    this.velocity.x = Math.cos(this.baseAngle) * this.speed + Math.cos(this.baseAngle + Math.PI/2) * offset;
-                    this.velocity.y = Math.sin(this.baseAngle) * this.speed + Math.sin(this.baseAngle + Math.PI/2) * offset;
+                    this.wavePhase += 0.1; let waveOffset = Math.sin(this.wavePhase) * 3;
+                    this.velocity.x = Math.cos(this.baseAngle) * this.speed + Math.cos(this.baseAngle + Math.PI/2) * waveOffset;
+                    this.velocity.y = Math.sin(this.baseAngle) * this.speed + Math.sin(this.baseAngle + Math.PI/2) * waveOffset;
                 }
-                this.x += this.velocity.x; this.y += this.velocity.y; 
-                this.angle += 0.05;
+                this.x += this.velocity.x; this.y += this.velocity.y; this.angle += this.spin;
                 
-                // Advance 3D rotations calculations
-                this.rotX += this.rotSpeedX; this.rotY += this.rotSpeedY; this.rotZ += this.rotSpeedZ;
+                if (ultraMotionBlur) {
+                    this.history.push({x: this.x, y: this.y, angle: this.angle});
+                    if (this.history.length > 4) this.history.shift();
+                } else {
+                    this.history = [];
+                }
 
                 this.draw();
             }
         }
 
         class Particle {
-            constructor(x, y, val, rad, color) { this.x = x; this.y = y; this.vel = val; this.radius = rad; this.color = color; this.alpha = 1; }
+            constructor(x, y, velocity, radius, color) {
+                this.x = x; this.y = y; this.velocity = velocity; this.radius = radius; this.color = color; this.alpha = 1;
+            }
             update() {
-                this.vel.x *= 0.96; this.vel.y *= 0.96; this.x += this.vel.x; this.y += this.vel.y; this.alpha -= 0.02;
+                this.velocity.x *= 0.96; this.velocity.y *= 0.96;
+                this.x += this.velocity.x; this.y += this.velocity.y; this.alpha -= 0.02;
                 ctx.save(); ctx.globalAlpha = this.alpha; 
-                if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
+                
+                if (ultraMotionBlur) {
+                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
+                    ctx.lineWidth = this.radius;
+                    ctx.strokeStyle = this.color;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 2, this.y - this.velocity.y * 2);
+                    ctx.stroke();
+                } else {
+                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color; ctx.fill();
+                }
                 ctx.restore();
             }
         }
 
         function spawnEnemyLogic(currentTime) {
             if (currentTime - lastSpawnTime > spawnDelay) {
-                const radius = 35; let x, y;
+                const radius = 35;
+                let x, y;
                 if (Math.random() < 0.5) { x = Math.random() < 0.5 ? -radius : vWidth + radius; y = Math.random() * vHeight; } 
                 else { x = Math.random() * vWidth; y = Math.random() < 0.5 ? -radius : vHeight + radius; }
 
                 let availableTypes = ['basic'];
                 if (level >= 2) availableTypes.push('basic', 'tank');
-                if (level >= 3) availableTypes.push('basic', 'tank', 'chaser');
-                if (level >= 4) availableTypes.push('basic', 'tank', 'chaser', 'waver');
+                if (level >= 3) availableTypes.push('basic', 'tank', 'chaser', 'chaser');
+                if (level >= 4) availableTypes.push('basic', 'tank', 'chaser', 'waver', 'waver');
 
                 let type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-                enemies.push(new Enemy(x, y, type)); lastSpawnTime = currentTime;
+                enemies.push(new Enemy(x, y, type));
+                lastSpawnTime = currentTime;
             }
         }
 
@@ -1050,10 +1155,12 @@
             if (maxParticlesAllowed === 0) return; 
             const count = Math.min(ultraMotionBlur ? 40 : 15, maxParticlesAllowed - particles.length);
             for (let i = 0; i < count; i++) {
-                let m = ultraMotionBlur ? 14 : 8;
-                particles.push(new Particle(x, y, {x: (Math.random()-0.5)*m, y: (Math.random()-0.5)*m}, Math.random()*3+1, color));
+                let speedMult = ultraMotionBlur ? 14 : 8;
+                particles.push(new Particle(x, y, {x: (Math.random()-0.5)*speedMult, y: (Math.random()-0.5)*speedMult}, Math.random()*3+1, color));
             }
-            if (ultraMotionBlur) screenShakeIntensity = Math.min(18, screenShakeIntensity + 8);
+            if (ultraMotionBlur) {
+                screenShakeIntensity = Math.min(18, screenShakeIntensity + 8); 
+            }
         }
 
         function checkLevelUp() {
@@ -1061,8 +1168,14 @@
             if (newLevel > level) {
                 level = newLevel; uiElements.level.innerText = level;
                 spawnDelay = Math.max(250, 1000 - (level * 150));
-                uiElements.levelUp.innerText = `STAGE ${level} CLEARED`;
+                
+                let mapNames = ["", "CYBER GRID", "CRIMSON NEBULA", "QUANTUM VOID", "VOID CORE"];
+                let mapName = level <= 4 ? mapNames[level-1] : "MAXIMUM OVERDRIVE";
+                uiElements.levelUp.innerText = `LEVEL ${level}: ${mapName}`;
                 uiElements.levelUp.classList.add('level-up-active');
+                
+                createExplosion(player.x, player.y, '#fff'); createExplosion(player.x, player.y, '#0ff');
+                if(ultraMotionBlur) screenShakeIntensity = 20;
                 setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2500);
             }
         }
@@ -1071,59 +1184,97 @@
             switchScreen('hud');
             document.getElementById('mobile-controls').style.display = controlMode === 'joystick' ? 'block' : 'none';
 
-            player = new Player(); mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
+            player = new Player();
+            mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
             projectiles = []; enemies = []; particles = [];
-            score = 0; level = 1; sessionKills = 0; spawnDelay = 1000; screenShakeIntensity = 0;
+            score = 0; level = 1; killsThisRun = 0; spawnDelay = 1000; screenShakeIntensity = 0;
             uiElements.score.innerText = score; uiElements.level.innerText = level;
             
             initBackgrounds();
-            gameActive = true; isShooting = false; lastSpawnTime = performance.now();
+            gameActive = true; isShooting = false;
+            lastSpawnTime = performance.now();
             animate(lastSpawnTime);
         }
 
         function gameOver() {
-            gameActive = false; cancelAnimationFrame(animationId);
+            gameActive = false;
+            cancelAnimationFrame(animationId);
             document.getElementById('mobile-controls').style.display = 'none';
             
-            // Commit session logs to absolute lifetime statistics arrays
-            gameData.totalKills += sessionKills;
+            createExplosion(player.x, player.y, player.color);
+            createExplosion(player.x, player.y, '#f00');
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.7)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.update());
+
+            // Compile scores and store lifetime counts
+            const earnedSp = Math.floor(score / 100);
+            gameData.starPoints += earnedSp;
+            gameData.lifetimeKills += killsThisRun; 
+            
+            // Execute automated database preservation write sequence
             saveData();
 
             setTimeout(() => {
                 switchScreen('gameover');
                 uiElements.finalScore.innerText = score;
                 uiElements.finalLevel.innerText = level;
-                uiElements.gameKills.innerText = sessionKills;
+                uiElements.earnedSp.innerText = earnedSp;
+                document.getElementById('run-kills-text').innerText = killsThisRun;
                 screens.hud.style.display = 'none';
             }, 1200);
         }
 
         function drawMapBackground() {
-            ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, vWidth, vHeight);
-            ctx.fillStyle = '#fff';
-            stars.forEach(s => { s.y += s.s; if(s.y > vHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
-            
-            if (level >= 2) {
-                ctx.strokeStyle = 'rgba(0, 255, 255, 0.08)'; ctx.lineWidth = 1;
+            if (level === 1) {
+                ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.fillStyle = '#fff';
+                stars.forEach(s => { s.y += s.s; if(s.y > vHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
+            } else if (level === 2) {
+                ctx.fillStyle = 'rgba(5, 10, 20, 0.4)'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)'; ctx.lineWidth = 1;
                 gridY += 2; if(gridY > 50) gridY = 0;
                 ctx.beginPath();
                 for(let x=0; x<vWidth; x+=50) { ctx.moveTo(x, 0); ctx.lineTo(x, vHeight); }
                 for(let y=gridY; y<vHeight; y+=50) { ctx.moveTo(0, y); ctx.lineTo(vWidth, y); }
                 ctx.stroke();
+            } else if (level === 3) {
+                ctx.fillStyle = 'rgba(20, 5, 5, 0.3)'; ctx.fillRect(0, 0, vWidth, vHeight);
+                nebulaClouds.forEach(c => {
+                    c.x += c.vx; c.y += c.vy;
+                    if(c.y - c.r > vHeight) { c.y = -c.r; c.x = Math.random()*vWidth; }
+                    let grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r);
+                    grad.addColorStop(0, c.c); grad.addColorStop(1, 'transparent');
+                    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+                });
+            } else {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; ctx.fillRect(0, 0, vWidth, vHeight);
+                hyperspaceLines.forEach(l => {
+                    l.y += l.s; if (l.y > vHeight) { l.y = -l.len; l.x = Math.random()*vWidth; }
+                    ctx.strokeStyle = `hsl(${Math.random()*360}, 100%, 50%)`; ctx.lineWidth=2;
+                    ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y - l.len); ctx.stroke();
+                });
             }
         }
 
         function animate(currentTime) {
             if (!gameActive) return;
             animationId = requestAnimationFrame(animate);
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             ctx.save();
+            
             if (ultraMotionBlur && screenShakeIntensity > 0.1) {
-                ctx.translate((Math.random() - 0.5) * screenShakeIntensity, (Math.random() - 0.5) * screenShakeIntensity);
+                let dx = (Math.random() - 0.5) * screenShakeIntensity;
+                let dy = (Math.random() - 0.5) * screenShakeIntensity;
+                ctx.translate(dx, dy);
                 screenShakeIntensity *= 0.92;
             }
+
             ctx.scale(renderScale, renderScale);
+
+            if (ultraMotionBlur) {
+                ctx.globalCompositeOperation = 'source-over';
+            }
 
             drawMapBackground();
             player.update();
@@ -1134,7 +1285,9 @@
 
             if (isShooting && currentTime - lastShotTime > dynamicFireRate) {
                 let baseColor = spreadLvl === 3 ? '#f0f' : (spreadLvl > 0 ? '#ff0' : '#0ff');
-                projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: -16 }, baseColor));
+                
+                projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: -16 + (player.velocity.y*0.2) }, baseColor));
+                
                 if (spreadLvl >= 1) {
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -3, y: -15 }, baseColor, 3));
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 3, y: -15 }, baseColor, 3));
@@ -1147,46 +1300,62 @@
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -9, y: -12 }, baseColor, 3));
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 9, y: -12 }, baseColor, 3));
                 }
+                
                 lastShotTime = currentTime;
             }
 
             if (ultraMotionBlur) ctx.globalCompositeOperation = 'lighter';
+
             for (let i = particles.length - 1; i >= 0; i--) {
                 if (particles[i].alpha <= 0) particles.splice(i, 1); else particles[i].update();
             }
+
             for (let i = projectiles.length - 1; i >= 0; i--) {
-                projectiles[i].update(); if (projectiles[i].y < 0) projectiles.splice(i, 1);
+                projectiles[i].update();
+                if (projectiles[i].y < 0 || projectiles[i].x < 0 || projectiles[i].x > vWidth) projectiles.splice(i, 1);
             }
+
             if (ultraMotionBlur) ctx.globalCompositeOperation = 'source-over';
 
             for (let i = enemies.length - 1; i >= 0; i--) {
-                const enemy = enemies[i]; enemy.update();
+                const enemy = enemies[i];
+                enemy.update();
 
                 if (Math.hypot(player.x - enemy.x, player.y - enemy.y) - enemy.radius - player.radius < 0) {
-                    if (player.takeDamage()) { gameOver(); ctx.restore(); return; }
+                    const isDead = player.takeDamage();
+                    if (isDead) { gameOver(); ctx.restore(); return; }
                 }
 
                 for (let j = projectiles.length - 1; j >= 0; j--) {
                     const proj = projectiles[j];
                     if (Math.hypot(proj.x - enemy.x, proj.y - enemy.y) - enemy.radius - proj.radius < 0) {
-                        createExplosion(proj.x, proj.y, proj.color); projectiles.splice(j, 1);
+                        createExplosion(proj.x, proj.y, proj.color);
+                        projectiles.splice(j, 1);
                         enemy.hp--;
                         
                         if (enemy.hp <= 0) {
                             createExplosion(enemy.x, enemy.y, enemy.color);
-                            score += enemy.scoreVal; sessionKills++;
+                            score += enemy.scoreVal;
+                            killsThisRun++; 
                             uiElements.score.innerText = score;
-                            enemies.splice(i, 1); checkLevelUp();
+                            enemies.splice(i, 1);
+                            checkLevelUp();
+                        } else {
+                            enemy.radius *= 0.9; setTimeout(()=> {if(enemy) enemy.radius /= 0.9}, 50);
                         }
                         break;
                     }
                 }
             }
+            
             ctx.restore();
         }
 
-        // Initialize Engine Boot Sequence Defaults
-        setGraphicsQuality('ultra');
+        initBackgrounds();
+        drawMapBackground();
+        updateShopUI();
+        updateProgressionUI();
+
     </script>
 </body>
 </html>
