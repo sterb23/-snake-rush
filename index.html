@@ -1,5 +1,3 @@
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,16 +71,10 @@
 
         .skin-coins-display {
             color: #0ff;
-            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5);
-            font-size: 22px;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            font-size: 20px;
             margin-bottom: 15px;
             font-weight: bold;
-            animation: pulse-coin-glow 2s infinite alternate;
-        }
-
-        @keyframes pulse-coin-glow {
-            0% { text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
-            100% { text-shadow: 0 0 20px #0ff, 0 0 35px #2cffff, 0 0 50px #00ffff; }
         }
 
         #level-up-announcement {
@@ -194,83 +186,44 @@
             background: rgba(0, 255, 255, 0.1);
         }
 
-        .engine-slider-container {
+        .radio-btn.purple.active {
+            border-color: #f0f;
+            color: #f0f;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        .volume-slider-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid #334;
             border-radius: 8px;
-            padding: 12px 15px;
+            padding: 10px 15px;
             margin: 15px 0;
             text-align: left;
         }
 
-        .engine-slider-row {
+        .volume-slider-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 15px;
         }
 
-        .engine-slider-row label {
+        .volume-slider-row label {
             font-size: 12px;
             font-weight: bold;
             color: #0ff;
             text-transform: uppercase;
-            width: 110px;
+            width: 80px;
         }
 
-        .engine-slider-row input[type="range"] {
+        .volume-slider-row input[type="range"] {
             flex: 1;
             accent-color: #0ff;
             cursor: pointer;
-        }
-        
-        .engine-slider-row .slider-val {
-            font-size: 11px;
-            font-family: monospace;
-            color: #ff0;
-            width: 35px;
-            text-align: right;
-        }
-
-        .quest-box {
-            background: rgba(0, 255, 255, 0.05);
-            border: 1px dashed #0ff;
-            border-radius: 8px;
-            padding: 12px;
-            margin: 15px 0;
-            text-align: left;
-            box-shadow: 0 0 10px rgba(0,255,255,0.05);
-        }
-        .quest-title {
-            font-size: 12px;
-            font-weight: bold;
-            color: #ff0;
-            text-transform: uppercase;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        .quest-desc {
-            font-size: 13px;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-        .quest-progress-track {
-            height: 10px;
-            background: #111122;
-            border-radius: 5px;
-            overflow: hidden;
-            border: 1px solid #335;
-        }
-        .quest-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #00bbbb, #00ffff);
-            box-shadow: 0 0 8px #0ff;
-            transition: width 0.3s;
         }
 
         .btn-group {
@@ -397,8 +350,7 @@
         .crate-card.omni { border-color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
         .crate-card.premium { border-color: #f0f; box-shadow: 0 0 15px rgba(255,0,255,0.2); }
         .crate-title { font-weight: bold; font-size: 15px; margin-bottom: 5px; text-transform: uppercase; color: #fff; }
-        .crate-desc { font-size: 11px; color: #aaa; margin-bottom: 5px; text-align: center; min-height: 28px;}
-        .crate-chances { font-size: 10px; color: #ff0; text-align: center; margin-bottom: 10px; font-family: monospace; line-height: 1.3;}
+        .crate-desc { font-size: 11px; color: #aaa; margin-bottom: 10px; text-align: center; min-height: 28px;}
 
         .skin-inventory-grid {
             display: grid;
@@ -670,18 +622,6 @@
                 <div class="skin-coins-display">🪙 SKIN COINS: <span id="menu-sc">0</span></div>
             </div>
 
-            <div class="quest-box">
-                <div class="quest-title">
-                    <span>Daily System Quest</span>
-                    <span id="quest-timer" style="color: #ff3366;">Reset: 09:00 AM</span>
-                </div>
-                <div class="quest-desc" id="quest-description">Loading active data contract...</div>
-                <div class="quest-progress-track">
-                    <div id="quest-progress-fill" class="quest-progress-bar"></div>
-                </div>
-                <div id="quest-status-text" style="font-size: 11px; margin-top:4px; text-align:right; font-family:monospace; color:#aaa;">0/0</div>
-            </div>
-
             <div class="global-progression-wrapper">
                 <div class="progression-header">
                     <span>LIFETIME RANK: <span id="lifetime-lvl-text" style="color:#0ff;">1</span></span>
@@ -697,32 +637,15 @@
             </div>
 
             <div class="tutorial-text">
-                <div class="section-title">Engine Configuration Control Deck</div>
-                <div class="engine-slider-container">
-                    <div class="engine-slider-row">
-                        <label for="music-volume">Music Volume</label>
-                        <input type="range" id="music-volume" min="0" max="100" value="50">
-                        <span class="slider-val" id="val-music">50%</span>
-                    </div>
-                    <div class="engine-slider-row">
+                <div class="section-title">Volume Configuration</div>
+                <div class="volume-slider-container">
+                    <div class="volume-slider-row">
                         <label for="sfx-volume">SFX Volume</label>
                         <input type="range" id="sfx-volume" min="0" max="100" value="50">
-                        <span class="slider-val" id="val-sfx">50%</span>
                     </div>
-                    <div class="engine-slider-row">
-                        <label for="res-scale">Resolution</label>
-                        <input type="range" id="res-scale" min="50" max="150" value="100">
-                        <span class="slider-val" id="val-res">1.0x</span>
-                    </div>
-                    <div class="engine-slider-row">
-                        <label for="vfx-density">VFX Particles</label>
-                        <input type="range" id="vfx-density" min="0" max="400" value="200">
-                        <span class="slider-val" id="val-vfx">200</span>
-                    </div>
-                    <div class="engine-slider-row">
-                        <label for="motion-blur">Motion Blur</label>
-                        <input type="range" id="motion-blur" min="0" max="80" value="30">
-                        <span class="slider-val" id="val-blur">30%</span>
+                    <div class="volume-slider-row">
+                        <label for="music-volume">Music Volume</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="50">
                     </div>
                 </div>
 
@@ -731,6 +654,13 @@
                     <div class="radio-btn active" id="opt-desktop">DESKTOP</div>
                     <div class="radio-btn" id="opt-touch">TOUCH</div>
                     <div class="radio-btn" id="opt-joystick">JOYSTICK</div>
+                </div>
+
+                <div class="section-title">Graphics Quality Engine</div>
+                <div class="control-selection">
+                    <div class="radio-btn purple" id="gq-low">LOW</div>
+                    <div class="radio-btn purple" id="gq-med">MED</div>
+                    <div class="radio-btn purple active" id="gq-high">HIGH Engine</div>
                 </div>
 
                 <div id="desc-desktop">Move <strong>Mouse</strong>. Hold <span class="key">L-Click</span> or <span class="key">Space</span> to shoot. Grab flying 🪙 <strong>Skin Coins</strong>!</div>
@@ -804,16 +734,6 @@
                     </div>
                     <button id="buy-amp-btn" class="action-btn secondary" style="color:#ffff00; border-color:#ffff00;">Upgrade</button>
                 </div>
-
-                <div class="shop-item" style="border: 1px solid #0ff; background: rgba(0, 255, 255, 0.02);">
-                    <h3 style="color: #0ff;">Quantum Fortune</h3>
-                    <p>Increases the structural value yields when collecting single Skin Coins.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-fortune-lvl">0</span>/5</span>
-                        <span id="upg-fortune-cost-text">Cost: <span id="upg-fortune-cost">10</span> ⭐</span>
-                    </div>
-                    <button id="buy-fortune-btn" class="action-btn" style="color:#0ff; border-color:#0ff; box-shadow:0 0 10px rgba(0,255,255,0.2);">Upgrade</button>
-                </div>
             </div>
 
             <div id="tab-skins" class="shop-container hidden">
@@ -822,13 +742,11 @@
                     <div class="crate-card omni">
                         <div class="crate-title">Omni Crate</div>
                         <div class="crate-desc">Standard drop rates across all available skins.</div>
-                        <div class="crate-chances">Com: 50% | Unc: 28%<br>Rare: 14% | Epic: 6% | Myth: 2%</div>
                         <button id="crate-btn-omni" class="action-btn" style="font-size:14px; padding:10px; color:#0ff; border-color:#0ff;">50 🪙 SPIN</button>
                     </div>
                     <div class="crate-card premium">
                         <div class="crate-title">Cyber Crate</div>
                         <div class="crate-desc">Highly increased drop chance for Epic & Mythical skins.</div>
-                        <div class="crate-chances">Com: 10% | Unc: 15%<br>Rare: 20% | Epic: 35% | Myth: 20%</div>
                         <button id="crate-btn-premium" class="action-btn secondary" style="font-size:14px; padding:10px; color:#f0f; border-color:#f0f;">200 🪙 SPIN</button>
                     </div>
                 </div>
@@ -874,41 +792,27 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        let gameData = JSON.parse(localStorage.getItem('neonSurgeDataUltimateV2')) || {
+        let gameData = JSON.parse(localStorage.getItem('neonSurgeDataUltimate')) || {
             starPoints: 0,
             skinCoins: 0,
-            upgrades: { fireRate: 0, spread: 0, shield: 0, speed: 0, amplitude: 0, fortune: 0 },
+            upgrades: { fireRate: 0, spread: 0, shield: 0, speed: 0, amplitude: 0 },
             lifetimeKills: 0,
             claimedKillsMilestones: 0,
             unlockedSkins: ['default'],
             equippedSkin: 'default',
             sfxVolume: 50,
-            musicVolume: 50,
-            renderScaleInput: 100,
-            maxParticlesAllowed: 200,
-            motionBlurAmount: 30,
-            dailyQuestSeedDate: "",
-            dailyQuestTarget: 10,
-            dailyQuestReward: 25,
-            dailyQuestProgress: 0,
-            dailyQuestCompleted: false
+            musicVolume: 50
         };
 
-        // Fallback adjustments for structure upgrades
-        if (gameData.upgrades.fortune === undefined) gameData.upgrades.fortune = 0;
-        if (gameData.renderScaleInput === undefined) gameData.renderScaleInput = 100;
-        if (gameData.maxParticlesAllowed === undefined) gameData.maxParticlesAllowed = 200;
-        if (gameData.motionBlurAmount === undefined) gameData.motionBlurAmount = 30;
-        if (!gameData.unlockedSkins || gameData.unlockedSkins.length === 0) gameData.unlockedSkins = ['default'];
-        if (!gameData.equippedSkin) gameData.equippedSkin = 'default';
+        if (gameData.sfxVolume === undefined) gameData.sfxVolume = 50;
+        if (gameData.musicVolume === undefined) gameData.musicVolume = 50;
 
         const UPGRADE_CONFIG = {
             fireRate: { max: 5, baseCost: 5, costMult: 5, action: (lvl) => 120 - (lvl * 16) },
             spread: { max: 3, baseCost: 15, costMult: 15, action: (lvl) => lvl },
             shield: { max: 4, baseCost: 10, costMult: 10, action: (lvl) => lvl },
             speed: { max: 4, baseCost: 8, costMult: 6, action: (lvl) => 9 + (lvl * 2) },
-            amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) },
-            fortune: { max: 5, baseCost: 10, costMult: 8, action: (lvl) => 1 + lvl }
+            amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) }
         };
 
         const SKIN_REGISTRY = {};
@@ -948,77 +852,18 @@
             premium: { cost: 200 }
         };
 
+        let graphicsQuality = 'high'; 
+        let renderScale = 1.25;
+        let shadowPower = 20;
+        let maxParticlesAllowed = 180;
+        let highGraphicsBloom = true;
+
+        let vWidth = window.innerWidth;
+        let vHeight = window.innerHeight;
         let screenShake = 0;
+
         let audioCtx = null;
         let musicInterval = null;
-
-        // Daily Quest Calculations (Reset every day at 9:00 AM)
-        function checkDailyQuestRefresh() {
-            const now = new Date();
-            let currentQuestDayString = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
-            
-            // If it's before 9:00 AM, the quest baseline maps to yesterday's rotation window
-            const pivotTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0);
-            if (now < pivotTime) {
-                const yesterday = new Date(now);
-                yesterday.setDate(now.getDate() - 1);
-                currentQuestDayString = yesterday.getFullYear() + "-" + (yesterday.getMonth() + 1) + "-" + yesterday.getDate();
-            }
-
-            if (gameData.dailyQuestSeedDate !== currentQuestDayString) {
-                // Generate a pseudo-random seed utilizing the computed string matrix
-                let charSum = 0;
-                for (let i = 0; i < currentQuestDayString.length; i++) {
-                    charSum += currentQuestDayString.charCodeAt(i);
-                }
-                
-                // Deterministic generation values based on specific calendar dates
-                const targetKills = 15 + Math.floor((Math.abs(Math.sin(charSum)) * 36)); 
-                const currencyReward = 20 + Math.floor((Math.abs(Math.cos(charSum + 5)) * 41)); 
-
-                gameData.dailyQuestSeedDate = currentQuestDayString;
-                gameData.dailyQuestTarget = targetKills;
-                gameData.dailyQuestReward = currencyReward;
-                gameData.dailyQuestProgress = 0;
-                gameData.dailyQuestCompleted = false;
-                saveData();
-            }
-            updateQuestUI();
-        }
-
-        function updateQuestUI() {
-            const descEl = document.getElementById('quest-description');
-            const progressFill = document.getElementById('quest-progress-fill');
-            const statusText = document.getElementById('quest-status-text');
-
-            if (!descEl || !progressFill || !statusText) return;
-
-            if (gameData.dailyQuestCompleted) {
-                descEl.innerHTML = `<span style="color:#0ff; font-weight:bold;">✓ CONTRACT FULLFILLED</span> (Earned +${gameData.dailyQuestReward} 🪙)`;
-                progressFill.style.width = "100%";
-                statusText.innerText = "COMPLETED";
-                statusText.style.color = "#0ff";
-            } else {
-                descEl.innerHTML = `Destroy <span style="color:#ff0;">${gameData.dailyQuestTarget}</span> objects to unlock an automated payout of <span style="color:#0ff; font-weight:bold;">${gameData.dailyQuestReward} Skin Coins</span>.`;
-                const pct = Math.min(100, (gameData.dailyQuestProgress / gameData.dailyQuestTarget) * 100);
-                progressFill.style.width = `${pct}%`;
-                statusText.innerText = `${gameData.dailyQuestProgress} / ${gameData.dailyQuestTarget} OBJECTS KILLED`;
-                statusText.style.color = "#aaa";
-            }
-        }
-
-        function trackQuestKill() {
-            if (gameData.dailyQuestCompleted) return;
-            gameData.dailyQuestProgress++;
-            if (gameData.dailyQuestProgress >= gameData.dailyQuestTarget) {
-                gameData.dailyQuestCompleted = true;
-                gameData.skinCoins += gameData.dailyQuestReward;
-                // Immediate visual update to main screen metrics
-                uiElements.menuSc.innerText = gameData.skinCoins;
-            }
-            saveData();
-            updateQuestUI();
-        }
 
         function initAudioEngine() {
             if (audioCtx) return;
@@ -1091,7 +936,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('neonSurgeDataUltimateV2', JSON.stringify(gameData));
+            localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
             updateShopUI();
             updateProgressionUI();
         }
@@ -1120,47 +965,20 @@
             levelUp: document.getElementById('level-up-announcement')
         };
 
-        // Engine Configuration Event Mapping
-        const musicSl = document.getElementById('music-volume');
-        const sfxSl = document.getElementById('sfx-volume');
-        const resSl = document.getElementById('res-scale');
-        const vfxSl = document.getElementById('vfx-density');
-        const blurSl = document.getElementById('motion-blur');
+        const sfxSlider = document.getElementById('sfx-volume');
+        const musicSlider = document.getElementById('music-volume');
+        
+        sfxSlider.value = gameData.sfxVolume;
+        musicSlider.value = gameData.musicVolume;
 
-        // Initializing configurations mapping saved parameters
-        musicSl.value = gameData.musicVolume;
-        sfxSl.value = gameData.sfxVolume;
-        resSl.value = gameData.renderScaleInput;
-        vfxSl.value = gameData.maxParticlesAllowed;
-        blurSl.value = gameData.motionBlurAmount;
-
-        function refreshSliderDisplays() {
-            document.getElementById('val-music').innerText = musicSl.value + "%";
-            document.getElementById('val-sfx').innerText = sfxSl.value + "%";
-            document.getElementById('val-res').innerText = (resSl.value / 100).toFixed(1) + "x";
-            document.getElementById('val-vfx').innerText = vfxSl.value;
-            document.getElementById('val-blur').innerText = blurSl.value + "%";
-        }
-
-        musicSl.addEventListener('input', (e) => {
-            gameData.musicVolume = parseInt(e.target.value);
-            refreshSliderDisplays(); saveData();
-        });
-        sfxSl.addEventListener('input', (e) => {
+        sfxSlider.addEventListener('input', (e) => {
             gameData.sfxVolume = parseInt(e.target.value);
-            refreshSliderDisplays(); saveData();
+            localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
         });
-        resSl.addEventListener('input', (e) => {
-            gameData.renderScaleInput = parseInt(e.target.value);
-            refreshSliderDisplays(); resize(); saveData();
-        });
-        vfxSl.addEventListener('input', (e) => {
-            gameData.maxParticlesAllowed = parseInt(e.target.value);
-            refreshSliderDisplays(); saveData();
-        });
-        blurSl.addEventListener('input', (e) => {
-            gameData.motionBlurAmount = parseInt(e.target.value);
-            refreshSliderDisplays(); saveData();
+
+        musicSlider.addEventListener('input', (e) => {
+            gameData.musicVolume = parseInt(e.target.value);
+            localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
         });
 
         document.getElementById('tab-upgrades-btn').addEventListener('click', () => toggleShopTab('upgrades'));
@@ -1231,7 +1049,6 @@
 
         function renderGraphicalSkinInventory() {
             const container = document.getElementById('skin-inventory-container');
-            if (!container) return;
             container.innerHTML = "";
             
             Object.keys(SKIN_REGISTRY).forEach(id => {
@@ -1397,7 +1214,6 @@
         const btnShield = document.getElementById('buy-shield-btn');
         const btnSpeed = document.getElementById('buy-speed-btn');
         const btnAmp = document.getElementById('buy-amp-btn');
-        const btnFortune = document.getElementById('buy-fortune-btn');
 
         function setupShopButton(btn, type) {
             btn.addEventListener('click', () => {
@@ -1417,38 +1233,32 @@
         setupShopButton(btnShield, 'shield');
         setupShopButton(btnSpeed, 'speed');
         setupShopButton(btnAmp, 'amplitude');
-        setupShopButton(btnFortune, 'fortune');
 
         function updateShopUI() {
-            if (uiElements.menuSp) uiElements.menuSp.innerText = gameData.starPoints;
-            if (uiElements.menuSc) uiElements.menuSc.innerText = gameData.skinCoins;
-            if (uiElements.shopSp) uiElements.shopSp.innerText = gameData.starPoints;
-            if (uiElements.shopSc) uiElements.shopSc.innerText = gameData.skinCoins;
-            if (uiElements.hudSp) uiElements.hudSp.innerText = gameData.starPoints;
-            if (uiElements.hudSc) uiElements.hudSc.innerText = gameData.skinCoins;
+            uiElements.menuSp.innerText = gameData.starPoints;
+            uiElements.menuSc.innerText = gameData.skinCoins;
+            uiElements.shopSp.innerText = gameData.starPoints;
+            uiElements.shopSc.innerText = gameData.skinCoins;
+            uiElements.hudSp.innerText = gameData.starPoints;
+            uiElements.hudSc.innerText = gameData.skinCoins;
 
             const updateItem = (type, lvlId, costId, btnId, costTxtId) => {
                 const lvl = gameData.upgrades[type];
                 const cfg = UPGRADE_CONFIG[type];
                 const cost = cfg.baseCost + (lvl * cfg.costMult);
                 
-                const lvlEl = document.getElementById(lvlId);
+                document.getElementById(lvlId).innerText = lvl;
                 const btn = document.getElementById(btnId);
                 const costTxt = document.getElementById(costTxtId);
 
-                if (lvlEl) lvlEl.innerText = lvl;
-
-                if (btn && costTxt) {
-                    if (lvl >= cfg.max) {
-                        costTxt.innerText = "MAX LEVEL";
-                        btn.innerText = "Maxed";
-                        btn.disabled = true;
-                    } else {
-                        const costEl = document.getElementById(costId);
-                        if (costEl) costEl.innerText = cost;
-                        btn.disabled = gameData.starPoints < cost;
-                        btn.innerText = "Upgrade";
-                    }
+                if (lvl >= cfg.max) {
+                    costTxt.innerText = "MAX LEVEL";
+                    btn.innerText = "Maxed";
+                    btn.disabled = true;
+                } else {
+                    document.getElementById(costId).innerText = cost;
+                    btn.disabled = gameData.starPoints < cost;
+                    btn.innerText = "Upgrade";
                 }
             };
 
@@ -1457,7 +1267,6 @@
             updateItem('shield', 'upg-shield-lvl', 'upg-shield-cost', 'buy-shield-btn', 'upg-shield-cost-text');
             updateItem('speed', 'upg-speed-lvl', 'upg-speed-cost', 'buy-speed-btn', 'upg-speed-cost-text');
             updateItem('amplitude', 'upg-amp-lvl', 'upg-amp-cost', 'buy-amp-btn', 'upg-amp-cost-text');
-            updateItem('fortune', 'upg-fortune-lvl', 'upg-fortune-cost', 'buy-fortune-btn', 'upg-fortune-cost-text');
 
             const omniBtn = document.getElementById(`crate-btn-omni`);
             if(omniBtn) omniBtn.disabled = gameData.skinCoins < CRATE_POOLS['omni'].cost;
@@ -1472,74 +1281,73 @@
             const currentRankProgress = kills % 500;
             const progressPercent = (currentRankProgress / 500) * 100;
 
-            const rankTxt = document.getElementById('lifetime-lvl-text');
-            const barFill = document.getElementById('lifetime-bar-fill');
-            const barTxt = document.getElementById('lifetime-bar-text');
+            document.getElementById('lifetime-lvl-text').innerText = currentRank;
+            document.getElementById('lifetime-bar-fill').style.width = `${progressPercent}%`;
+            document.getElementById('lifetime-bar-text').innerText = `${currentRankProgress} / 500 KILLS`;
 
-            if (rankTxt) rankTxt.innerText = currentRank;
-            if (barFill) barFill.style.width = `${progressPercent}%`;
-            if (barTxt) barTxt.innerText = `${currentRankProgress} / 500 KILLS`;
-
-            if (claimBtn) {
-                const claimableUnclaimedTiers = (currentRank - 1) - gameData.claimedKillsMilestones;
-                if (claimableUnclaimedTiers > 0) {
-                    claimBtn.disabled = false;
-                    claimBtn.innerText = `CLAIM (+${claimableUnclaimedTiers * 5})`;
-                    claimBtn.style.background = '#ff0';
-                } else {
-                    claimBtn.disabled = true;
-                    claimBtn.innerText = 'CLAIM';
-                    claimBtn.style.background = '#444';
-                }
+            const claimableUnclaimedTiers = (currentRank - 1) - gameData.claimedKillsMilestones;
+            if (claimableUnclaimedTiers > 0) {
+                claimBtn.disabled = false;
+                claimBtn.innerText = `CLAIM (+${claimableUnclaimedTiers * 5})`;
+                claimBtn.style.background = '#ff0';
+            } else {
+                claimBtn.disabled = true;
+                claimBtn.innerText = 'CLAIM';
+                claimBtn.style.background = '#444';
             }
         }
 
         function switchScreen(screenName) {
-            Object.values(screens).forEach(s => { if(s) s.classList.add('hidden'); });
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
             if (screenName === 'start') {
-                if (screens.start) screens.start.classList.remove('hidden');
-                checkDailyQuestRefresh();
+                screens.start.classList.remove('hidden');
                 updateShopUI(); updateProgressionUI();
             } else if (screenName === 'shop') {
-                if (screens.shop) screens.shop.classList.remove('hidden');
+                screens.shop.classList.remove('hidden');
                 toggleShopTab('upgrades');
                 updateShopUI();
             } else if (screenName === 'gameover') {
-                if (screens.gameOver) screens.gameOver.classList.remove('hidden');
+                screens.gameOver.classList.remove('hidden');
             } else if (screenName === 'pause') {
-                if (screens.pause) screens.pause.classList.remove('hidden');
-                if (screens.hud) {
-                    screens.hud.classList.remove('hidden');
-                    screens.hud.style.display = 'flex';
-                }
+                screens.pause.classList.remove('hidden');
+                screens.hud.classList.remove('hidden');
+                screens.hud.style.display = 'flex';
             } else if (screenName === 'hud') {
-                if (screens.hud) {
-                    screens.hud.classList.remove('hidden');
-                    screens.hud.style.display = 'flex';
-                }
+                screens.hud.classList.remove('hidden');
+                screens.hud.style.display = 'flex';
             }
         }
 
         let controlMode = 'desktop';
         function setControlMode(mode) {
             controlMode = mode;
-            ['opt-desktop', 'opt-touch', 'opt-joystick'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.remove('active');
-            });
-            ['desc-desktop', 'desc-touch', 'desc-joystick'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            const activeOpt = document.getElementById(`opt-${mode}`);
-            if (activeOpt) activeOpt.classList.add('active');
-            const activeDesc = document.getElementById(`desc-${mode}`);
-            if (activeDesc) activeDesc.classList.remove('hidden');
+            ['opt-desktop', 'opt-touch', 'opt-joystick'].forEach(id => document.getElementById(id).classList.remove('active'));
+            ['desc-desktop', 'desc-touch', 'desc-joystick'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(`opt-${mode}`).classList.add('active');
+            document.getElementById(`desc-${mode}`).classList.remove('hidden');
         }
         document.getElementById('opt-desktop').addEventListener('click', () => setControlMode('desktop'));
         document.getElementById('opt-touch').addEventListener('click', () => setControlMode('touch'));
         document.getElementById('opt-joystick').addEventListener('click', () => setControlMode('joystick'));
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0) setControlMode('touch');
+
+        function setGraphicsQuality(quality) {
+            graphicsQuality = quality;
+            ['gq-low', 'gq-med', 'gq-high'].forEach(id => document.getElementById(id).classList.remove('active'));
+            document.getElementById(`gq-${quality}`).classList.add('active');
+            
+            if (quality === 'low') {
+                renderScale = 0.75; shadowPower = 0; maxParticlesAllowed = 0; highGraphicsBloom = false;
+            } else if (quality === 'med') {
+                renderScale = 1.0; shadowPower = 10; maxParticlesAllowed = 80; highGraphicsBloom = false;
+            } else if (quality === 'high') {
+                renderScale = 1.5; shadowPower = 40; maxParticlesAllowed = 350; highGraphicsBloom = true;
+            }
+            resize();
+        }
+        document.getElementById('gq-low').addEventListener('click', () => setGraphicsQuality('low'));
+        document.getElementById('gq-med').addEventListener('click', () => setGraphicsQuality('med'));
+        document.getElementById('gq-high').addEventListener('click', () => setGraphicsQuality('high'));
 
         let gameActive = false;
         let isPaused = false;
@@ -1558,6 +1366,11 @@
         
         let stars = [];
         let gridY = 0;
+        let nebulaClouds = [];
+        let hyperspaceLines = [];
+        let plasmaBubbles = [];
+        let asteroidRocks = [];
+        let matrixStreams = [];
 
         const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         let isShooting = false;
@@ -1572,11 +1385,13 @@
         let spawnDelay = 1000;
 
         function resize() {
-            let rScale = gameData.renderScaleInput / 100;
-            canvas.width = window.innerWidth * rScale;
-            canvas.height = window.innerHeight * rScale;
+            vWidth = window.innerWidth;
+            vHeight = window.innerHeight;
+            canvas.width = vWidth * renderScale;
+            canvas.height = vHeight * renderScale;
         }
         window.addEventListener('resize', resize);
+        resize();
 
         window.addEventListener('mousemove', (e) => { 
             if (controlMode === 'desktop') { mouse.x = e.clientX; mouse.y = e.clientY; }
@@ -1617,9 +1432,8 @@
 
         function checkMouseCoinHarvest(mx, my) {
             if(!gameActive || isPaused) return;
-            let activeInternalScale = gameData.renderScaleInput / 100;
             for(let i = skinCoins.length - 1; i >= 0; i--) {
-                if(Math.hypot((skinCoins[i].x * activeInternalScale) - mx, (skinCoins[i].y * activeInternalScale) - my) < 55) {
+                if(Math.hypot(skinCoins[i].x - mx, skinCoins[i].y - my) < 45) {
                     harvestSkinCoin(i);
                 }
             }
@@ -1627,16 +1441,11 @@
 
         function harvestSkinCoin(idx) {
             playCoinSound();
-            createExplosion(skinCoins[idx].x, skinCoins[idx].y, '#00ffff');
-            
-            // Scaled skin coin multiplier calculation from Fortune update tier
-            const payoutValue = UPGRADE_CONFIG.fortune.action(gameData.upgrades.fortune);
-            gameData.skinCoins += payoutValue;
-            coinsCollectedThisRun += payoutValue;
-            
-            if (uiElements.hudSc) uiElements.hudSc.innerText = gameData.skinCoins;
+            createExplosion(skinCoins[idx].x, skinCoins[idx].y, '#0ffff');
+            gameData.skinCoins++;
+            coinsCollectedThisRun++;
+            uiElements.hudSc.innerText = gameData.skinCoins;
             skinCoins.splice(idx, 1);
-            saveData();
         }
 
         const joystickZone = document.getElementById('joystick-zone');
@@ -1665,73 +1474,63 @@
         mobileFireBtn.addEventListener('touchend', () => { isShooting = false; });
 
         function initBackgrounds() {
-            stars = [];
-            for(let i=0; i<100; i++) stars.push({x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight, r: Math.random()*1.8, s: Math.random()*0.5+0.1});
+            stars = []; nebulaClouds = []; hyperspaceLines = []; plasmaBubbles = []; asteroidRocks = []; matrixStreams = [];
+            for(let i=0; i<80; i++) stars.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*1.5, s: Math.random()*0.5+0.1});
+            for(let i=0; i<10; i++) nebulaClouds.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*120+50, c: `rgba(${150+Math.random()*100}, 0, ${50+Math.random()*100}, 0.04)`, vx: (Math.random()-0.5)*0.3, vy: Math.random()*0.4+0.1});
+            for(let i=0; i<40; i++) hyperspaceLines.push({x: Math.random()*vWidth, y: Math.random()*vHeight, len: Math.random()*40+15, s: Math.random()*12+4});
+            for(let i=0; i<15; i++) plasmaBubbles.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*25+10, s: Math.random()*0.6+0.3, p: Math.random()*Math.PI});
+            for(let i=0; i<10; i++) asteroidRocks.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*30+15, s: Math.random()*1.0+0.4, rot: Math.random()*0.02, a: Math.random()*Math.PI*2, v: Math.floor(Math.random()*3)+5});
+            for(let i=0; i<25; i++) matrixStreams.push({x: Math.random()*vWidth, y: Math.random()*vHeight - vHeight, s: Math.random()*4+3, len: Math.floor(Math.random()*10)+5});
         }
 
         class SkinCoinEntity {
             constructor() {
-                this.x = Math.random() * (window.innerWidth - 60) + 30;
-                this.y = -30;
+                this.x = Math.random() * (vWidth - 60) + 30;
+                this.y = -20;
                 this.vx = (Math.random() - 0.5) * 2.5;
                 this.vy = Math.random() * 1.5 + 1.2;
                 this.angle = Math.random() * Math.PI;
-                this.rotSpeed = Math.random() * 0.05 + 0.03;
-                this.pulse = Math.random() * 10;
-                this.size = 18; // Enhanced physical layout footprint size metrics
+                this.rotSpeed = Math.random() * 0.04 + 0.02;
+                this.pulse = 0;
+                this.size = 14;
             }
             update() {
                 this.x += this.vx; this.y += this.vy; this.angle += this.rotSpeed; this.pulse += 0.08;
-                if(this.x < 15 || this.x > window.innerWidth - 15) this.vx *= -1;
+                if(this.x < 10 || this.x > vWidth - 10) this.vx *= -1;
 
                 ctx.save();
-                // Prettier and deeply localized high-intensity color glow matrix logic
-                ctx.shadowBlur = 15 + Math.sin(this.pulse) * 6; 
-                ctx.shadowColor = '#00ffff';
-                
+                if(shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = '#0ffff';
+                }
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
                 
-                if (gameData.maxParticlesAllowed > 50 && Math.random() > 0.4) {
-                    particles.push(new Particle(this.x, this.y, {x: -this.vx * 0.4, y: -this.vy * 0.4}, Math.random() * 2.5 + 1, 'rgba(0, 255, 255, 0.6)'));
+                if (graphicsQuality === 'high' && Math.random() > 0.4) {
+                    particles.push(new Particle(this.x, this.y, {x: -this.vx * 0.3, y: -this.vy * 0.3}, Math.random() * 2 + 1, 'rgba(0, 255, 255, 0.4)'));
                 }
 
-                // Inner core gradient design structural paths
-                let coinGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, this.size);
-                coinGrad.addColorStop(0, '#ffffff');
-                coinGrad.addColorStop(0.3, '#26ffff');
-                coinGrad.addColorStop(1, '#0088aa');
-
-                ctx.fillStyle = coinGrad;
-                ctx.strokeStyle = '#ffffff'; 
-                ctx.lineWidth = 2.5;
-                
-                // Enhanced double geometric structural layout ring paths
+                ctx.strokeStyle = '#0ffff'; ctx.lineWidth = 2;
+                ctx.fillStyle = `rgba(0, 255, 255, ${0.25 + Math.sin(this.pulse)*0.15})`;
                 ctx.beginPath();
-                for(let i=0; i<6; i++) {
-                    let anglePoint = (Math.PI * 2 * i) / 6;
-                    ctx.lineTo(Math.cos(anglePoint) * this.size, Math.sin(anglePoint) * this.size);
-                }
-                ctx.closePath(); 
-                ctx.fill(); 
-                ctx.stroke();
+                ctx.moveTo(0, -this.size);
+                ctx.lineTo(this.size * 0.7, 0);
+                ctx.lineTo(0, this.size);
+                ctx.lineTo(-this.size * 0.7, 0);
+                ctx.closePath(); ctx.fill(); ctx.stroke();
 
-                // Inner Sigil Ring Symbol Construction
                 ctx.beginPath();
-                ctx.arc(0, 0, this.size * 0.5, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-
+                ctx.moveTo(-this.size * 0.7, 0); ctx.lineTo(this.size * 0.7, 0);
+                ctx.moveTo(0, -this.size); ctx.lineTo(0, this.size);
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
                 ctx.restore();
             }
         }
 
         class Player {
             constructor() {
-                this.x = window.innerWidth / 2; this.y = window.innerHeight * 0.7;
+                this.x = vWidth / 2; this.y = vHeight * 0.7;
                 this.radius = 15;
-                this.skin = SKIN_REGISTRY[gameData.equippedSkin] || SKIN_REGISTRY['default'];
+                this.skin = SKIN_REGISTRY[gameData.equippedSkin];
                 this.color = this.skin.color;
                 this.tier = this.skin.tier;
                 this.velocity = { x: 0, y: 0 };
@@ -1747,8 +1546,10 @@
                 let wingspan = this.radius * (1 + this.skin.seed1 * 0.4);
                 let nose = this.radius * (1.5 + this.skin.seed2 * 0.5);
 
-                ctx.shadowBlur = 30 * this.skin.glowMult;
-                ctx.shadowColor = this.color;
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower * this.skin.glowMult;
+                    ctx.shadowColor = this.color;
+                }
 
                 if (this.tier === 'mythical') {
                     let pulseRadius = this.radius * (1.4 + Math.sin(performance.now() * 0.008) * 0.25);
@@ -1775,6 +1576,17 @@
                     grad.addColorStop(1, this.skin.secColor);
                     ctx.fillStyle = grad; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.stroke();
+                    
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y - nose); ctx.lineTo(this.x, this.y + this.radius * 0.2);
+                    ctx.moveTo(this.x - wingspan*0.5, this.y); ctx.lineTo(this.x + wingspan*0.5, this.y);
+                    ctx.stroke();
+
+                    ctx.fillStyle = this.skin.terColor;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y - 2, 5, 0, Math.PI*2);
+                    ctx.fill();
                 } 
                 else if (this.tier === 'epic') {
                     ctx.beginPath();
@@ -1785,6 +1597,13 @@
                     ctx.closePath();
                     ctx.fillStyle = '#111222'; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
+                    
+                    ctx.fillStyle = this.skin.secColor;
+                    ctx.fillRect(this.x - 2, this.y - nose * 0.3, 4, nose * 0.7);
+                    ctx.beginPath();
+                    ctx.arc(this.x - wingspan * 0.5, this.y + this.radius * 0.7, 3, 0, Math.PI * 2);
+                    ctx.arc(this.x + wingspan * 0.5, this.y + this.radius * 0.7, 3, 0, Math.PI * 2);
+                    ctx.fill();
                 } 
                 else if (this.tier === 'rare') {
                     ctx.beginPath();
@@ -1806,9 +1625,18 @@
                     ctx.fillStyle = this.color; ctx.fill(); 
                     ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
                 }
+                
+                ctx.beginPath();
+                let thrustW = this.radius * (0.3 + this.skin.seed2 * 0.2);
+                ctx.moveTo(this.x - thrustW, this.y + this.radius * 0.6);
+                ctx.lineTo(this.x, this.y + this.radius * (1.4 + Math.random() * 0.6));
+                ctx.lineTo(this.x + thrustW, this.y + this.radius * 0.6);
+                ctx.closePath();
+                ctx.fillStyle = this.skin.secColor;
+                ctx.fill();
 
                 if (this.shields > 0) {
-                    ctx.shadowColor = '#0f0';
+                    if (shadowPower > 0) ctx.shadowColor = '#0f0';
                     ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.2)})`;
                     ctx.lineWidth = 2 + this.shields;
                     ctx.beginPath(); ctx.arc(this.x, this.y, this.radius + 12, 0, Math.PI * 2); ctx.stroke();
@@ -1816,20 +1644,46 @@
                 ctx.restore();
             }
             update() {
-                let activeInternalScale = gameData.renderScaleInput / 100;
                 if (controlMode === 'desktop' || controlMode === 'touch') {
                     let accelerationFactor = (gameData.upgrades.speed * 0.02) + 0.08;
-                    let targetX = mouse.x / activeInternalScale;
-                    let targetY = mouse.y / activeInternalScale;
-                    this.velocity.x += (targetX - this.x) * accelerationFactor;
-                    this.velocity.y += (targetY - this.y) * accelerationFactor;
+                    this.velocity.x += (mouse.x - this.x) * accelerationFactor;
+                    this.velocity.y += (mouse.y - this.y) * accelerationFactor;
                     this.velocity.x *= 0.8; this.velocity.y *= 0.8;
                 } else if (controlMode === 'joystick') {
                     this.velocity.x = joystickVector.x * this.joystickSpeed;
                     this.velocity.y = joystickVector.y * this.joystickSpeed;
                 }
-                this.x = Math.max(this.radius, Math.min((window.innerWidth) - this.radius, this.x + this.velocity.x));
-                this.y = Math.max(this.radius, Math.min((window.innerHeight) - this.radius, this.y + this.velocity.y));
+                this.x = Math.max(this.radius, Math.min(vWidth - this.radius, this.x + this.velocity.x));
+                this.y = Math.max(this.radius, Math.min(vHeight - this.radius, this.y + this.velocity.y));
+
+                this.history.push({x: this.x, y: this.y});
+                if(this.history.length > 15) this.history.shift();
+
+                if (maxParticlesAllowed > 0) {
+                    let yieldCount = this.skin.effectYield;
+                    for(let i=0; i<yieldCount; i++) {
+                        if (Math.random() > 0.5) continue;
+
+                        if (this.tier === 'mythical') {
+                            particles.push(new Particle(this.x + (Math.random() - 0.5) * 24, this.y + 12, {x: (Math.random() - 0.5) * 3, y: Math.random() * 4 + 4}, Math.random() * 4 + 2, this.skin.terColor, 0.015));
+                            particles.push(new Particle(this.x + (Math.random() - 0.5) * 10, this.y + 10, {x: (Math.random() - 0.5) * 1, y: Math.random() * 2 + 1}, Math.random() * 3 + 1, this.skin.secColor, 0.02));
+                        } 
+                        else if (this.tier === 'epic') {
+                            particles.push(new Particle(this.x + (Math.random() - 0.5) * 15, this.y + 10, {x: (Math.random() - 0.5) * 2, y: Math.random() * 3 + 2}, Math.random() * 3 + 2, this.skin.secColor, 0.025));
+                        } 
+                        else if (this.tier === 'rare') {
+                            particles.push(new Particle(this.x, this.y + 10, {x: (Math.random()-0.5)*2, y: Math.random()*2+2}, Math.random()*5+2, this.skin.secColor, 0.04));
+                        }
+                    }
+                }
+
+                if (this.tier === 'epic' && this.history.length > 8 && Math.random() > 0.4) {
+                    ctx.save(); ctx.globalAlpha = 0.25;
+                    ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 1.5;
+                    let pos = this.history[Math.floor(Math.random()*this.history.length)];
+                    ctx.beginPath(); ctx.arc(pos.x + (Math.random()-0.5)*15, pos.y, this.radius * 1.2, 0, Math.PI*2); ctx.stroke();
+                    ctx.restore();
+                }
 
                 this.draw();
             }
@@ -1839,18 +1693,12 @@
                     this.shields--; this.invulnerable = true;
                     screenShake = 15;
                     createExplosion(this.x, this.y, '#0f0');
-                    
-                    let adjacentEnemies = [];
-                    enemies.forEach(e => {
-                        if (Math.hypot(this.x - e.x, this.y - e.y) < 140) adjacentEnemies.push(e);
+                    enemies.forEach((enemy) => {
+                        if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 140) {
+                            createExplosion(enemy.x, enemy.y, enemy.color);
+                            setTimeout(() => { if (enemies.includes(enemy)) enemies.splice(enemies.indexOf(enemy), 1); }, 0);
+                        }
                     });
-                    adjacentEnemies.forEach(e => {
-                        createExplosion(e.x, e.y, e.color);
-                        trackQuestKill();
-                        let index = enemies.indexOf(e);
-                        if (index !== -1) enemies.splice(index, 1);
-                    });
-
                     setTimeout(() => { this.invulnerable = false; }, 1500);
                     return false; 
                 }
@@ -1871,7 +1719,7 @@
                 this.x += this.velocity.x; this.y += this.velocity.y;
                 
                 ctx.save(); 
-                ctx.shadowBlur = 15 * this.skin.glowMult; ctx.shadowColor = this.color;
+                if (shadowPower > 0) { ctx.shadowBlur = shadowPower * this.skin.glowMult; ctx.shadowColor = this.color; }
 
                 if (this.isMythicalWave) {
                     let waveWidth = this.radius * 4.5 + Math.sin(performance.now() * 0.08) * 12;
@@ -1883,12 +1731,27 @@
                     ctx.arc(this.x, this.y, waveWidth, Math.PI, 0); 
                     ctx.closePath();
                     ctx.fill(); ctx.stroke();
+                    
+                    ctx.globalAlpha = 1.0;
+                    ctx.fillStyle = this.skin.terColor;
+                    ctx.fillRect(this.x - waveWidth * 0.7, this.y - 2, waveWidth * 1.4, 4);
+                    
+                    if(maxParticlesAllowed > 0 && Math.random() > 0.5) {
+                        particles.push(new Particle(this.x + (Math.random()-0.5)*waveWidth*2, this.y, {x:0,y:2}, 2, this.skin.terColor, 0.05));
+                    }
                 } 
                 else if (this.tier === 'epic') {
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 3;
                     ctx.fillRect(this.x - 3, this.y - 14, 6, 28);
+                    ctx.strokeRect(this.x - 3, this.y - 14, 6, 28);
                 } 
+                else if (this.tier === 'rare') {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.PI * 2);
+                    ctx.fillStyle = this.skin.secColor; ctx.fill();
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+                }
                 else {
                     ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                     ctx.fillStyle = '#fff'; ctx.fill();
@@ -1906,65 +1769,65 @@
 
                 if (type === 'basic') {
                     this.radius = Math.random() * 14 + 10; this.color = '#f0f'; this.edges = Math.floor(Math.random() * 3) + 3;
-                    this.hp = 1; this.scoreVal = 10; this.spin = 0.05;
+                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 10); this.spin = 0.05;
                     this.velocity = { x: Math.cos(angleToPlayer) * (Math.random() + 1) * speedScale, y: Math.sin(angleToPlayer) * (Math.random() + 1) * speedScale };
                 } 
                 else if (type === 'tank') {
                     this.radius = 32; this.color = '#0f0'; this.edges = 4;
-                    this.hp = 5; this.scoreVal = 30; this.spin = 0.02;
+                    this.hp = 5; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 30); this.spin = 0.02;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.5 * speedScale, y: Math.sin(angleToPlayer) * 0.5 * speedScale };
                 }
                 else if (type === 'chaser') {
                     this.radius = 12; this.color = '#f00'; this.edges = 3;
-                    this.hp = 1; this.scoreVal = 20; this.spin = 0.1; this.speed = 2.4 * speedScale;
+                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 20); this.spin = 0.1; this.speed = 2.4 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
                 }
                 else if (type === 'waver') {
                     this.radius = 15; this.color = '#ff8800'; this.edges = 5;
-                    this.hp = 2; this.scoreVal = 25; this.spin = 0.08; this.baseAngle = angleToPlayer;
+                    this.hp = 2; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 25); this.spin = 0.08; this.baseAngle = angleToPlayer;
                     this.speed = 2 * speedScale; this.wavePhase = Math.random() * Math.PI * 2;
                     this.velocity = { x: 0, y: 0 };
                 }
                 else if (type === 'elite_fast') {
                     this.radius = 11; this.color = '#ffd700'; this.edges = 6;
-                    this.hp = 1; this.scoreVal = 45; this.spin = 0.15; this.speed = 5.5 * speedScale;
+                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 45); this.spin = 0.15; this.speed = 5.5 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
                 }
                 else if (type === 'elite_tank') {
                     this.radius = 42; this.color = '#a020f0'; this.edges = 8;
-                    this.hp = 9; this.scoreVal = 80; this.spin = 0.01;
+                    this.hp = 9; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 80); this.spin = 0.01;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.4 * speedScale, y: Math.sin(angleToPlayer) * 0.4 * speedScale };
                 }
                 else if (type === 'yellow_crystal') {
                     this.radius = 20; this.color = '#ffff00'; this.edges = 4;
-                    this.hp = 3; this.scoreVal = 40; this.spin = 0.04;
+                    this.hp = 3; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.04;
                     this.velocity = { x: Math.cos(angleToPlayer) * 1.5 * speedScale, y: Math.sin(angleToPlayer) * 1.5 * speedScale };
                 }
                 else if (type === 'yellow_sphere') {
                     this.radius = 16; this.color = '#e6b800'; this.edges = 12;
-                    this.hp = 2; this.scoreVal = 35; this.spin = -0.02;
+                    this.hp = 2; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = -0.02;
                     this.velocity = { x: Math.cos(angleToPlayer) * 2.2 * speedScale, y: Math.sin(angleToPlayer) * 2.2 * speedScale };
                 }
                 else if (type === 'yellow_star') {
                     this.radius = 24; this.color = '#ffcc00'; this.edges = 5;
-                    this.hp = 4; this.scoreVal = 50; this.spin = 0.07;
+                    this.hp = 4; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.07;
                     this.velocity = { x: Math.cos(angleToPlayer) * 1.2 * speedScale, y: Math.sin(angleToPlayer) * 1.2 * speedScale };
                 }
                 else if (type === 'plasma_shard') {
                     this.radius = 14; this.color = '#33ffff'; this.edges = 3;
-                    this.hp = 2; this.scoreVal = 35; this.spin = 0.12;
+                    this.hp = 2; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.12;
                     this.velocity = { x: Math.cos(angleToPlayer) * 3.0 * speedScale, y: Math.sin(angleToPlayer) * 3.0 * speedScale };
                 }
                 else if (type === 'void_golem') {
                     this.radius = 36; this.color = '#ff3399'; this.edges = 7;
-                    this.hp = 6; this.scoreVal = 70; this.spin = 0.01;
+                    this.hp = 6; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.01;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.7 * speedScale, y: Math.sin(angleToPlayer) * 0.7 * speedScale };
                 }
             }
             draw() {
                 ctx.save();
                 ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-                ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+                if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                 ctx.beginPath();
                 for (let i = 0; i < this.edges; i++) {
                     const a = (Math.PI * 2 * i) / this.edges;
@@ -1981,7 +1844,7 @@
             }
             update() {
                 if (this.type === 'chaser') {
-                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - this.x);
+                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - x);
                     this.velocity.x += Math.cos(angleToPlayer) * 0.05; this.velocity.y += Math.sin(angleToPlayer) * 0.05;
                     let spd = Math.hypot(this.velocity.x, this.velocity.y);
                     if(spd > this.speed) { this.velocity.x = (this.velocity.x/spd)*this.speed; this.velocity.y = (this.velocity.y/spd)*this.speed; }
@@ -2003,7 +1866,7 @@
                 this.velocity.x *= 0.96; this.velocity.y *= 0.96;
                 this.x += this.velocity.x; this.y += this.velocity.y; this.alpha -= this.decay;
                 ctx.save(); ctx.globalAlpha = this.alpha; 
-                ctx.shadowBlur = 5; ctx.shadowColor = this.color;
+                if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = this.color; ctx.fill();
                 ctx.restore();
@@ -2013,8 +1876,8 @@
         function spawnEnemyLogic(currentTime) {
             if (currentTime - lastSpawnTime > spawnDelay) {
                 const radius = 40; let x, y;
-                if (Math.random() < 0.5) { x = Math.random() < 0.5 ? -radius : window.innerWidth + radius; y = Math.random() * window.innerHeight; } 
-                else { x = Math.random() * window.innerWidth; y = Math.random() < 0.5 ? -radius : window.innerHeight + radius; }
+                if (Math.random() < 0.5) { x = Math.random() < 0.5 ? -radius : vWidth + radius; y = Math.random() * vHeight; } 
+                else { x = Math.random() * vWidth; y = Math.random() < 0.5 ? -radius : vHeight + radius; }
 
                 let availableTypes = [];
                 
@@ -2040,8 +1903,8 @@
         }
 
         function createExplosion(x, y, color) {
-            if (gameData.maxParticlesAllowed === 0) return; 
-            const count = Math.min(25, gameData.maxParticlesAllowed - particles.length);
+            if (maxParticlesAllowed === 0) return; 
+            const count = Math.min(25, maxParticlesAllowed - particles.length);
             for (let i = 0; i < count; i++) {
                 particles.push(new Particle(x, y, {x: (Math.random()-0.5)*9, y: (Math.random()-0.5)*9}, Math.random()*4+1, color));
             }
@@ -2050,17 +1913,15 @@
         function checkLevelUp() {
             let newLevel = Math.floor(score / 1000) + 1;
             if (newLevel > level) {
-                level = newLevel; if(uiElements.level) uiElements.level.innerText = level;
+                level = newLevel; uiElements.level.innerText = level;
                 spawnDelay = Math.max(180, 1000 - (level * 90));
                 
                 let mapNames = ["", "CYBER GRID", "CRIMSON NEBULA", "QUANTUM VOID", "VOID CORE", "PLASMA REEF", "ASTEROID BELTWAY", "SINGULARITY HORIZON", "COSMIC METRIC", "OMEGA SURGE"];
-                if (uiElements.levelUp) {
-                    uiElements.levelUp.innerText = `LEVEL ${level}: ${level <= 9 ? mapNames[level-1] : "HYPERDRIVE OMNI"}`;
-                    uiElements.levelUp.classList.add('level-up-active');
-                    setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2200);
-                }
+                uiElements.levelUp.innerText = `LEVEL ${level}: ${level <= 9 ? mapNames[level-1] : "HYPERDRIVE OMNI"}`;
+                uiElements.levelUp.classList.add('level-up-active');
                 
                 createExplosion(player.x, player.y, '#fff');
+                setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2200);
             }
         }
 
@@ -2070,11 +1931,10 @@
             document.getElementById('mobile-controls').style.display = controlMode === 'joystick' ? 'block' : 'none';
 
             player = new Player();
-            mouse.x = window.innerWidth / 2; mouse.y = window.innerHeight * 0.7;
+            mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
             projectiles = []; enemies = []; particles = []; skinCoins = [];
             score = 0; level = 1; killsThisRun = 0; coinsCollectedThisRun = 0; spawnDelay = 1000;
-            if(uiElements.score) uiElements.score.innerText = score; 
-            if(uiElements.level) uiElements.level.innerText = level;
+            uiElements.score.innerText = score; uiElements.level.innerText = level;
             
             initBackgrounds();
             gameActive = true; isPaused = false; isShooting = false;
@@ -2089,6 +1949,7 @@
             
             screenShake = 30;
             createExplosion(player.x, player.y, player.color);
+            createExplosion(player.x, player.y, '#f00');
 
             const earnedSp = Math.floor(score / 100);
             gameData.starPoints += earnedSp;
@@ -2097,37 +1958,38 @@
 
             setTimeout(() => {
                 switchScreen('gameover');
-                if(uiElements.finalScore) uiElements.finalScore.innerText = score;
-                if(uiElements.finalLevel) uiElements.finalLevel.innerText = level;
-                if(uiElements.earnedSp) uiElements.earnedSp.innerText = earnedSp;
-                if(uiElements.earnedSc) uiElements.earnedSc.innerText = coinsCollectedThisRun;
-                const rKills = document.getElementById('run-kills-text');
-                if(rKills) rKills.innerText = killsThisRun;
-                if(screens.hud) screens.hud.style.display = 'none';
+                uiElements.finalScore.innerText = score;
+                uiElements.finalLevel.innerText = level;
+                uiElements.earnedSp.innerText = earnedSp;
+                uiElements.earnedSc.innerText = coinsCollectedThisRun;
+                document.getElementById('run-kills-text').innerText = killsThisRun;
+                screens.hud.style.display = 'none';
             }, 1000);
         }
 
         function drawMapBackground() {
-            let blurOpacity = (100 - gameData.motionBlurAmount) / 100;
-            if(blurOpacity < 0.1) blurOpacity = 0.1; 
+            if(highGraphicsBloom && graphicsQuality === 'high') {
+                ctx.filter = "drop-shadow(0px 0px 8px rgba(0, 255, 255, 0.4)) saturate(1.4)";
+            } else {
+                ctx.filter = "none";
+            }
 
-            ctx.fillStyle = `rgba(5, 5, 16, ${blurOpacity})`; 
-            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-            ctx.fillStyle = '#fff';
-            stars.forEach(s => { 
-                s.y += s.s; 
-                if(s.y > window.innerHeight) s.y=0; 
-                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); 
-            });
-
-            if (level === 2) {
+            if (level === 1) {
+                ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.fillStyle = '#fff';
+                stars.forEach(s => { s.y += s.s; if(s.y > vHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
+            } else if (level === 2) {
+                ctx.fillStyle = 'rgba(5, 10, 20, 0.4)'; ctx.fillRect(0, 0, vWidth, vHeight);
                 ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)'; ctx.lineWidth = 1;
                 gridY += 2; if(gridY > 50) gridY = 0;
                 ctx.beginPath();
-                for(let x=0; x<window.innerWidth; x+=50) { ctx.moveTo(x, 0); ctx.lineTo(x, window.innerHeight); }
-                for(let y=gridY; y<window.innerHeight; y+=50) { ctx.moveTo(0, y); ctx.lineTo(window.innerWidth, y); }
+                for(let x=0; x<vWidth; x+=50) { ctx.moveTo(x, 0); ctx.lineTo(x, vHeight); }
+                for(let y=gridY; y<vHeight; y+=50) { ctx.moveTo(0, y); ctx.lineTo(vWidth, y); }
                 ctx.stroke();
+            } else { 
+                ctx.fillStyle = '#0c0c1b'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.fillStyle = '#fff';
+                stars.forEach(s => { s.y += s.s * 2; if(s.y > vHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
             }
         }
 
@@ -2136,6 +1998,8 @@
             animationId = requestAnimationFrame(animate);
             if (isPaused) return;
 
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             ctx.save();
             if (screenShake > 0) {
                 let dx = (Math.random() - 0.5) * screenShake;
@@ -2145,10 +2009,7 @@
                 if (screenShake < 0.5) screenShake = 0;
             }
 
-            // Internal responsive system canvas resolution pipeline
-            let activeInternalScale = gameData.renderScaleInput / 100;
-            ctx.scale(activeInternalScale, activeInternalScale);
-
+            ctx.scale(renderScale, renderScale);
             drawMapBackground();
 
             for(let i = skinCoins.length - 1; i >= 0; i--) {
@@ -2167,6 +2028,12 @@
             if (isShooting && currentTime - lastShotTime > dynamicFireRate) {
                 let skinConfig = player.skin;
                 playShootSound();
+
+                if(player.tier !== 'common' && maxParticlesAllowed > 0) {
+                    for(let i=0; i<skinConfig.effectYield; i++) {
+                        particles.push(new Particle(player.x, player.y - 15, {x: (Math.random()-0.5)*6, y: -Math.random()*4 - 2}, 2, skinConfig.secColor, 0.05));
+                    }
+                }
 
                 let RecoilOffset = player.tier === 'mythical' ? -14 : -16;
 
@@ -2192,70 +2059,52 @@
 
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 projectiles[i].update();
-                if (projectiles[i].y < -50 || projectiles[i].x < 0 || projectiles[i].x > window.innerWidth) projectiles.splice(i, 1);
+                if (projectiles[i].y < -50 || projectiles[i].x < 0 || projectiles[i].x > vWidth) projectiles.splice(i, 1);
             }
 
-            let flaggedEnemiesToRemove = [];
-            let flaggedProjectilesToRemove = [];
-
-            for (let i = 0; i < enemies.length; i++) {
+            for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
+                enemy.update();
 
                 if (Math.hypot(player.x - enemy.x, player.y - enemy.y) - enemy.radius - player.radius < 0) {
-                    const playerDied = player.takeDamage();
-                    if (playerDied) { gameOver(); ctx.restore(); return; }
+                    const isDead = player.takeDamage();
+                    if (isDead) { gameOver(); ctx.restore(); return; }
                 }
 
-                for (let j = 0; j < projectiles.length; j++) {
+                for (let j = projectiles.length - 1; j >= 0; j--) {
                     const proj = projectiles[j];
+                    
                     let hitRadius = proj.isMythicalWave ? proj.radius * 4.5 : proj.radius;
                     
                     if (Math.hypot(proj.x - enemy.x, proj.y - enemy.y) - enemy.radius - hitRadius < 0) {
                         createExplosion(enemy.x, enemy.y, proj.color);
                         
                         if (!proj.isMythicalWave) {
-                            flaggedProjectilesToRemove.push(proj);
+                            projectiles.splice(j, 1);
                         }
                         enemy.hp--;
                         
                         if (enemy.hp <= 0) {
                             playExplosionSound();
                             screenShake = enemy.type.includes('tank') ? 8 : 3;
-                            score += enemy.scoreVal; 
-                            killsThisRun++; 
-                            
-                            trackQuestKill();
-                            
-                            if(uiElements.score) uiElements.score.innerText = score;
-                            flaggedEnemiesToRemove.push(enemy);
+                            createExplosion(enemy.x, enemy.y, enemy.color);
+                            score += enemy.scoreVal; killsThisRun++; 
+                            uiElements.score.innerText = score;
+                            enemies.splice(i, 1);
                             checkLevelUp();
                         }
                         break;
                     }
                 }
             }
-
-            flaggedEnemiesToRemove.forEach(e => {
-                let index = enemies.indexOf(e);
-                if(index !== -1) enemies.splice(index, 1);
-            });
-            flaggedProjectilesToRemove.forEach(p => {
-                let index = projectiles.indexOf(p);
-                if(index !== -1) projectiles.splice(index, 1);
-            });
-
             ctx.restore();
+            ctx.filter = "none";
         }
 
-        // Initialize Engine Boot Sequence Configuration Elements
-        resize();
         initBackgrounds();
-        refreshSliderDisplays();
-        checkDailyQuestRefresh();
+        drawMapBackground();
         updateShopUI();
         updateProgressionUI();
     </script>
 </body>
 </html>
-
-```
