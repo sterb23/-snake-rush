@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Arcade Pro</title>
+<title>Round Snake Pro</title>
 
 <style>
 html, body {
@@ -17,7 +17,21 @@ html, body {
   color: white;
 }
 
-/* START SCREEN */
+canvas {
+  display: block;
+  margin: auto;
+  background: #000;
+  border: 2px solid #00ff99;
+  box-shadow: 0 0 25px #00ff99;
+}
+
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 14px;
+}
+
 #startScreen {
   position: fixed;
   width: 100%;
@@ -37,24 +51,6 @@ button {
   border-radius: 10px;
   color: black;
   font-weight: bold;
-  cursor: pointer;
-}
-
-/* UI */
-#ui {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 14px;
-}
-
-/* CANVAS CENTER */
-canvas {
-  display: block;
-  margin: auto;
-  background: #000;
-  border: 2px solid #00ff99;
-  box-shadow: 0 0 25px #00ff99;
 }
 </style>
 </head>
@@ -62,19 +58,16 @@ canvas {
 <body>
 
 <div id="startScreen">
-  <h1>🐍 Snake Arcade Pro</h1>
+  <h1>🐍 Round Snake</h1>
   <button onclick="startGame()">Play</button>
 </div>
 
 <div id="ui">
   Score: <span id="score">0</span><br>
-  High Score: <span id="high">0</span>
+  High: <span id="high">0</span>
 </div>
 
 <canvas id="game" width="420" height="420"></canvas>
-
-<audio id="eat" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
-<audio id="die" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 <script>
 const canvas = document.getElementById("game");
@@ -82,24 +75,25 @@ const ctx = canvas.getContext("2d");
 
 const box = 20;
 
-let snake, dir, food, particles, score, high, loop;
+let snake, dir, food, score, high, loop;
 
 high = localStorage.getItem("snakeHigh") || 0;
 document.getElementById("high").innerText = high;
 
+/* INIT */
 function init() {
   snake = [{x: 10*box, y: 10*box}];
   dir = "RIGHT";
   food = spawnFood();
-  particles = [];
   score = 0;
   updateUI();
 }
 
+/* SAFE FOOD SPAWN */
 function spawnFood() {
   return {
-    x: Math.floor(Math.random()*21)*box,
-    y: Math.floor(Math.random()*21)*box
+    x: Math.floor(Math.random() * (canvas.width / box)) * box,
+    y: Math.floor(Math.random() * (canvas.height / box)) * box
   };
 }
 
@@ -131,20 +125,21 @@ document.addEventListener("touchend", e=>{
   }
 });
 
-/* PARTICLES */
-function addParticles(x,y){
-  for(let i=0;i<8;i++){
-    particles.push({
-      x,y,
-      dx:(Math.random()-0.5)*4,
-      dy:(Math.random()-0.5)*4,
-      life:20
-    });
-  }
+/* DRAW ROUND CIRCLE */
+function drawCircle(x,y,color){
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.arc(x + box/2, y + box/2, box/2.2, 0, Math.PI*2);
+  ctx.fill();
 }
 
-/* DRAW GRID */
-function drawGrid(){
+/* GAME LOOP */
+function game(){
+
+  ctx.fillStyle="#000";
+  ctx.fillRect(0,0,420,420);
+
+  // grid
   ctx.strokeStyle="#111";
   for(let i=0;i<420;i+=box){
     ctx.beginPath();
@@ -157,16 +152,8 @@ function drawGrid(){
     ctx.lineTo(420,i);
     ctx.stroke();
   }
-}
 
-/* GAME LOOP */
-function game(){
-  ctx.fillStyle="#000";
-  ctx.fillRect(0,0,420,420);
-
-  drawGrid();
-
-  /* MOVE HEAD */
+  // move head
   let head={...snake[0]};
 
   if(dir==="RIGHT") head.x+=box;
@@ -174,7 +161,7 @@ function game(){
   if(dir==="UP") head.y-=box;
   if(dir==="DOWN") head.y+=box;
 
-  /* COLLISION */
+  // collision
   if(head.x<0||head.y<0||head.x>=420||head.y>=420) return die();
 
   for(let i=0;i<snake.length;i++){
@@ -183,87 +170,50 @@ function game(){
 
   snake.unshift(head);
 
-  /* FOOD */
+  // eat food
   if(head.x===food.x && head.y===food.y){
     score++;
-    document.getElementById("eat").play();
     food=spawnFood();
-    addParticles(head.x,head.y);
   } else {
     snake.pop();
   }
 
-  /* DRAW FOOD (GLOW APPLE) */
-  let gradient = ctx.createRadialGradient(
-    food.x+10, food.y+10, 2,
-    food.x+10, food.y+10, 15
-  );
-  gradient.addColorStop(0,"#ff5555");
-  gradient.addColorStop(1,"#aa0000");
+  // draw food (round apple)
+  drawCircle(food.x, food.y, "#ff3333");
 
-  ctx.fillStyle=gradient;
-  ctx.fillRect(food.x,food.y,box,box);
-
-  /* DRAW SNAKE (SMOOTH STYLE) */
+  // draw snake (ROUND)
   for(let i=0;i<snake.length;i++){
-    let s=snake[i];
-    ctx.fillStyle=i===0?"#00ffcc":"#00aa88";
-    ctx.shadowBlur=10;
-    ctx.shadowColor="#00ffcc";
-    ctx.fillRect(s.x,s.y,box,box);
+    drawCircle(
+      snake[i].x,
+      snake[i].y,
+      i===0 ? "#00ffcc" : "#00aa88"
+    );
   }
-  ctx.shadowBlur=0;
-
-  /* PARTICLES */
-  particles.forEach((p,i)=>{
-    p.x+=p.dx;
-    p.y+=p.dy;
-    p.life--;
-
-    ctx.fillStyle="yellow";
-    ctx.fillRect(p.x,p.y,3,3);
-
-    if(p.life<=0) particles.splice(i,1);
-  });
 
   updateUI();
 }
 
-/* SPEED CONTROL */
-let speed=120;
-
-function startLoop(){
-  clearInterval(loop);
-  loop=setInterval(game,speed);
-}
-
-function startGame(){
-  document.getElementById("startScreen").style.display="none";
-  init();
-  startLoop();
-}
-
+/* UI */
 function updateUI(){
   document.getElementById("score").innerText=score;
 
   if(score>high){
     high=score;
     localStorage.setItem("snakeHigh",high);
-  }
-
-  document.getElementById("high").innerText=high;
-
-  /* SPEED UP */
-  if(score%5===0 && speed>60){
-    speed-=5;
-    startLoop();
+    document.getElementById("high").innerText=high;
   }
 }
 
+/* START */
+function startGame(){
+  document.getElementById("startScreen").style.display="none";
+  init();
+  loop=setInterval(game,120);
+}
+
+/* GAME OVER */
 function die(){
   clearInterval(loop);
-  document.getElementById("die").play();
-
   alert("Game Over! Score: "+score);
   document.getElementById("startScreen").style.display="flex";
 }
