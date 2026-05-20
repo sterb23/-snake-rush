@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Surge - Ultimate Evolution</title>
     <style>
-        /* [STYLES REMAIN THE SAME FOR UI/HUD TO PRESERVE YOUR DESIGN] */
         body {
             margin: 0;
             padding: 0;
@@ -194,6 +193,39 @@
             background: rgba(255, 0, 255, 0.1);
         }
 
+        .volume-slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #334;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .volume-slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .volume-slider-row label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #0ff;
+            text-transform: uppercase;
+            width: 80px;
+        }
+
+        .volume-slider-row input[type="range"] {
+            flex: 1;
+            accent-color: #0ff;
+            cursor: pointer;
+        }
+
         .btn-group {
             display: flex;
             gap: 15px;
@@ -300,7 +332,7 @@
 
         .crate-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-bottom: 15px;
         }
@@ -316,7 +348,9 @@
         }
         
         .crate-card.omni { border-color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
-        .crate-title { font-weight: bold; font-size: 15px; margin-bottom: 10px; text-transform: uppercase; color: #fff; }
+        .crate-card.premium { border-color: #f0f; box-shadow: 0 0 15px rgba(255,0,255,0.2); }
+        .crate-title { font-weight: bold; font-size: 15px; margin-bottom: 5px; text-transform: uppercase; color: #fff; }
+        .crate-desc { font-size: 11px; color: #aaa; margin-bottom: 10px; text-align: center; min-height: 28px;}
 
         .skin-inventory-grid {
             display: grid;
@@ -603,6 +637,18 @@
             </div>
 
             <div class="tutorial-text">
+                <div class="section-title">Volume Configuration</div>
+                <div class="volume-slider-container">
+                    <div class="volume-slider-row">
+                        <label for="sfx-volume">SFX Volume</label>
+                        <input type="range" id="sfx-volume" min="0" max="100" value="50">
+                    </div>
+                    <div class="volume-slider-row">
+                        <label for="music-volume">Music Volume</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="50">
+                    </div>
+                </div>
+
                 <div class="section-title">Control Matrix</div>
                 <div class="control-selection">
                     <div class="radio-btn active" id="opt-desktop">DESKTOP</div>
@@ -695,7 +741,13 @@
                 <div class="crate-grid">
                     <div class="crate-card omni">
                         <div class="crate-title">Omni Crate</div>
+                        <div class="crate-desc">Standard drop rates across all available skins.</div>
                         <button id="crate-btn-omni" class="action-btn" style="font-size:14px; padding:10px; color:#0ff; border-color:#0ff;">50 🪙 SPIN</button>
+                    </div>
+                    <div class="crate-card premium">
+                        <div class="crate-title">Cyber Crate</div>
+                        <div class="crate-desc">Highly increased drop chance for Epic & Mythical skins.</div>
+                        <button id="crate-btn-premium" class="action-btn secondary" style="font-size:14px; padding:10px; color:#f0f; border-color:#f0f;">200 🪙 SPIN</button>
                     </div>
                 </div>
 
@@ -747,8 +799,13 @@
             lifetimeKills: 0,
             claimedKillsMilestones: 0,
             unlockedSkins: ['default'],
-            equippedSkin: 'default'
+            equippedSkin: 'default',
+            sfxVolume: 50,
+            musicVolume: 50
         };
+
+        if (gameData.sfxVolume === undefined) gameData.sfxVolume = 50;
+        if (gameData.musicVolume === undefined) gameData.musicVolume = 50;
 
         const UPGRADE_CONFIG = {
             fireRate: { max: 5, baseCost: 5, costMult: 5, action: (lvl) => 120 - (lvl * 16) },
@@ -758,45 +815,41 @@
             amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) }
         };
 
-        // --- DYNAMICALLY GENERATE 100 UNIQUE PROCEDURAL SKINS ---
         const SKIN_REGISTRY = {};
         const rarities = ['common', 'uncommon', 'rare', 'epic', 'mythical'];
-        const rarityColors = { 
-            common: '#b0b0b0', 
-            uncommon: '#00ff00', 
-            rare: '#00ffff', 
-            epic: '#ff00ff', 
-            mythical: '#ffff00' 
-        };
         
         rarities.forEach((tier, tierIdx) => {
             for(let i = 1; i <= 20; i++) {
                 let id = (tier === 'common' && i === 1) ? 'default' : `${tier}_${i}`;
                 let name = (tier === 'common' && i === 1) ? 'Factory Standard' : `${tier.toUpperCase()} MK-${i}`;
                 
-                // Procedural seeds for unique textures, shapes, and effects
-                // Using pseudo-random based on tier & index so they stay consistent
                 let seed1 = Math.abs(Math.sin(tierIdx * 100 + i)) * 1; 
                 let seed2 = Math.abs(Math.cos(tierIdx * 50 + i * 3)) * 1;
                 let hue = Math.floor((seed1 * 360 + tierIdx * 72) % 360);
                 
+                let computedColor = `hsl(${hue}, 100%, 50%)`;
+                if (tier === 'mythical') computedColor = `hsl(${hue}, 100%, 65%)`;
+                else if (tier === 'epic') computedColor = `hsl(${hue}, 100%, 55%)`;
+                else if (tier === 'rare') computedColor = `hsl(${hue}, 100%, 45%)`;
+                
                 SKIN_REGISTRY[id] = {
                     name: name,
                     tier: tier,
-                    color: rarityColors[tier],
-                    secColor: `hsl(${hue}, 100%, 60%)`,
-                    terColor: `hsl(${(hue + 120) % 360}, 100%, 60%)`,
+                    color: computedColor,
+                    secColor: `hsl(${(hue + 120) % 360}, 100%, 60%)`,
+                    terColor: `hsl(${(hue + 240) % 360}, 100%, 60%)`,
                     seed1: seed1, 
                     seed2: seed2, 
-                    glowMult: 0.2 + (tierIdx * 0.7) + (seed1 * 0.5), // Scales drastically by tier
-                    effectYield: tierIdx * 3 + Math.floor(seed2 * 2), // How many particles per frame
+                    glowMult: 0.2 + (tierIdx * 0.7) + (seed1 * 0.5), 
+                    effectYield: tierIdx * 3 + Math.floor(seed2 * 2), 
                     bg: '#222'
                 };
             }
         });
 
         const CRATE_POOLS = {
-            omni: { cost: 50, skins: Object.keys(SKIN_REGISTRY) }
+            omni: { cost: 50 },
+            premium: { cost: 200 }
         };
 
         let graphicsQuality = 'high'; 
@@ -818,7 +871,6 @@
             setupBackgroundMusicLoop();
         }
 
-        // UNIFORM QUIET SOUNDS
         function playShootSound() {
             if (!audioCtx) return;
             let osc = audioCtx.createOscillator();
@@ -828,7 +880,7 @@
             osc.type = 'sine'; 
             osc.frequency.setValueAtTime(440, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.04, audioCtx.currentTime); 
+            gain.gain.setValueAtTime((gameData.sfxVolume / 100) * 0.04, audioCtx.currentTime); 
             gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
             
             osc.start(); osc.stop(audioCtx.currentTime + 0.16);
@@ -843,7 +895,7 @@
             osc.type = 'sine';
             osc.frequency.setValueAtTime(100, audioCtx.currentTime);
             osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.22);
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.setValueAtTime((gameData.sfxVolume / 100) * 0.08, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
             
             osc.start(); osc.stop(audioCtx.currentTime + 0.23);
@@ -858,13 +910,12 @@
             osc.type = 'sine';
             osc.frequency.setValueAtTime(800, audioCtx.currentTime);
             osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.07);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.setValueAtTime((gameData.sfxVolume / 100) * 0.05, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
             
             osc.start(); osc.stop(audioCtx.currentTime + 0.21);
         }
 
-        // CHILL AMBIENT MUSIC
         function setupBackgroundMusicLoop() {
             const pattern = [196.00, 220.00, 261.63, 329.63, 261.63, 220.00]; 
             let step = 0;
@@ -875,7 +926,7 @@
                 
                 osc.type = 'sine'; 
                 osc.frequency.setValueAtTime(pattern[step % pattern.length], audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.setValueAtTime((gameData.musicVolume / 100) * 0.03, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
                 
                 osc.connect(gain); gain.connect(audioCtx.destination);
@@ -914,6 +965,22 @@
             levelUp: document.getElementById('level-up-announcement')
         };
 
+        const sfxSlider = document.getElementById('sfx-volume');
+        const musicSlider = document.getElementById('music-volume');
+        
+        sfxSlider.value = gameData.sfxVolume;
+        musicSlider.value = gameData.musicVolume;
+
+        sfxSlider.addEventListener('input', (e) => {
+            gameData.sfxVolume = parseInt(e.target.value);
+            localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
+        });
+
+        musicSlider.addEventListener('input', (e) => {
+            gameData.musicVolume = parseInt(e.target.value);
+            localStorage.setItem('neonSurgeDataUltimate', JSON.stringify(gameData));
+        });
+
         document.getElementById('tab-upgrades-btn').addEventListener('click', () => toggleShopTab('upgrades'));
         document.getElementById('tab-skins-btn').addEventListener('click', () => toggleShopTab('skins'));
         
@@ -932,21 +999,42 @@
             }
         }
 
-        // --- SINGLE CRATE SYSTEM ---
-        document.getElementById(`crate-btn-omni`).addEventListener('click', () => {
-            const config = CRATE_POOLS['omni'];
-            if (gameData.skinCoins >= config.cost) {
-                gameData.skinCoins -= config.cost;
+        function handleCrateSpin(crateType) {
+            const cost = CRATE_POOLS[crateType].cost;
+            if (gameData.skinCoins >= cost) {
+                gameData.skinCoins -= cost;
                 
-                const item = config.skins[Math.floor(Math.random() * config.skins.length)];
+                let allSkins = Object.keys(SKIN_REGISTRY);
+                let selectedRarity = 'common';
+                let rand = Math.random();
+                
+                if (crateType === 'premium') {
+                    if (rand < 0.20) selectedRarity = 'mythical';
+                    else if (rand < 0.55) selectedRarity = 'epic';
+                    else if (rand < 0.75) selectedRarity = 'rare';
+                    else if (rand < 0.90) selectedRarity = 'uncommon';
+                    else selectedRarity = 'common';
+                } else {
+                    if (rand < 0.02) selectedRarity = 'mythical';
+                    else if (rand < 0.08) selectedRarity = 'epic';
+                    else if (rand < 0.22) selectedRarity = 'rare';
+                    else if (rand < 0.50) selectedRarity = 'uncommon';
+                    else selectedRarity = 'common';
+                }
+                
+                let pool = allSkins.filter(id => SKIN_REGISTRY[id].tier === selectedRarity);
+                if (pool.length === 0) pool = allSkins;
+                
+                const item = pool[Math.floor(Math.random() * pool.length)];
                 let outputMessage = "";
                 
                 if (!gameData.unlockedSkins.includes(item)) {
                     gameData.unlockedSkins.push(item);
                     outputMessage = `NEW UNLOCK: ${SKIN_REGISTRY[item].name}!`;
                 } else {
-                    gameData.skinCoins += Math.floor(config.cost * 0.4);
-                    outputMessage = `Duplicate! Converted to +${Math.floor(config.cost * 0.4)} Coins.`;
+                    let compensation = Math.floor(cost * 0.4);
+                    gameData.skinCoins += compensation;
+                    outputMessage = `Duplicate! Converted to +${compensation} Coins.`;
                 }
                 
                 document.getElementById('drop-alert').innerText = outputMessage;
@@ -954,9 +1042,11 @@
                 saveData();
                 renderGraphicalSkinInventory();
             }
-        });
+        }
 
-        // --- FULL SKIN INDEX ---
+        document.getElementById('crate-btn-omni').addEventListener('click', () => handleCrateSpin('omni'));
+        document.getElementById('crate-btn-premium').addEventListener('click', () => handleCrateSpin('premium'));
+
         function renderGraphicalSkinInventory() {
             const container = document.getElementById('skin-inventory-container');
             container.innerHTML = "";
@@ -1034,43 +1124,43 @@
 
             if (skin.tier === 'mythical') {
                 cCtx.beginPath();
-                cCtx.arc(0, 0, wingBase + 4, 0, Math.PI*2);
+                cCtx.arc(0, wingBase * 0.2, wingBase * 0.8, 0, Math.PI * 2);
                 cCtx.strokeStyle = skin.terColor;
-                cCtx.lineWidth = 3;
+                cCtx.lineWidth = 2;
                 cCtx.stroke();
-                
+
                 cCtx.beginPath();
-                cCtx.moveTo(0, -nose * 1.2);
-                cCtx.lineTo(wingspan * 1.1, wingBase);
-                cCtx.lineTo(0, wingBase * 0.4);
-                cCtx.lineTo(-wingspan * 1.1, wingBase);
+                cCtx.moveTo(0, -nose * 1.3);
+                cCtx.lineTo(wingspan * 1.3, wingBase * 0.8);
+                cCtx.lineTo(wingspan * 0.4, wingBase * 1.3);
+                cCtx.lineTo(0, wingBase * 0.3);
+                cCtx.lineTo(-wingspan * 0.4, wingBase * 1.3);
+                cCtx.lineTo(-wingspan * 1.3, wingBase * 0.8);
                 cCtx.closePath();
-                let grad = cCtx.createLinearGradient(-10, 0, 10, 0);
-                grad.addColorStop(0, skin.secColor); grad.addColorStop(0.5, '#fff'); grad.addColorStop(1, skin.secColor);
-                cCtx.fillStyle = grad; cCtx.fill();
-                cCtx.strokeStyle = skin.color; cCtx.lineWidth = 3; cCtx.stroke();
                 
-                // Procedural internal lines
-                cCtx.strokeStyle = '#000'; cCtx.lineWidth = 1.5;
-                cCtx.beginPath();
-                cCtx.moveTo(0, -nose); cCtx.lineTo(0, wingBase * 0.2);
-                cCtx.moveTo(-wingspan*0.5, 0); cCtx.lineTo(wingspan*0.5, 0);
-                cCtx.stroke();
+                let grad = cCtx.createLinearGradient(-15, 0, 15, 0);
+                grad.addColorStop(0, skin.secColor); 
+                grad.addColorStop(0.5, '#fff'); 
+                grad.addColorStop(1, skin.secColor);
+                cCtx.fillStyle = grad; cCtx.fill();
+                cCtx.strokeStyle = skin.color; cCtx.lineWidth = 2.5; cCtx.stroke();
             } 
             else if (skin.tier === 'epic') {
                 cCtx.beginPath();
                 cCtx.moveTo(0, -nose);
                 cCtx.lineTo(wingspan, wingBase);
+                cCtx.lineTo(0, wingBase * 0.4);
                 cCtx.lineTo(-wingspan, wingBase);
                 cCtx.closePath();
-                cCtx.fillStyle = '#111'; cCtx.fill();
+                cCtx.fillStyle = '#111222'; cCtx.fill();
                 cCtx.strokeStyle = skin.color; cCtx.lineWidth = 3; cCtx.stroke();
                 
-                // Epic Texture
+                cCtx.fillStyle = skin.secColor;
+                cCtx.fillRect(-2, -nose * 0.3, 4, nose * 0.7);
                 cCtx.beginPath();
-                cCtx.moveTo(0, -nose); cCtx.lineTo(0, wingBase);
-                cCtx.moveTo(-wingspan*0.7, wingBase*0.5); cCtx.lineTo(wingspan*0.7, wingBase*0.5);
-                cCtx.strokeStyle = skin.secColor; cCtx.lineWidth = 2; cCtx.stroke();
+                cCtx.arc(-wingspan * 0.5, wingBase * 0.7, 3, 0, Math.PI * 2);
+                cCtx.arc(wingspan * 0.5, wingBase * 0.7, 3, 0, Math.PI * 2);
+                cCtx.fill();
             } 
             else if (skin.tier === 'rare') {
                 cCtx.beginPath();
@@ -1079,7 +1169,7 @@
                 cCtx.lineTo(0, wingBase * 0.3);
                 cCtx.lineTo(-wingspan, wingBase);
                 cCtx.closePath();
-                cCtx.fillStyle = skin.secColor; cCtx.fill();
+                cCtx.fillStyle = '#151525'; cCtx.fill();
                 cCtx.strokeStyle = skin.color; cCtx.lineWidth = 2; cCtx.stroke();
             }
             else {
@@ -1089,8 +1179,8 @@
                 cCtx.lineTo(0, wingBase * 0.3); 
                 cCtx.lineTo(-wingspan, wingBase); 
                 cCtx.closePath();
-                cCtx.fillStyle = skin.tier === 'uncommon' ? '#fff' : '#aaa'; cCtx.fill(); 
-                cCtx.lineWidth = 2; cCtx.strokeStyle = skin.color; cCtx.stroke();
+                cCtx.fillStyle = skin.color; cCtx.fill(); 
+                cCtx.lineWidth = 1.5; cCtx.strokeStyle = '#fff'; cCtx.stroke();
             }
             cCtx.restore();
         }
@@ -1180,6 +1270,9 @@
 
             const omniBtn = document.getElementById(`crate-btn-omni`);
             if(omniBtn) omniBtn.disabled = gameData.skinCoins < CRATE_POOLS['omni'].cost;
+
+            const premBtn = document.getElementById(`crate-btn-premium`);
+            if(premBtn) premBtn.disabled = gameData.skinCoins < CRATE_POOLS['premium'].cost;
         }
 
         function updateProgressionUI() {
@@ -1453,45 +1546,43 @@
                 let wingspan = this.radius * (1 + this.skin.seed1 * 0.4);
                 let nose = this.radius * (1.5 + this.skin.seed2 * 0.5);
 
-                // Tier-based Glowing
                 if (shadowPower > 0) {
                     ctx.shadowBlur = shadowPower * this.skin.glowMult;
                     ctx.shadowColor = this.color;
                 }
 
                 if (this.tier === 'mythical') {
-                    // Intense Pulsing Aura
                     let pulseRadius = this.radius * (1.4 + Math.sin(performance.now() * 0.008) * 0.25);
                     ctx.save();
-                    ctx.strokeStyle = `rgba(${parseInt(this.skin.terColor.slice(4,-1).split(',')[0])}, 255, 0, 0.4)`;
+                    ctx.strokeStyle = this.skin.terColor;
                     ctx.lineWidth = 3;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
                     ctx.stroke();
                     ctx.restore();
                     
-                    // Mythical Body shape with Procedural Width/Length
                     ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - nose * 1.2);
-                    ctx.lineTo(this.x + wingspan * 1.1, this.y + this.radius);
-                    ctx.lineTo(this.x + this.radius * 0.5, this.y + this.radius * 0.4);
-                    ctx.lineTo(this.x - this.radius * 0.5, this.y + this.radius * 0.4);
-                    ctx.lineTo(this.x - wingspan * 1.1, this.y + this.radius);
+                    ctx.moveTo(this.x, this.y - nose * 1.3);
+                    ctx.lineTo(this.x + wingspan * 1.3, this.y + this.radius * 0.8);
+                    ctx.lineTo(this.x + wingspan * 0.4, this.y + this.radius * 1.3);
+                    ctx.lineTo(this.x, this.y + this.radius * 0.3);
+                    ctx.lineTo(this.x - wingspan * 0.4, this.y + this.radius * 1.3);
+                    ctx.lineTo(this.x - wingspan * 1.3, this.y + this.radius * 0.8);
                     ctx.closePath();
                     
                     let grad = ctx.createLinearGradient(this.x - wingspan, this.y, this.x + wingspan, this.y);
-                    grad.addColorStop(0, this.skin.secColor); grad.addColorStop(0.5, '#fff'); grad.addColorStop(1, this.skin.secColor);
+                    grad.addColorStop(0, this.skin.secColor); 
+                    grad.addColorStop(0.5, '#fff'); 
+                    grad.addColorStop(1, this.skin.secColor);
                     ctx.fillStyle = grad; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.stroke();
                     
-                    // Procedural Textures (Lines on ship)
                     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
                     ctx.beginPath();
                     ctx.moveTo(this.x, this.y - nose); ctx.lineTo(this.x, this.y + this.radius * 0.2);
                     ctx.moveTo(this.x - wingspan*0.5, this.y); ctx.lineTo(this.x + wingspan*0.5, this.y);
                     ctx.stroke();
 
-                    // Active Core
                     ctx.fillStyle = this.skin.terColor;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y - 2, 5, 0, Math.PI*2);
@@ -1501,26 +1592,27 @@
                     ctx.beginPath();
                     ctx.moveTo(this.x, this.y - nose);
                     ctx.lineTo(this.x + wingspan, this.y + this.radius);
+                    ctx.lineTo(this.x, this.y + this.radius * 0.4);
                     ctx.lineTo(this.x - wingspan, this.y + this.radius);
                     ctx.closePath();
                     ctx.fillStyle = '#111222'; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
                     
-                    // Epic Procedural Texture Lines
-                    ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 2;
+                    ctx.fillStyle = this.skin.secColor;
+                    ctx.fillRect(this.x - 2, this.y - nose * 0.3, 4, nose * 0.7);
                     ctx.beginPath();
-                    ctx.moveTo(this.x, this.y - nose); ctx.lineTo(this.x, this.y + this.radius);
-                    ctx.moveTo(this.x - wingspan*0.7, this.y + this.radius*0.5); ctx.lineTo(this.x + wingspan*0.7, this.y + this.radius*0.5);
-                    ctx.stroke();
+                    ctx.arc(this.x - wingspan * 0.5, this.y + this.radius * 0.7, 3, 0, Math.PI * 2);
+                    ctx.arc(this.x + wingspan * 0.5, this.y + this.radius * 0.7, 3, 0, Math.PI * 2);
+                    ctx.fill();
                 } 
                 else if (this.tier === 'rare') {
                     ctx.beginPath();
                     ctx.moveTo(this.x, this.y - nose);
                     ctx.lineTo(this.x + wingspan, this.y + this.radius);
-                    ctx.lineTo(this.x, this.y + this.radius * 0.2);
+                    ctx.lineTo(this.x, this.y + this.radius * 0.3);
                     ctx.lineTo(this.x - wingspan, this.y + this.radius);
                     ctx.closePath();
-                    ctx.fillStyle = this.skin.secColor; ctx.globalAlpha = 0.6; ctx.fill(); ctx.globalAlpha = 1.0;
+                    ctx.fillStyle = '#151525'; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.stroke();
                 }
                 else {
@@ -1530,21 +1622,19 @@
                     ctx.lineTo(this.x, this.y + this.radius * 0.3); 
                     ctx.lineTo(this.x - wingspan, this.y + this.radius); 
                     ctx.closePath();
-                    ctx.fillStyle = this.tier === 'uncommon' ? '#fff' : '#aaa'; ctx.fill(); 
-                    ctx.lineWidth = 2; ctx.strokeStyle = this.color; ctx.stroke();
+                    ctx.fillStyle = this.color; ctx.fill(); 
+                    ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
                 }
                 
-                // Engine Thrusters Flare (Affected by Procedural Seeds)
                 ctx.beginPath();
                 let thrustW = this.radius * (0.3 + this.skin.seed2 * 0.2);
                 ctx.moveTo(this.x - thrustW, this.y + this.radius * 0.6);
                 ctx.lineTo(this.x, this.y + this.radius * (1.4 + Math.random() * 0.6));
                 ctx.lineTo(this.x + thrustW, this.y + this.radius * 0.6);
                 ctx.closePath();
-                ctx.fillStyle = this.tier === 'mythical' ? this.skin.secColor : (this.tier === 'epic' ? '#00ffff' : '#ff00ff');
+                ctx.fillStyle = this.skin.secColor;
                 ctx.fill();
 
-                // Shield drawing
                 if (this.shields > 0) {
                     if (shadowPower > 0) ctx.shadowColor = '#0f0';
                     ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.2)})`;
@@ -1569,11 +1659,10 @@
                 this.history.push({x: this.x, y: this.y});
                 if(this.history.length > 15) this.history.shift();
 
-                // Advanced Particle Engine using 'effectYield'
                 if (maxParticlesAllowed > 0) {
                     let yieldCount = this.skin.effectYield;
                     for(let i=0; i<yieldCount; i++) {
-                        if (Math.random() > 0.5) continue; // Randomize a bit per frame
+                        if (Math.random() > 0.5) continue;
 
                         if (this.tier === 'mythical') {
                             particles.push(new Particle(this.x + (Math.random() - 0.5) * 24, this.y + 12, {x: (Math.random() - 0.5) * 3, y: Math.random() * 4 + 4}, Math.random() * 4 + 2, this.skin.terColor, 0.015));
@@ -1583,12 +1672,11 @@
                             particles.push(new Particle(this.x + (Math.random() - 0.5) * 15, this.y + 10, {x: (Math.random() - 0.5) * 2, y: Math.random() * 3 + 2}, Math.random() * 3 + 2, this.skin.secColor, 0.025));
                         } 
                         else if (this.tier === 'rare') {
-                            particles.push(new Particle(this.x, this.y + 10, {x: (Math.random()-0.5)*2, y: Math.random()*2+2}, Math.random()*5+2, 'rgba(0,223,255,0.4)', 0.04));
+                            particles.push(new Particle(this.x, this.y + 10, {x: (Math.random()-0.5)*2, y: Math.random()*2+2}, Math.random()*5+2, this.skin.secColor, 0.04));
                         }
                     }
                 }
 
-                // Epic Afterimage Effect
                 if (this.tier === 'epic' && this.history.length > 8 && Math.random() > 0.4) {
                     ctx.save(); ctx.globalAlpha = 0.25;
                     ctx.strokeStyle = this.skin.secColor; ctx.lineWidth = 1.5;
@@ -1631,7 +1719,6 @@
                 this.x += this.velocity.x; this.y += this.velocity.y;
                 
                 ctx.save(); 
-                // Scaling glow by tier for projectiles too
                 if (shadowPower > 0) { ctx.shadowBlur = shadowPower * this.skin.glowMult; ctx.shadowColor = this.color; }
 
                 if (this.isMythicalWave) {
@@ -1646,10 +1733,9 @@
                     ctx.fill(); ctx.stroke();
                     
                     ctx.globalAlpha = 1.0;
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = this.skin.terColor;
                     ctx.fillRect(this.x - waveWidth * 0.7, this.y - 2, waveWidth * 1.4, 4);
                     
-                    // Trail particles for wave
                     if(maxParticlesAllowed > 0 && Math.random() > 0.5) {
                         particles.push(new Particle(this.x + (Math.random()-0.5)*waveWidth*2, this.y, {x:0,y:2}, 2, this.skin.terColor, 0.05));
                     }
@@ -1683,34 +1769,59 @@
 
                 if (type === 'basic') {
                     this.radius = Math.random() * 14 + 10; this.color = '#f0f'; this.edges = Math.floor(Math.random() * 3) + 3;
-                    this.hp = 1; this.scoreVal = 10; this.spin = 0.05;
+                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 10); this.spin = 0.05;
                     this.velocity = { x: Math.cos(angleToPlayer) * (Math.random() + 1) * speedScale, y: Math.sin(angleToPlayer) * (Math.random() + 1) * speedScale };
                 } 
                 else if (type === 'tank') {
                     this.radius = 32; this.color = '#0f0'; this.edges = 4;
-                    this.hp = 5; this.scoreVal = 30; this.spin = 0.02;
+                    this.hp = 5; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 30); this.spin = 0.02;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.5 * speedScale, y: Math.sin(angleToPlayer) * 0.5 * speedScale };
                 }
                 else if (type === 'chaser') {
                     this.radius = 12; this.color = '#f00'; this.edges = 3;
-                    this.hp = 1; this.scoreVal = 20; this.spin = 0.1; this.speed = 2.4 * speedScale;
+                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 20); this.spin = 0.1; this.speed = 2.4 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
                 }
                 else if (type === 'waver') {
                     this.radius = 15; this.color = '#ff8800'; this.edges = 5;
-                    this.hp = 2; this.scoreVal = 25; this.spin = 0.08; this.baseAngle = angleToPlayer;
+                    this.hp = 2; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 25); this.spin = 0.08; this.baseAngle = angleToPlayer;
                     this.speed = 2 * speedScale; this.wavePhase = Math.random() * Math.PI * 2;
                     this.velocity = { x: 0, y: 0 };
                 }
                 else if (type === 'elite_fast') {
                     this.radius = 11; this.color = '#ffd700'; this.edges = 6;
-                    this.hp = 1; this.scoreVal = 45; this.spin = 0.15; this.speed = 5.5 * speedScale;
+                    this.hp = 1; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 45); this.spin = 0.15; this.speed = 5.5 * speedScale;
                     this.velocity = { x: Math.cos(angleToPlayer) * this.speed, y: Math.sin(angleToPlayer) * this.speed };
                 }
                 else if (type === 'elite_tank') {
                     this.radius = 42; this.color = '#a020f0'; this.edges = 8;
-                    this.hp = 9; this.scoreVal = 80; this.spin = 0.01;
+                    this.hp = 9; this.scoreVal = level > 4 ? Math.floor(Math.random() * 101) + 100 : Math.min(100, 80); this.spin = 0.01;
                     this.velocity = { x: Math.cos(angleToPlayer) * 0.4 * speedScale, y: Math.sin(angleToPlayer) * 0.4 * speedScale };
+                }
+                else if (type === 'yellow_crystal') {
+                    this.radius = 20; this.color = '#ffff00'; this.edges = 4;
+                    this.hp = 3; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.04;
+                    this.velocity = { x: Math.cos(angleToPlayer) * 1.5 * speedScale, y: Math.sin(angleToPlayer) * 1.5 * speedScale };
+                }
+                else if (type === 'yellow_sphere') {
+                    this.radius = 16; this.color = '#e6b800'; this.edges = 12;
+                    this.hp = 2; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = -0.02;
+                    this.velocity = { x: Math.cos(angleToPlayer) * 2.2 * speedScale, y: Math.sin(angleToPlayer) * 2.2 * speedScale };
+                }
+                else if (type === 'yellow_star') {
+                    this.radius = 24; this.color = '#ffcc00'; this.edges = 5;
+                    this.hp = 4; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.07;
+                    this.velocity = { x: Math.cos(angleToPlayer) * 1.2 * speedScale, y: Math.sin(angleToPlayer) * 1.2 * speedScale };
+                }
+                else if (type === 'plasma_shard') {
+                    this.radius = 14; this.color = '#33ffff'; this.edges = 3;
+                    this.hp = 2; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.12;
+                    this.velocity = { x: Math.cos(angleToPlayer) * 3.0 * speedScale, y: Math.sin(angleToPlayer) * 3.0 * speedScale };
+                }
+                else if (type === 'void_golem') {
+                    this.radius = 36; this.color = '#ff3399'; this.edges = 7;
+                    this.hp = 6; this.scoreVal = Math.floor(Math.random() * 101) + 100; this.spin = 0.01;
+                    this.velocity = { x: Math.cos(angleToPlayer) * 0.7 * speedScale, y: Math.sin(angleToPlayer) * 0.7 * speedScale };
                 }
             }
             draw() {
@@ -1733,7 +1844,7 @@
             }
             update() {
                 if (this.type === 'chaser') {
-                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - this.x);
+                    let angleToPlayer = Math.atan2(player.y - this.y, player.x - x);
                     this.velocity.x += Math.cos(angleToPlayer) * 0.05; this.velocity.y += Math.sin(angleToPlayer) * 0.05;
                     let spd = Math.hypot(this.velocity.x, this.velocity.y);
                     if(spd > this.speed) { this.velocity.x = (this.velocity.x/spd)*this.speed; this.velocity.y = (this.velocity.y/spd)*this.speed; }
@@ -1768,11 +1879,18 @@
                 if (Math.random() < 0.5) { x = Math.random() < 0.5 ? -radius : vWidth + radius; y = Math.random() * vHeight; } 
                 else { x = Math.random() * vWidth; y = Math.random() < 0.5 ? -radius : vHeight + radius; }
 
-                let availableTypes = ['basic'];
-                if (level >= 2) availableTypes.push('tank', 'elite_fast');
-                if (level >= 3) availableTypes.push('chaser', 'elite_tank');
-                if (level >= 4) availableTypes.push('waver', 'elite_fast');
-                if (level >= 5) availableTypes.push('tank', 'chaser', 'elite_fast', 'elite_tank');
+                let availableTypes = [];
+                
+                if (level === 5) {
+                    availableTypes.push('yellow_crystal', 'yellow_sphere', 'yellow_star');
+                } else if (level > 5) {
+                    availableTypes.push('yellow_crystal', 'yellow_sphere', 'yellow_star', 'plasma_shard', 'void_golem', 'elite_tank', 'chaser');
+                } else {
+                    availableTypes.push('basic');
+                    if (level >= 2) availableTypes.push('tank', 'elite_fast');
+                    if (level >= 3) availableTypes.push('chaser', 'elite_tank');
+                    if (level >= 4) availableTypes.push('waver', 'elite_fast');
+                }
 
                 enemies.push(new Enemy(x, y, availableTypes[Math.floor(Math.random() * availableTypes.length)]));
                 lastSpawnTime = currentTime;
@@ -1911,7 +2029,6 @@
                 let skinConfig = player.skin;
                 playShootSound();
 
-                // Add muzzle flash particles driven by skin effect yields
                 if(player.tier !== 'common' && maxParticlesAllowed > 0) {
                     for(let i=0; i<skinConfig.effectYield; i++) {
                         particles.push(new Particle(player.x, player.y - 15, {x: (Math.random()-0.5)*6, y: -Math.random()*4 - 2}, 2, skinConfig.secColor, 0.05));
@@ -1920,7 +2037,6 @@
 
                 let RecoilOffset = player.tier === 'mythical' ? -14 : -16;
 
-                // Pass the whole skin config to the Projectile class
                 projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: RecoilOffset }, skinConfig));
                 if (spreadLvl >= 1) {
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -3, y: RecoilOffset + 1 }, skinConfig, 3));
