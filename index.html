@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Round Snake Pro</title>
+<title>Snake Speed Pro</title>
 
 <style>
 html, body {
@@ -22,7 +22,7 @@ canvas {
   margin: auto;
   background: #000;
   border: 2px solid #00ff99;
-  box-shadow: 0 0 25px #00ff99;
+  box-shadow: 0 0 20px #00ff99;
 }
 
 #ui {
@@ -58,13 +58,14 @@ button {
 <body>
 
 <div id="startScreen">
-  <h1>🐍 Round Snake</h1>
-  <button onclick="startGame()">Play</button>
+  <h1>🐍 Snake Speed Pro</h1>
+  <button onclick="startGame()">Start</button>
 </div>
 
 <div id="ui">
   Score: <span id="score">0</span><br>
-  High: <span id="high">0</span>
+  High Score: <span id="high">0</span><br>
+  Speed Level: <span id="speed">1</span>
 </div>
 
 <canvas id="game" width="420" height="420"></canvas>
@@ -75,17 +76,24 @@ const ctx = canvas.getContext("2d");
 
 const box = 20;
 
-let snake, dir, food, score, high, loop;
+let snake, dir, food;
+let score = 0;
+let high = localStorage.getItem("snakeHigh") || 0;
 
-high = localStorage.getItem("snakeHigh") || 0;
+let speedLevel = 1;
+let gameLoop;
+let interval = 200; // 🐢 START SLOW
+
 document.getElementById("high").innerText = high;
 
 /* INIT */
 function init() {
-  snake = [{x: 10*box, y: 10*box}];
+  snake = [{ x: 10 * box, y: 10 * box }];
   dir = "RIGHT";
   food = spawnFood();
   score = 0;
+  speedLevel = 1;
+  interval = 200;
   updateUI();
 }
 
@@ -99,94 +107,104 @@ function spawnFood() {
 
 /* CONTROLS */
 document.addEventListener("keydown", e => {
-  if (e.key==="ArrowLeft" && dir!=="RIGHT") dir="LEFT";
-  if (e.key==="ArrowRight" && dir!=="LEFT") dir="RIGHT";
-  if (e.key==="ArrowUp" && dir!=="DOWN") dir="UP";
-  if (e.key==="ArrowDown" && dir!=="UP") dir="DOWN";
+  if (e.key === "ArrowLeft" && dir !== "RIGHT") dir = "LEFT";
+  if (e.key === "ArrowRight" && dir !== "LEFT") dir = "RIGHT";
+  if (e.key === "ArrowUp" && dir !== "DOWN") dir = "UP";
+  if (e.key === "ArrowDown" && dir !== "UP") dir = "DOWN";
 });
 
 /* SWIPE */
 let sx, sy;
-document.addEventListener("touchstart", e=>{
-  sx=e.touches[0].clientX;
-  sy=e.touches[0].clientY;
+
+document.addEventListener("touchstart", e => {
+  sx = e.touches[0].clientX;
+  sy = e.touches[0].clientY;
 });
 
-document.addEventListener("touchend", e=>{
-  let dx=e.changedTouches[0].clientX-sx;
-  let dy=e.changedTouches[0].clientY-sy;
+document.addEventListener("touchend", e => {
+  let dx = e.changedTouches[0].clientX - sx;
+  let dy = e.changedTouches[0].clientY - sy;
 
-  if(Math.abs(dx)>Math.abs(dy)){
-    if(dx>0 && dir!=="LEFT") dir="RIGHT";
-    else if(dx<0 && dir!=="RIGHT") dir="LEFT";
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0 && dir !== "LEFT") dir = "RIGHT";
+    else if (dx < 0 && dir !== "RIGHT") dir = "LEFT";
   } else {
-    if(dy>0 && dir!=="UP") dir="DOWN";
-    else if(dy<0 && dir!=="DOWN") dir="UP";
+    if (dy > 0 && dir !== "UP") dir = "DOWN";
+    else if (dy < 0 && dir !== "DOWN") dir = "UP";
   }
 });
 
-/* DRAW ROUND CIRCLE */
-function drawCircle(x,y,color){
-  ctx.fillStyle=color;
+/* ROUND DRAW FUNCTION */
+function drawCircle(x, y, color) {
+  ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(x + box/2, y + box/2, box/2.2, 0, Math.PI*2);
+  ctx.arc(x + box / 2, y + box / 2, box / 2.2, 0, Math.PI * 2);
   ctx.fill();
 }
 
 /* GAME LOOP */
-function game(){
+function game() {
 
-  ctx.fillStyle="#000";
-  ctx.fillRect(0,0,420,420);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, 420, 420);
 
-  // grid
-  ctx.strokeStyle="#111";
-  for(let i=0;i<420;i+=box){
+  // GRID
+  ctx.strokeStyle = "#111";
+  for (let i = 0; i < 420; i += box) {
     ctx.beginPath();
-    ctx.moveTo(i,0);
-    ctx.lineTo(i,420);
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, 420);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(0,i);
-    ctx.lineTo(420,i);
+    ctx.moveTo(0, i);
+    ctx.lineTo(420, i);
     ctx.stroke();
   }
 
-  // move head
-  let head={...snake[0]};
+  let head = { ...snake[0] };
 
-  if(dir==="RIGHT") head.x+=box;
-  if(dir==="LEFT") head.x-=box;
-  if(dir==="UP") head.y-=box;
-  if(dir==="DOWN") head.y+=box;
+  if (dir === "RIGHT") head.x += box;
+  if (dir === "LEFT") head.x -= box;
+  if (dir === "UP") head.y -= box;
+  if (dir === "DOWN") head.y += box;
 
-  // collision
-  if(head.x<0||head.y<0||head.x>=420||head.y>=420) return die();
+  // COLLISION WALL
+  if (head.x < 0 || head.y < 0 || head.x >= 420 || head.y >= 420) return die();
 
-  for(let i=0;i<snake.length;i++){
-    if(head.x===snake[i].x && head.y===snake[i].y) return die();
+  // COLLISION SELF
+  for (let i = 0; i < snake.length; i++) {
+    if (head.x === snake[i].x && head.y === snake[i].y) return die();
   }
 
   snake.unshift(head);
 
-  // eat food
-  if(head.x===food.x && head.y===food.y){
+  // EAT FOOD
+  if (head.x === food.x && head.y === food.y) {
     score++;
-    food=spawnFood();
+    food = spawnFood();
+
+    // ⚡ SPEED INCREASE EVERY 3 APPLES
+    if (score % 3 === 0) {
+      speedLevel++;
+      interval = Math.max(60, interval - 25); // faster but capped
+
+      clearInterval(gameLoop);
+      gameLoop = setInterval(game, interval);
+    }
   } else {
     snake.pop();
   }
 
-  // draw food (round apple)
+  // DRAW FOOD (ROUND)
   drawCircle(food.x, food.y, "#ff3333");
 
-  // draw snake (ROUND)
-  for(let i=0;i<snake.length;i++){
+  // DRAW SNAKE (ROUND)
+  for (let i = 0; i < snake.length; i++) {
     drawCircle(
       snake[i].x,
       snake[i].y,
-      i===0 ? "#00ffcc" : "#00aa88"
+      i === 0 ? "#00ffcc" : "#00aa88"
     );
   }
 
@@ -194,28 +212,29 @@ function game(){
 }
 
 /* UI */
-function updateUI(){
-  document.getElementById("score").innerText=score;
+function updateUI() {
+  document.getElementById("score").innerText = score;
+  document.getElementById("speed").innerText = speedLevel;
 
-  if(score>high){
-    high=score;
-    localStorage.setItem("snakeHigh",high);
-    document.getElementById("high").innerText=high;
+  if (score > high) {
+    high = score;
+    localStorage.setItem("snakeHigh", high);
+    document.getElementById("high").innerText = high;
   }
 }
 
 /* START */
-function startGame(){
-  document.getElementById("startScreen").style.display="none";
+function startGame() {
+  document.getElementById("startScreen").style.display = "none";
   init();
-  loop=setInterval(game,120);
+  gameLoop = setInterval(game, interval);
 }
 
 /* GAME OVER */
-function die(){
-  clearInterval(loop);
-  alert("Game Over! Score: "+score);
-  document.getElementById("startScreen").style.display="flex";
+function die() {
+  clearInterval(gameLoop);
+  alert("Game Over! Score: " + score);
+  document.getElementById("startScreen").style.display = "flex";
 }
 </script>
 
