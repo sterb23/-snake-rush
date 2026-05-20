@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Surge: Ultra Edition</title>
+    <title>Neon Surge</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #04040c;
+            background-color: #050510;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             user-select: none;
             touch-action: none;
@@ -76,7 +76,7 @@
             text-shadow: 0 0 20px #fff, 0 0 40px #0ff;
             opacity: 0;
             transform: scale(0.5);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s ease-out;
             pointer-events: none;
         }
 
@@ -86,17 +86,17 @@
         }
 
         .panel {
-            background: rgba(8, 8, 22, 0.96);
+            background: rgba(10, 10, 25, 0.95);
             padding: 30px;
-            width: 90%;
-            max-width: 520px;
+            width: 85%;
+            max-width: 500px;
             border-radius: 15px;
             border: 2px solid #0ff;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.2);
             text-align: center;
             pointer-events: auto;
             box-sizing: border-box;
-            max-height: 85vh;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
@@ -128,7 +128,7 @@
         }
 
         .tutorial-text {
-            font-size: 14px;
+            font-size: 15px;
             line-height: 1.5;
             margin-bottom: 20px;
             color: #e0e0ff;
@@ -154,15 +154,15 @@
         .radio-btn {
             flex: 1;
             padding: 10px;
-            border: 1px solid #444;
-            background: #0d0e1f;
-            color: #888;
+            border: 1px solid #555;
+            background: #111222;
+            color: #aaa;
             cursor: pointer;
             border-radius: 5px;
             font-weight: bold;
             font-size: 11px;
             transition: all 0.2s;
-            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .radio-btn.active {
@@ -172,11 +172,11 @@
             background: rgba(0, 255, 255, 0.1);
         }
 
-        .radio-btn.gold.active {
-            border-color: #ff0;
-            color: #ff0;
-            box-shadow: 0 0 12px rgba(255, 255, 0, 0.4);
-            background: rgba(255, 255, 0, 0.1);
+        .radio-btn.purple.active {
+            border-color: #f0f;
+            color: #f0f;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+            background: rgba(255, 0, 255, 0.1);
         }
 
         .btn-group {
@@ -196,7 +196,7 @@
             text-transform: uppercase;
             cursor: pointer;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
             transition: all 0.2s;
         }
 
@@ -209,7 +209,7 @@
         button.action-btn.secondary {
             color: #f0f;
             border-color: #f0f;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
         }
         button.action-btn.secondary:hover:not(:disabled) {
             background: #f0f;
@@ -218,58 +218,49 @@
         }
 
         button.action-btn:disabled {
-            border-color: #444;
-            color: #444;
+            border-color: #555;
+            color: #555;
             box-shadow: none;
             cursor: not-allowed;
         }
 
-        /* Shop Grid Layout */
-        .shop-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
+        /* Shop Styles */
         .shop-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
             border-radius: 8px;
-            padding: 12px 16px;
+            padding: 15px;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
+            align-items: center;
+            text-align: center;
         }
         .shop-item h3 {
-            margin: 0 0 3px 0;
+            margin: 0 0 5px 0;
             color: #fff;
-            font-size: 16px;
-            letter-spacing: 0.5px;
+            font-size: 18px;
         }
         .shop-item p {
-            margin: 0 0 8px 0;
-            font-size: 12px;
+            margin: 0 0 10px 0;
+            font-size: 13px;
             color: #aaa;
-            line-height: 1.3;
         }
         .shop-item .stats {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: bold;
-            font-size: 13px;
             color: #0ff;
         }
         .shop-item button {
             width: 100%;
-            padding: 8px;
-            font-size: 13px;
+            padding: 10px;
+            font-size: 14px;
         }
 
-        /* Mobile Layouts */
+        /* Mobile Controls */
         #mobile-controls {
             position: absolute;
             bottom: 30px;
@@ -357,18 +348,19 @@
             <h1>Neon Surge</h1>
             <div class="star-points-display">⭐ STAR POINTS: <span id="menu-sp">0</span></div>
             <div class="tutorial-text">
-                <div class="section-title">Control Layout</div>
+                <div class="section-title">Control Matrix</div>
                 <div class="control-selection">
                     <div class="radio-btn active" id="opt-desktop">DESKTOP</div>
                     <div class="radio-btn" id="opt-touch">TOUCH</div>
                     <div class="radio-btn" id="opt-joystick">JOYSTICK</div>
                 </div>
 
-                <div class="section-title">Visual Rendering Shaders</div>
+                <div class="section-title">Graphics Quality Engine</div>
                 <div class="control-selection">
-                    <div class="radio-btn gold" id="gfx-low">Low</div>
-                    <div class="radio-btn gold" id="gfx-high">High</div>
-                    <div class="radio-btn gold active" id="gfx-ultra">ULTRA FX</div>
+                    <div class="radio-btn purple" id="gq-low">LOW</div>
+                    <div class="radio-btn purple active" id="gq-med">MED</div>
+                    <div class="radio-btn purple" id="gq-high">HIGH</div>
+                    <div class="radio-btn purple" id="gq-ultra">ULTRA</div>
                 </div>
 
                 <div id="desc-desktop">Move <strong>Mouse</strong>. Hold <span class="key">L-Click</span> or <span class="key">Space</span> to shoot.</div>
@@ -384,72 +376,60 @@
         </div>
 
         <div id="shop-screen" class="panel hidden">
-            <h1 style="color:#ff0; text-shadow:0 0 10px #ff0; margin-bottom:10px;">UPGRADES</h1>
-            <div class="star-points-display" style="margin-bottom:15px;">⭐ AVAILABLE: <span id="shop-sp">0</span></div>
+            <h1 style="color:#ff0; text-shadow:0 0 10px #ff0;">UPGRADES</h1>
+            <div class="star-points-display">⭐ AVAILABLE: <span id="shop-sp">0</span></div>
             
-            <div class="shop-container">
-                <div class="shop-item">
-                    <h3>Overcharge Emitter</h3>
-                    <p>Increases fire rate for a continuous stream of destruction.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-fire-lvl">0</span>/5</span>
-                        <span id="upg-fire-cost-text">Cost: <span id="upg-fire-cost">5</span> ⭐</span>
-                    </div>
-                    <button id="buy-fire-btn" class="action-btn">Upgrade</button>
+            <div class="shop-item">
+                <h3>Overcharge Emitter</h3>
+                <p>Increases fire rate for a continuous stream of destruction.</p>
+                <div class="stats">
+                    <span>Level: <span id="upg-fire-lvl">0</span>/5</span>
+                    <span id="upg-fire-cost-text">Cost: <span id="upg-fire-cost">5</span> ⭐</span>
                 </div>
-
-                <div class="shop-item">
-                    <h3>Plasma Spread</h3>
-                    <p>Fires additional angled projectiles with each shot.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-spread-lvl">0</span>/3</span>
-                        <span id="upg-spread-cost-text">Cost: <span id="upg-spread-cost">15</span> ⭐</span>
-                    </div>
-                    <button id="buy-spread-btn" class="action-btn secondary">Upgrade</button>
-                </div>
-
-                <div class="shop-item">
-                    <h3>Kinetic Shield</h3>
-                    <p>Grants shielding at start. Absorbs fatal hits and triggers shockwaves.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-shield-lvl">0</span>/4</span>
-                        <span id="upg-shield-cost-text">Cost: <span id="upg-shield-cost">10</span> ⭐</span>
-                    </div>
-                    <button id="buy-shield-btn" class="action-btn" style="color:#0f0; border-color:#0f0;">Upgrade</button>
-                </div>
-
-                <div class="shop-item">
-                    <h3>Chrono Distortion Field</h3>
-                    <p>Permanently dilates time, slowing down enemy ships by 12% per level.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-chrono-lvl">0</span>/3</span>
-                        <span id="upg-chrono-cost-text">Cost: <span id="upg-chrono-cost">20</span> ⭐</span>
-                    </div>
-                    <button id="buy-chrono-btn" class="action-btn" style="color:#ff8800; border-color:#ff8800;">Upgrade</button>
-                </div>
-
-                <div class="shop-item">
-                    <h3>Hyper-Siphon Core</h3>
-                    <p>Amplifies your data extraction, increasing all scores and stars earned by 25% per level.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-siphon-lvl">0</span>/3</span>
-                        <span id="upg-siphon-cost-text">Cost: <span id="upg-siphon-cost">25</span> ⭐</span>
-                    </div>
-                    <button id="buy-siphon-btn" class="action-btn secondary">Upgrade</button>
-                </div>
-
-                <div class="shop-item">
-                    <h3>Photon Railgun Piercer</h3>
-                    <p>Periodically generates an ultra-charged plasma beam that slices through all structural enemies.</p>
-                    <div class="stats">
-                        <span>Level: <span id="upg-rail-lvl">0</span>/3</span>
-                        <span id="upg-rail-cost-text">Cost: <span id="upg-rail-cost">30</span> ⭐</span>
-                    </div>
-                    <button id="buy-rail-btn" class="action-btn" style="color:#fff; border-color:#fff;">Upgrade</button>
-                </div>
+                <button id="buy-fire-btn" class="action-btn">Upgrade</button>
             </div>
 
-            <button id="close-shop-btn" class="action-btn" style="margin-top:5px;">Return to Menu</button>
+            <div class="shop-item">
+                <h3>Plasma Spread</h3>
+                <p>Fires additional angled projectiles with each shot.</p>
+                <div class="stats">
+                    <span>Level: <span id="upg-spread-lvl">0</span>/3</span>
+                    <span id="upg-spread-cost-text">Cost: <span id="upg-spread-cost">15</span> ⭐</span>
+                </div>
+                <button id="buy-spread-btn" class="action-btn secondary">Upgrade</button>
+            </div>
+
+            <div class="shop-item">
+                <h3>Kinetic Shield</h3>
+                <p>Grants ablative shielding at system start. Absorbs fatal hits.</p>
+                <div class="stats">
+                    <span>Level: <span id="upg-shield-lvl">0</span>/4</span>
+                    <span id="upg-shield-cost-text">Cost: <span id="upg-shield-cost">10</span> ⭐</span>
+                </div>
+                <button id="buy-shield-btn" class="action-btn" style="color:#0f0; border-color:#0f0;">Upgrade</button>
+            </div>
+
+            <div class="shop-item">
+                <h3>Hyper Drive</h3>
+                <p>Boosts starship engine response, increasing flight maneuvering velocity.</p>
+                <div class="stats">
+                    <span>Level: <span id="upg-speed-lvl">0</span>/4</span>
+                    <span id="upg-speed-cost-text">Cost: <span id="upg-speed-cost">8</span> ⭐</span>
+                </div>
+                <button id="buy-speed-btn" class="action-btn" style="color:#ff8800; border-color:#ff8800;">Upgrade</button>
+            </div>
+
+            <div class="shop-item">
+                <h3>Photon Amplitude</h3>
+                <p>Magnifies projectile physical structure limits and plasma radius metrics.</p>
+                <div class="stats">
+                    <span>Level: <span id="upg-amp-lvl">0</span>/3</span>
+                    <span id="upg-amp-cost-text">Cost: <span id="upg-amp-cost">12</span> ⭐</span>
+                </div>
+                <button id="buy-amp-btn" class="action-btn secondary" style="color:#ffff00; border-color:#ffff00;">Upgrade</button>
+            </div>
+
+            <button id="close-shop-btn" class="action-btn" style="margin-top:10px;">Return to Menu</button>
         </div>
 
         <div id="game-over-screen" class="panel hidden">
@@ -470,32 +450,40 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Extended Upgrade Data Arrays
+        // Data & Progression
         let gameData = JSON.parse(localStorage.getItem('neonSurgeData')) || {
             starPoints: 0,
-            upgrades: { fireRate: 0, spread: 0, shield: 0, chrono: 0, siphon: 0, railgun: 0 }
+            upgrades: { fireRate: 0, spread: 0, shield: 0, speed: 0, amplitude: 0 }
         };
 
-        // Standardize safe properties if parsing from older saves
-        if(!gameData.upgrades.chrono) gameData.upgrades.chrono = 0;
-        if(!gameData.upgrades.siphon) gameData.upgrades.siphon = 0;
-        if(!gameData.upgrades.railgun) gameData.upgrades.railgun = 0;
+        // Fallback validation if older save state exists without new upgrades
+        if(gameData.upgrades.speed === undefined) gameData.upgrades.speed = 0;
+        if(gameData.upgrades.amplitude === undefined) gameData.upgrades.amplitude = 0;
 
         const UPGRADE_CONFIG = {
             fireRate: { max: 5, baseCost: 5, costMult: 5, action: (lvl) => 120 - (lvl * 16) },
             spread: { max: 3, baseCost: 15, costMult: 15, action: (lvl) => lvl },
             shield: { max: 4, baseCost: 10, costMult: 10, action: (lvl) => lvl },
-            chrono: { max: 3, baseCost: 20, costMult: 20, action: (lvl) => lvl * 0.12 },
-            siphon: { max: 3, baseCost: 25, costMult: 25, action: (lvl) => 1 + (lvl * 0.25) },
-            railgun: { max: 3, baseCost: 30, costMult: 30, action: (lvl) => lvl }
+            speed: { max: 4, baseCost: 8, costMult: 6, action: (lvl) => 9 + (lvl * 2) },
+            amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) }
         };
+
+        // Graphics Scaling Matrices
+        let graphicsQuality = 'med'; 
+        let renderScale = 1.0;
+        let shadowPower = 15;
+        let maxParticlesAllowed = 150;
+
+        // Virtual Coordinate Resolution Caching
+        let vWidth = window.innerWidth;
+        let vHeight = window.innerHeight;
 
         function saveData() {
             localStorage.setItem('neonSurgeData', JSON.stringify(gameData));
             updateShopUI();
         }
 
-        // Screens
+        // UI Framework Elements
         const screens = {
             start: document.getElementById('start-screen'),
             shop: document.getElementById('shop-screen'),
@@ -515,16 +503,22 @@
             levelUp: document.getElementById('level-up-announcement')
         };
 
-        // Navigation Controllers
+        // UI Button Direct Binding
         document.getElementById('start-btn').addEventListener('click', startGame);
         document.getElementById('restart-btn').addEventListener('click', startGame);
         document.getElementById('open-shop-btn').addEventListener('click', () => switchScreen('shop'));
         document.getElementById('close-shop-btn').addEventListener('click', () => switchScreen('start'));
         document.getElementById('main-menu-btn').addEventListener('click', () => switchScreen('start'));
 
-        // Bind shop interface buttons
-        function setupShopButton(btnId, type) {
-            document.getElementById(btnId).addEventListener('click', () => {
+        // Shop Module Buttons
+        const btnFire = document.getElementById('buy-fire-btn');
+        const btnSpread = document.getElementById('buy-spread-btn');
+        const btnShield = document.getElementById('buy-shield-btn');
+        const btnSpeed = document.getElementById('buy-speed-btn');
+        const btnAmp = document.getElementById('buy-amp-btn');
+
+        function setupShopButton(btn, type) {
+            btn.addEventListener('click', () => {
                 const config = UPGRADE_CONFIG[type];
                 const currentLvl = gameData.upgrades[type];
                 const cost = config.baseCost + (currentLvl * config.costMult);
@@ -536,12 +530,11 @@
                 }
             });
         }
-        setupShopButton('buy-fire-btn', 'fireRate');
-        setupShopButton('buy-spread-btn', 'spread');
-        setupShopButton('buy-shield-btn', 'shield');
-        setupShopButton('buy-chrono-btn', 'chrono');
-        setupShopButton('buy-siphon-btn', 'siphon');
-        setupShopButton('buy-rail-btn', 'railgun');
+        setupShopButton(btnFire, 'fireRate');
+        setupShopButton(btnSpread, 'spread');
+        setupShopButton(btnShield, 'shield');
+        setupShopButton(btnSpeed, 'speed');
+        setupShopButton(btnAmp, 'amplitude');
 
         function updateShopUI() {
             uiElements.menuSp.innerText = gameData.starPoints;
@@ -558,8 +551,8 @@
                 const costTxt = document.getElementById(costTxtId);
 
                 if (lvl >= cfg.max) {
-                    costTxt.innerText = "MAXED OUT";
-                    btn.innerText = "Max Level";
+                    costTxt.innerText = "MAX LEVEL";
+                    btn.innerText = "Maxed";
                     btn.disabled = true;
                 } else {
                     document.getElementById(costId).innerText = cost;
@@ -571,9 +564,8 @@
             updateItem('fireRate', 'upg-fire-lvl', 'upg-fire-cost', 'buy-fire-btn', 'upg-fire-cost-text');
             updateItem('spread', 'upg-spread-lvl', 'upg-spread-cost', 'buy-spread-btn', 'upg-spread-cost-text');
             updateItem('shield', 'upg-shield-lvl', 'upg-shield-cost', 'buy-shield-btn', 'upg-shield-cost-text');
-            updateItem('chrono', 'upg-chrono-lvl', 'upg-chrono-cost', 'buy-chrono-btn', 'upg-chrono-cost-text');
-            updateItem('siphon', 'upg-siphon-lvl', 'upg-siphon-cost', 'buy-siphon-btn', 'upg-siphon-cost-text');
-            updateItem('railgun', 'upg-rail-lvl', 'upg-rail-cost', 'buy-rail-btn', 'upg-rail-cost-text');
+            updateItem('speed', 'upg-speed-lvl', 'upg-speed-cost', 'buy-speed-btn', 'upg-speed-cost-text');
+            updateItem('amplitude', 'upg-amp-lvl', 'upg-amp-cost', 'buy-amp-btn', 'upg-amp-cost-text');
         }
 
         function switchScreen(screenName) {
@@ -592,7 +584,7 @@
             }
         }
 
-        // Controls Mode Toggles
+        // Control Matrix Setup
         let controlMode = 'desktop';
         function setControlMode(mode) {
             controlMode = mode;
@@ -606,21 +598,29 @@
         document.getElementById('opt-joystick').addEventListener('click', () => setControlMode('joystick'));
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0) setControlMode('touch');
 
-        // Shaders & Graphic Mode Toggles
-        let graphicsMode = 'ultra';
-        let resolutionScale = 1.0;
-        function setGraphicsMode(mode) {
-            graphicsMode = mode;
-            ['gfx-low', 'gfx-high', 'gfx-ultra'].forEach(id => document.getElementById(id).classList.remove('active'));
-            document.getElementById(`gfx-${mode}`).classList.add('active');
-            resolutionScale = mode === 'low' ? 0.6 : (mode === 'high' ? 1.0 : 1.5);
+        // Quality Settings Allocations
+        function setGraphicsQuality(quality) {
+            graphicsQuality = quality;
+            ['gq-low', 'gq-med', 'gq-high', 'gq-ultra'].forEach(id => document.getElementById(id).classList.remove('active'));
+            document.getElementById(`gq-${quality}`).classList.add('active');
+            
+            if (quality === 'low') {
+                renderScale = 0.75; shadowPower = 0; maxParticlesAllowed = 0;
+            } else if (quality === 'med') {
+                renderScale = 1.0; shadowPower = 10; maxParticlesAllowed = 80;
+            } else if (quality === 'high') {
+                renderScale = 1.5; shadowPower = 20; maxParticlesAllowed = 250;
+            } else if (quality === 'ultra') {
+                renderScale = 2.0; shadowPower = 35; maxParticlesAllowed = 600;
+            }
             resize();
         }
-        document.getElementById('gfx-low').addEventListener('click', () => setGraphicsMode('low'));
-        document.getElementById('gfx-high').addEventListener('click', () => setGraphicsMode('high'));
-        document.getElementById('gfx-ultra').addEventListener('click', () => setGraphicsMode('ultra'));
+        document.getElementById('gq-low').addEventListener('click', () => setGraphicsQuality('low'));
+        document.getElementById('gq-med').addEventListener('click', () => setGraphicsQuality('med'));
+        document.getElementById('gq-high').addEventListener('click', () => setGraphicsQuality('high'));
+        document.getElementById('gq-ultra').addEventListener('click', () => setGraphicsQuality('ultra'));
 
-        // Base Game States
+        // Core Environment Setup
         let gameActive = false;
         let score = 0;
         let level = 1;
@@ -630,22 +630,17 @@
         let projectiles = [];
         let enemies = [];
         let particles = [];
-        let railgunBeams = [];
         
-        // Virtual Dimension Management Cache
-        let vWidth = window.innerWidth;
-        let vHeight = window.innerHeight;
-
+        // Map elements
         let stars = [];
         let gridY = 0;
         let nebulaClouds = [];
         let hyperspaceLines = [];
 
-        // Trackers
+        // Input Tracking Nodes
         const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         let isShooting = false;
         let lastShotTime = 0;
-        let lastRailTime = 0;
 
         let joystickActive = false;
         let joystickCenter = { x: 0, y: 0 };
@@ -657,13 +652,13 @@
         function resize() {
             vWidth = window.innerWidth;
             vHeight = window.innerHeight;
-            canvas.width = vWidth * resolutionScale;
-            canvas.height = vHeight * resolutionScale;
+            canvas.width = vWidth * renderScale;
+            canvas.height = vHeight * renderScale;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // Control Inputs Binding Architecture
+        // System Input Listeners
         window.addEventListener('mousemove', (e) => { if (controlMode === 'desktop') { mouse.x = e.clientX; mouse.y = e.clientY; }});
         window.addEventListener('mousedown', () => { if(controlMode==='desktop') isShooting = true; });
         window.addEventListener('mouseup', () => { if(controlMode==='desktop') isShooting = false; });
@@ -701,9 +696,9 @@
 
         function initBackgrounds() {
             stars = []; nebulaClouds = []; hyperspaceLines = [];
-            for(let i=0; i<120; i++) stars.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*1.6, s: Math.random()*0.5+0.1});
-            for(let i=0; i<18; i++) nebulaClouds.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*160+60, c: `rgba(${130+Math.random()*125}, 0, ${70+Math.random()*150}, 0.06)`, vx: (Math.random()-0.5)*0.4, vy: Math.random()*0.4+0.2});
-            for(let i=0; i<70; i++) hyperspaceLines.push({x: Math.random()*vWidth, y: Math.random()*vHeight, len: Math.random()*60+20, s: Math.random()*18+6});
+            for(let i=0; i<100; i++) stars.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*1.5, s: Math.random()*0.5+0.1});
+            for(let i=0; i<15; i++) nebulaClouds.push({x: Math.random()*vWidth, y: Math.random()*vHeight, r: Math.random()*150+50, c: `rgba(${150+Math.random()*100}, 0, ${50+Math.random()*100}, 0.05)`, vx: (Math.random()-0.5)*0.5, vy: Math.random()*0.5+0.2});
+            for(let i=0; i<60; i++) hyperspaceLines.push({x: Math.random()*vWidth, y: Math.random()*vHeight, len: Math.random()*50+20, s: Math.random()*15+5});
         }
 
         class Player {
@@ -713,7 +708,7 @@
                 this.radius = 15;
                 this.color = '#0ff';
                 this.velocity = { x: 0, y: 0 };
-                this.joystickSpeed = 9;
+                this.joystickSpeed = UPGRADE_CONFIG.speed.action(gameData.upgrades.speed);
                 this.shields = UPGRADE_CONFIG.shield.action(gameData.upgrades.shield);
                 this.invulnerable = false;
             }
@@ -722,37 +717,46 @@
                 if (this.invulnerable) {
                     ctx.globalAlpha = Math.random() > 0.5 ? 0.4 : 1.0;
                 }
-                
-                // Shader System Pass Configurations
-                if (graphicsMode === 'high' || graphicsMode === 'ultra') {
-                    ctx.shadowBlur = graphicsMode === 'ultra' ? 30 : 15; 
-                    ctx.shadowColor = this.color;
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
-                
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
-                
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius / 2, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.fill(); 
 
-                // Shields
+                // Sharp Arrow Starfighter Vector Implementation
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y - this.radius * 1.5); // Arrow Apex Head
+                ctx.lineTo(this.x + this.radius * 1.2, this.y + this.radius); // Starboard Rear Wing
+                ctx.lineTo(this.x, this.y + this.radius * 0.3); // Core Structural Tail Indent
+                ctx.lineTo(this.x - this.radius * 1.2, this.y + this.radius); // Port Rear Wing
+                ctx.closePath();
+
+                ctx.fillStyle = '#fff'; ctx.fill(); 
+                ctx.lineWidth = 3; ctx.strokeStyle = this.color; ctx.stroke();
+                
+                // Thermal Core Thrust Exhaust Indicator
+                ctx.beginPath();
+                ctx.moveTo(this.x - this.radius * 0.4, this.y + this.radius * 0.6);
+                ctx.lineTo(this.x, this.y + this.radius * 1.2);
+                ctx.lineTo(this.x + this.radius * 0.4, this.y + this.radius * 0.6);
+                ctx.closePath();
+                ctx.fillStyle = Math.random() > 0.5 ? '#ff00ff' : '#00ffff';
+                ctx.fill();
+
+                // Layered Shields Ring
                 if (this.shields > 0) {
-                    if (graphicsMode === 'high' || graphicsMode === 'ultra') {
-                        ctx.shadowColor = '#0f0';
-                        ctx.shadowBlur = graphicsMode === 'ultra' ? 25 : 12;
-                    }
-                    ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.15)})`;
+                    if (shadowPower > 0) ctx.shadowColor = '#0f0';
+                    ctx.strokeStyle = `rgba(0, 255, 0, ${0.4 + (this.shields * 0.2)})`;
                     ctx.lineWidth = 2 + this.shields;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius + 10, 0, Math.PI * 2);
+                    ctx.arc(this.x, this.y, this.radius + 12, 0, Math.PI * 2);
                     ctx.stroke();
                 }
                 ctx.restore();
             }
             update() {
                 if (controlMode === 'desktop' || controlMode === 'touch') {
-                    this.velocity.x += (mouse.x - this.x) * 0.08;
-                    this.velocity.y += (mouse.y - this.y) * 0.08;
+                    let accelerationFactor = (gameData.upgrades.speed * 0.02) + 0.08;
+                    this.velocity.x += (mouse.x - this.x) * accelerationFactor;
+                    this.velocity.y += (mouse.y - this.y) * accelerationFactor;
                     this.velocity.x *= 0.8; this.velocity.y *= 0.8;
                 } else if (controlMode === 'joystick') {
                     this.velocity.x = joystickVector.x * this.joystickSpeed;
@@ -760,18 +764,6 @@
                 }
                 this.x = Math.max(this.radius, Math.min(vWidth - this.radius, this.x + this.velocity.x));
                 this.y = Math.max(this.radius, Math.min(vHeight - this.radius, this.y + this.velocity.y));
-                
-                // Ultra Mode Dynamic Vector Engine Plumes
-                if (graphicsMode === 'ultra' && (Math.abs(this.velocity.x) > 0.5 || Math.abs(this.velocity.y) > 0.5)) {
-                    particles.push(new Particle(
-                        this.x + (Math.random() - 0.5) * 10, 
-                        this.y + this.radius, 
-                        { x: (Math.random() - 0.5) * 2, y: Math.random() * 3 + 3 }, 
-                        Math.random() * 2.5 + 1, 
-                        'rgba(0, 255, 255, 0.7)'
-                    ));
-                }
-
                 this.draw();
             }
             takeDamage() {
@@ -780,12 +772,12 @@
                 if (this.shields > 0) {
                     this.shields--;
                     this.invulnerable = true;
-                    createExplosion(this.x, this.y, '#0f0', graphicsMode === 'ultra' ? 35 : 15);
+                    createExplosion(this.x, this.y, '#0f0');
                     
-                    // Shield Shockwave Repulsion Field
-                    enemies.forEach((enemy) => {
-                        if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 175) {
-                            createExplosion(enemy.x, enemy.y, enemy.color, 12);
+                    // Shockwave sweeps area
+                    enemies.forEach((enemy, i) => {
+                        if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 150) {
+                            createExplosion(enemy.x, enemy.y, enemy.color);
                             setTimeout(() => { if (enemies.includes(enemy)) enemies.splice(enemies.indexOf(enemy), 1); }, 0);
                         }
                     });
@@ -799,48 +791,19 @@
 
         class Projectile {
             constructor(x, y, velocity, color='#0ff', radius=4) {
-                this.x = x; this.y = y; this.velocity = velocity; this.radius = radius; this.color = color;
+                this.x = x; this.y = y; this.velocity = velocity; 
+                // Core Radius supplemented by Photon Amplitude Upgrade configuration
+                this.radius = radius + (UPGRADE_CONFIG.amplitude.action(gameData.upgrades.amplitude) - 4); 
+                this.color = color;
             }
             update() {
                 this.x += this.velocity.x; this.y += this.velocity.y;
                 ctx.save(); 
-                if (graphicsMode === 'high' || graphicsMode === 'ultra') {
-                    ctx.shadowBlur = graphicsMode === 'ultra' ? 18 : 10; 
-                    ctx.shadowColor = this.color;
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
-            }
-        }
-
-        // Railgun Laser Class
-        class RailgunBeam {
-            constructor(x) {
-                this.x = x;
-                this.alpha = 1.0;
-                this.width = graphicsMode === 'ultra' ? 24 : 14;
-            }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                if(graphicsMode === 'high' || graphicsMode === 'ultra') {
-                    ctx.shadowBlur = graphicsMode === 'ultra' ? 35 : 15;
-                    ctx.shadowColor = '#fff';
-                }
-                // Neon core
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = this.width * 0.4;
-                ctx.beginPath(); ctx.moveTo(this.x, 0); ctx.lineTo(this.x, vHeight); ctx.stroke();
-                
-                // Outer plasma aura
-                ctx.strokeStyle = 'rgba(255, 0, 128, 0.4)';
-                ctx.lineWidth = this.width;
-                ctx.beginPath(); ctx.moveTo(this.x, 0); ctx.lineTo(this.x, vHeight); ctx.stroke();
-                ctx.restore();
-            }
-            update() {
-                this.alpha -= 0.04;
-                this.draw();
             }
         }
 
@@ -848,10 +811,7 @@
             constructor(x, y, type) {
                 this.x = x; this.y = y; this.type = type;
                 this.angle = 0;
-                
-                // Incorporate Upgrade 4 (Chrono Distortion Field Slowdown)
-                let chronoSlowFactor = UPGRADE_CONFIG.chrono.action(gameData.upgrades.chrono);
-                let speedScale = (1 + (score * 0.0002)) * (1 - chronoSlowFactor);
+                let speedScale = 1 + (score * 0.0002);
                 let angleToPlayer = Math.atan2(player.y - y, player.x - x);
 
                 if (type === 'basic') {
@@ -878,9 +838,8 @@
             }
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-                if (graphicsMode === 'high' || graphicsMode === 'ultra') {
-                    ctx.shadowBlur = graphicsMode === 'ultra' ? 22 : 12; 
-                    ctx.shadowColor = this.color;
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
                 ctx.beginPath();
                 for (let i = 0; i < this.edges; i++) {
@@ -892,22 +851,17 @@
                 ctx.fillStyle = this.color.replace(')', ', 0.2)').replace('rgb', 'rgba'); ctx.fill(); ctx.restore();
             }
             update() {
-                let chronoSlowFactor = UPGRADE_CONFIG.chrono.action(gameData.upgrades.chrono);
-                let currentSpeedScale = (1 - chronoSlowFactor);
-
                 if (this.type === 'chaser') {
                     let angleToPlayer = Math.atan2(player.y - this.y, player.x - this.x);
-                    this.velocity.x += Math.cos(angleToPlayer) * 0.05 * currentSpeedScale; 
-                    this.velocity.y += Math.sin(angleToPlayer) * 0.05 * currentSpeedScale;
+                    this.velocity.x += Math.cos(angleToPlayer) * 0.05; this.velocity.y += Math.sin(angleToPlayer) * 0.05;
                     let spd = Math.hypot(this.velocity.x, this.velocity.y);
-                    let maxAllowed = this.speed;
-                    if(spd > maxAllowed) { this.velocity.x = (this.velocity.x/spd)*maxAllowed; this.velocity.y = (this.velocity.y/spd)*maxAllowed; }
+                    if(spd > this.speed) { this.velocity.x = (this.velocity.x/spd)*this.speed; this.velocity.y = (this.velocity.y/spd)*this.speed; }
                 } else if (this.type === 'waver') {
-                    this.wavePhase += 0.1 * currentSpeedScale; let waveOffset = Math.sin(this.wavePhase) * 3;
+                    this.wavePhase += 0.1; let waveOffset = Math.sin(this.wavePhase) * 3;
                     this.velocity.x = Math.cos(this.baseAngle) * this.speed + Math.cos(this.baseAngle + Math.PI/2) * waveOffset;
                     this.velocity.y = Math.sin(this.baseAngle) * this.speed + Math.sin(this.baseAngle + Math.PI/2) * waveOffset;
                 }
-                this.x += this.velocity.x; this.y += this.velocity.y; this.angle += this.spin * currentSpeedScale; this.draw();
+                this.x += this.velocity.x; this.y += this.velocity.y; this.angle += this.spin; this.draw();
             }
         }
 
@@ -919,9 +873,8 @@
                 this.velocity.x *= 0.96; this.velocity.y *= 0.96;
                 this.x += this.velocity.x; this.y += this.velocity.y; this.alpha -= 0.02;
                 ctx.save(); ctx.globalAlpha = this.alpha; 
-                if (graphicsMode === 'high' || graphicsMode === 'ultra') {
-                    ctx.shadowBlur = graphicsMode === 'ultra' ? 12 : 6; 
-                    ctx.shadowColor = this.color;
+                if (shadowPower > 0) {
+                    ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color;
                 }
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
@@ -946,11 +899,11 @@
             }
         }
 
-        function createExplosion(x, y, color, baseCount = 15) {
-            // Explode intense particle multiplier on ultra graphics modes
-            let count = graphicsMode === 'ultra' ? baseCount * 2.5 : (graphicsMode === 'high' ? baseCount * 1.5 : baseCount);
+        function createExplosion(x, y, color) {
+            if (maxParticlesAllowed === 0) return; // Completely skips processing if LOW quality graphics active
+            const count = Math.min(15, maxParticlesAllowed - particles.length);
             for (let i = 0; i < count; i++) {
-                particles.push(new Particle(x, y, {x: (Math.random()-0.5)*9, y: (Math.random()-0.5)*9}, Math.random()*3+1, color));
+                particles.push(new Particle(x, y, {x: (Math.random()-0.5)*8, y: (Math.random()-0.5)*8}, Math.random()*3+1, color));
             }
         }
 
@@ -965,7 +918,7 @@
                 uiElements.levelUp.innerText = `LEVEL ${level}: ${mapName}`;
                 uiElements.levelUp.classList.add('level-up-active');
                 
-                createExplosion(player.x, player.y, '#fff', 30); createExplosion(player.x, player.y, '#0ff', 30);
+                createExplosion(player.x, player.y, '#fff'); createExplosion(player.x, player.y, '#0ff');
                 setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2500);
             }
         }
@@ -976,14 +929,13 @@
 
             player = new Player();
             mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
-            projectiles = []; enemies = []; particles = []; railgunBeams = [];
+            projectiles = []; enemies = []; particles = [];
             score = 0; level = 1; spawnDelay = 1000;
             uiElements.score.innerText = score; uiElements.level.innerText = level;
             
             initBackgrounds();
             gameActive = true; isShooting = false;
             lastSpawnTime = performance.now();
-            lastRailTime = performance.now();
             animate(lastSpawnTime);
         }
 
@@ -992,21 +944,18 @@
             cancelAnimationFrame(animationId);
             document.getElementById('mobile-controls').style.display = 'none';
             
-            createExplosion(player.x, player.y, player.color, 30);
-            createExplosion(player.x, player.y, '#f00', 30);
-            ctx.fillStyle = 'rgba(4, 4, 12, 0.8)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            createExplosion(player.x, player.y, player.color);
+            createExplosion(player.x, player.y, '#f00');
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.7)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => p.update());
 
-            // Upgrade 5 Implementation (Hyper-Siphon Score/Star Points Booster)
-            let siphonMultiplier = UPGRADE_CONFIG.siphon.action(gameData.upgrades.siphon);
-            const earnedSp = Math.floor((score / 100) * siphonMultiplier);
-            
+            const earnedSp = Math.floor(score / 100);
             gameData.starPoints += earnedSp;
             saveData();
 
             setTimeout(() => {
                 switchScreen('gameover');
-                uiElements.finalScore.innerText = Math.floor(score);
+                uiElements.finalScore.innerText = score;
                 uiElements.finalLevel.innerText = level;
                 uiElements.earnedSp.innerText = earnedSp;
                 screens.hud.style.display = 'none';
@@ -1015,11 +964,11 @@
 
         function drawMapBackground() {
             if (level === 1) {
-                ctx.fillStyle = '#04040c'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, vWidth, vHeight);
                 ctx.fillStyle = '#fff';
                 stars.forEach(s => { s.y += s.s; if(s.y > vHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
             } else if (level === 2) {
-                ctx.fillStyle = 'rgba(4, 8, 18, 0.4)'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.fillStyle = 'rgba(5, 10, 20, 0.4)'; ctx.fillRect(0, 0, vWidth, vHeight);
                 ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)'; ctx.lineWidth = 1;
                 gridY += 2; if(gridY > 50) gridY = 0;
                 ctx.beginPath();
@@ -1027,7 +976,7 @@
                 for(let y=gridY; y<vHeight; y+=50) { ctx.moveTo(0, y); ctx.lineTo(vWidth, y); }
                 ctx.stroke();
             } else if (level === 3) {
-                ctx.fillStyle = 'rgba(16, 4, 4, 0.3)'; ctx.fillRect(0, 0, vWidth, vHeight);
+                ctx.fillStyle = 'rgba(20, 5, 5, 0.3)'; ctx.fillRect(0, 0, vWidth, vHeight);
                 nebulaClouds.forEach(c => {
                     c.x += c.vx; c.y += c.vy;
                     if(c.y - c.r > vHeight) { c.y = -c.r; c.x = Math.random()*vWidth; }
@@ -1039,7 +988,7 @@
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; ctx.fillRect(0, 0, vWidth, vHeight);
                 hyperspaceLines.forEach(l => {
                     l.y += l.s; if (l.y > vHeight) { l.y = -l.len; l.x = Math.random()*vWidth; }
-                    ctx.strokeStyle = `hsl(${(performance.now()/15)%360}, 100%, 60%)`; ctx.lineWidth=2;
+                    ctx.strokeStyle = `hsl(${Math.random()*360}, 100%, 50%)`; ctx.lineWidth=2;
                     ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y - l.len); ctx.stroke();
                 });
             }
@@ -1049,57 +998,27 @@
             if (!gameActive) return;
             animationId = requestAnimationFrame(animate);
 
-            // Shaders Pass Integration
-            if (graphicsMode === 'ultra') {
-                // Apply a lighter blending trail composite structure for real motion trails
-                ctx.fillStyle = 'rgba(4, 4, 12, 0.28)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             ctx.save();
-            ctx.scale(resolutionScale, resolutionScale);
+            // Scaling engine rendering buffers dynamically via device memory parameters
+            ctx.scale(renderScale, renderScale);
 
-            if (graphicsMode !== 'ultra') {
-                drawMapBackground();
-            } else {
-                // Keep star logic rendering cleanly inside custom blur layers
-                ctx.fillStyle = '#fff';
-                stars.forEach(s => { s.y += s.s * 1.5; if(s.y > vHeight) s.y=0; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
-                if(level === 2) {
-                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.08)'; ctx.lineWidth = 1;
-                    gridY += 2.5; if(gridY > 50) gridY = 0;
-                    ctx.beginPath();
-                    for(let x=0; x<vWidth; x+=50) { ctx.moveTo(x, 0); ctx.lineTo(x, vHeight); }
-                    for(let y=gridY; y<vHeight; y+=50) { ctx.moveTo(0, y); ctx.lineTo(vWidth, y); }
-                    ctx.stroke();
-                } else if(level === 3) {
-                    nebulaClouds.forEach(c => {
-                        c.x += c.vx; c.y += c.vy; if(c.y - c.r > vHeight) c.y = -c.r;
-                        let grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.r);
-                        grad.addColorStop(0, c.c); grad.addColorStop(1, 'transparent');
-                        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
-                    });
-                } else if(level >= 4) {
-                    hyperspaceLines.forEach(l => {
-                        l.y += l.s * 1.2; if (l.y > vHeight) l.y = -l.len;
-                        ctx.strokeStyle = `hsl(${(performance.now()/10)%360}, 100%, 50%)`; ctx.lineWidth=2;
-                        ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(l.x, l.y - l.len); ctx.stroke();
-                    });
-                }
+            // Shading Filter Layer Composition for glow parameters
+            if (graphicsQuality === 'ultra') {
+                ctx.globalCompositeOperation = 'source-over';
             }
 
+            drawMapBackground();
             player.update();
             spawnEnemyLogic(currentTime);
 
-            // Trigger System Upgrades Calculations
             const dynamicFireRate = UPGRADE_CONFIG.fireRate.action(gameData.upgrades.fireRate);
             const spreadLvl = UPGRADE_CONFIG.spread.action(gameData.upgrades.spread);
-            const railLvl = UPGRADE_CONFIG.railgun.action(gameData.upgrades.railgun);
-            const siphonMult = UPGRADE_CONFIG.siphon.action(gameData.upgrades.siphon);
 
-            // Weapon Systems Shoot Execution
             if (isShooting && currentTime - lastShotTime > dynamicFireRate) {
                 let baseColor = spreadLvl === 3 ? '#f0f' : (spreadLvl > 0 ? '#ff0' : '#0ff');
+                
                 projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: -16 + (player.velocity.y*0.2) }, baseColor));
                 
                 if (spreadLvl >= 1) {
@@ -1114,76 +1033,39 @@
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -9, y: -12 }, baseColor, 3));
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 9, y: -12 }, baseColor, 3));
                 }
+                
                 lastShotTime = currentTime;
             }
 
-            // Upgrade 6: Automation Periodic Railgun beam ordnance
-            if (railLvl > 0 && currentTime - lastRailTime > (6000 - railLvl * 1200)) {
-                railgunBeams.push(new RailgunBeam(player.x));
-                lastRailTime = currentTime;
-                
-                // Railgun hit sweeps through everything vertical
-                enemies.forEach((enemy, index) => {
-                    if (Math.abs(enemy.x - player.x) < (15 + railLvl * 5)) {
-                        enemy.hp -= (railLvl * 3);
-                        createExplosion(enemy.x, enemy.y, '#ff0080', 8);
-                    }
-                });
-            }
-
-            // Engine Particle Matrices Updates
             for (let i = particles.length - 1; i >= 0; i--) {
                 if (particles[i].alpha <= 0) particles.splice(i, 1); else particles[i].update();
             }
 
-            // Shaders updates rail beams
-            for (let i = railgunBeams.length - 1; i >= 0; i--) {
-                if (railgunBeams[i].alpha <= 0) railgunBeams.splice(i, 1); else railgunBeams[i].update();
-            }
-
-            // Vector projectiles loops
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 projectiles[i].update();
                 if (projectiles[i].y < 0 || projectiles[i].x < 0 || projectiles[i].x > vWidth) projectiles.splice(i, 1);
             }
 
-            // Enemy Matrix Iteration Loop
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
                 enemy.update();
 
-                // Intersect Player bounds
                 if (Math.hypot(player.x - enemy.x, player.y - enemy.y) - enemy.radius - player.radius < 0) {
                     const isDead = player.takeDamage();
                     if (isDead) { gameOver(); ctx.restore(); return; }
-                    else {
-                        enemies.splice(i, 1);
-                        continue;
-                    }
                 }
 
-                // If dead from railgun sweep checks
-                if (enemy.hp <= 0) {
-                    createExplosion(enemy.x, enemy.y, enemy.color, 16);
-                    score += Math.floor(enemy.scoreVal * siphonMult);
-                    uiElements.score.innerText = Math.floor(score);
-                    enemies.splice(i, 1);
-                    checkLevelUp();
-                    continue;
-                }
-
-                // Projectile Hits intersections
                 for (let j = projectiles.length - 1; j >= 0; j--) {
                     const proj = projectiles[j];
                     if (Math.hypot(proj.x - enemy.x, proj.y - enemy.y) - enemy.radius - proj.radius < 0) {
-                        createExplosion(proj.x, proj.y, proj.color, 4);
+                        createExplosion(proj.x, proj.y, proj.color);
                         projectiles.splice(j, 1);
                         enemy.hp--;
                         
                         if (enemy.hp <= 0) {
-                            createExplosion(enemy.x, enemy.y, enemy.color, 15);
-                            score += Math.floor(enemy.scoreVal * siphonMult);
-                            uiElements.score.innerText = Math.floor(score);
+                            createExplosion(enemy.x, enemy.y, enemy.color);
+                            score += enemy.scoreVal;
+                            uiElements.score.innerText = score;
                             enemies.splice(i, 1);
                             checkLevelUp();
                         } else {
@@ -1193,6 +1075,7 @@
                     }
                 }
             }
+            
             ctx.restore();
         }
 
