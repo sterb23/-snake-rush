@@ -299,7 +299,7 @@
 
         .crate-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 10px;
             margin-bottom: 15px;
         }
@@ -308,25 +308,15 @@
             background: rgba(15, 15, 35, 0.8);
             border: 1px solid #335;
             border-radius: 8px;
-            padding: 10px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .crate-card.common { border-color: #b0b0b0; }
-        .crate-card.uncommon { border-color: #00ff00; }
-        .crate-card.rare { border-color: #00ffff; }
-        .crate-card.epic { border-color: #ff00ff; }
-        .crate-card.mythical { border-color: #ffff00; }
+        
+        .crate-card.omni { border-color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
+        .crate-title { font-weight: bold; font-size: 15px; margin-bottom: 10px; text-transform: uppercase; color: #fff; }
 
-        .crate-title { font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase; }
-        .common .crate-title { color: #b0b0b0; }
-        .uncommon .crate-title { color: #00ff00; }
-        .rare .crate-title { color: #00ffff; }
-        .epic .crate-title { color: #ff00ff; }
-        .mythical .crate-title { color: #ffff00; }
-
-        /* UPGRADED GRAPHICS: INVENTORY VISUAL GRAPHICS DRAW MATRIX */
         .skin-inventory-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -352,6 +342,11 @@
         .inventory-card.active-skin {
             background: rgba(0, 255, 255, 0.08);
             box-shadow: 0 0 15px currentColor;
+        }
+
+        .inventory-card.locked-skin {
+            filter: grayscale(100%);
+            opacity: 0.4;
         }
 
         .skin-canvas-preview {
@@ -695,35 +690,19 @@
             </div>
 
             <div id="tab-skins" class="shop-container hidden">
-                <div class="section-title" style="margin-top:0;">Acquire Matrix Crates</div>
+                <div class="section-title" style="margin-top:0;">Acquire Skins</div>
                 <div class="crate-grid">
-                    <div class="crate-card common">
-                        <div class="crate-title">Common</div>
-                        <button id="crate-btn-common" class="action-btn" style="font-size:11px; padding:6px; color:#b0b0b0; border-color:#b0b0b0;">20 🪙</button>
-                    </div>
-                    <div class="crate-card uncommon">
-                        <div class="crate-title">Uncommon</div>
-                        <button id="crate-btn-uncommon" class="action-btn" style="font-size:11px; padding:6px; color:#0f0; border-color:#0f0;">30 🪙</button>
-                    </div>
-                    <div class="crate-card rare">
-                        <div class="crate-title">Rare</div>
-                        <button id="crate-btn-rare" class="action-btn" style="font-size:11px; padding:6px; color:#0ff; border-color:#0ff;">40 🪙</button>
-                    </div>
-                    <div class="crate-card epic">
-                        <div class="crate-title">Epic</div>
-                        <button id="crate-btn-epic" class="action-btn" style="font-size:11px; padding:6px; color:#f0f; border-color:#f0f;">50 🪙</button>
-                    </div>
-                    <div class="crate-card mythical" style="grid-column: span 2;">
-                        <div class="crate-title">Mythical Edition</div>
-                        <button id="crate-btn-mythical" class="action-btn" style="font-size:12px; padding:8px; color:#ff0; border-color:#ff0;">100 🪙</button>
+                    <div class="crate-card omni">
+                        <div class="crate-title">Omni Crate</div>
+                        <button id="crate-btn-omni" class="action-btn" style="font-size:14px; padding:10px; color:#0ff; border-color:#0ff;">50 🪙 SPIN</button>
                     </div>
                 </div>
 
                 <div id="drop-alert"></div>
 
-                <div class="section-title">Hangar Ship Inventory</div>
+                <div class="section-title">Skin Index (100 Discovered)</div>
                 <div class="skin-inventory-grid" id="skin-inventory-container">
-                    </div>
+                </div>
             </div>
 
             <button id="close-shop-btn" class="action-btn" style="margin-top:15px;">Return to Menu</button>
@@ -760,7 +739,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // --- EXPANDED STORAGE MODEL ---
         let gameData = JSON.parse(localStorage.getItem('neonSurgeDataUltimate')) || {
             starPoints: 0,
             skinCoins: 0,
@@ -779,25 +757,32 @@
             amplitude: { max: 3, baseCost: 12, costMult: 8, action: (lvl) => 4 + (lvl * 2) }
         };
 
-        // UPGRADED REGISTRY: ADVANCED TIERS DEFINITIONS & SPECIAL PROPERTIES
-        const SKIN_REGISTRY = {
-            default: { name: "Factory Standard", tier: "common", color: "#00ffff", bg: "#7f8c8d" },
-            carbon: { name: "Carbon Weave", tier: "common", color: "#ffffff", bg: "#95a5a6" },
-            emerald: { name: "Liquid Jade", tier: "uncommon", color: "#00ff66", bg: "#2ecc71" },
-            amber: { name: "Solar Flare", tier: "uncommon", color: "#ffaa00", bg: "#e67e22" },
-            vortex: { name: "Vortex Vapor", tier: "rare", color: "#00dfff", bg: "#2980b9" },
-            nebula: { name: "Nebula Core", tier: "rare", color: "#3300ff", bg: "#8e44ad" },
-            glitch: { name: "Holo Glitch", tier: "epic", color: "#ff00ff", bg: "#d35400" },
-            plasma: { name: "Plasma Track", tier: "epic", color: "#ff3300", bg: "#c0392b" },
-            singularity: { name: "Singularity Ω", tier: "mythical", color: "#ffff00", bg: "#f1c40f" }
+        // --- DYNAMICALLY GENERATE 100 SKINS (20 per tier) ---
+        const SKIN_REGISTRY = {};
+        const rarities = ['common', 'uncommon', 'rare', 'epic', 'mythical'];
+        const rarityColors = { 
+            common: '#b0b0b0', 
+            uncommon: '#00ff00', 
+            rare: '#00ffff', 
+            epic: '#ff00ff', 
+            mythical: '#ffff00' 
         };
+        
+        rarities.forEach(tier => {
+            for(let i = 1; i <= 20; i++) {
+                let id = (tier === 'common' && i === 1) ? 'default' : `${tier}_${i}`;
+                let name = (tier === 'common' && i === 1) ? 'Factory Standard' : `${tier.toUpperCase()} MK-${i}`;
+                SKIN_REGISTRY[id] = {
+                    name: name,
+                    tier: tier,
+                    color: rarityColors[tier],
+                    bg: '#222'
+                };
+            }
+        });
 
         const CRATE_POOLS = {
-            common: { cost: 20, skins: ['carbon', 'emerald'] },
-            uncommon: { cost: 30, skins: ['emerald', 'amber', 'vortex'] },
-            rare: { cost: 40, skins: ['vortex', 'nebula', 'glitch'] },
-            epic: { cost: 50, skins: ['glitch', 'plasma', 'singularity'] },
-            mythical: { cost: 100, skins: ['plasma', 'singularity'] }
+            omni: { cost: 50, skins: Object.keys(SKIN_REGISTRY) }
         };
 
         let graphicsQuality = 'high'; 
@@ -819,28 +804,20 @@
             setupBackgroundMusicLoop();
         }
 
+        // UNIFORM QUIET SOUNDS
         function playShootSound() {
             if (!audioCtx) return;
             let osc = audioCtx.createOscillator();
             let gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             
-            const tier = SKIN_REGISTRY[gameData.equippedSkin].tier;
-            if (tier === 'mythical') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.25);
-                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-            } else if (tier === 'epic') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-            } else {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.12);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            }
-            gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.22);
+            osc.type = 'sine'; 
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime); 
+            gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            
+            osc.start(); osc.stop(audioCtx.currentTime + 0.16);
         }
 
         function playExplosionSound() {
@@ -848,11 +825,13 @@
             let osc = audioCtx.createOscillator();
             let gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(160, audioCtx.currentTime);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
             osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.22);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+            
             osc.start(); osc.stop(audioCtx.currentTime + 0.23);
         }
 
@@ -861,29 +840,34 @@
             let osc = audioCtx.createOscillator();
             let gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
+            
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(987.77, audioCtx.currentTime);
-            osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.07);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.07);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+            
             osc.start(); osc.stop(audioCtx.currentTime + 0.21);
         }
 
+        // CHILL AMBIENT MUSIC
         function setupBackgroundMusicLoop() {
-            const pattern = [110.00, 130.81, 146.83, 164.81, 130.81, 146.83, 164.81, 220.00];
+            const pattern = [196.00, 220.00, 261.63, 329.63, 261.63, 220.00]; 
             let step = 0;
             musicInterval = setInterval(() => {
                 if (!gameActive || isPaused) return;
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
-                osc.type = 'square';
+                
+                osc.type = 'sine'; 
                 osc.frequency.setValueAtTime(pattern[step % pattern.length], audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+                
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.22);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.5);
                 step++;
-            }, 220);
+            }, 800); 
         }
 
         function saveData() {
@@ -916,7 +900,6 @@
             levelUp: document.getElementById('level-up-announcement')
         };
 
-        // --- SHOP TABS SYSTEM ---
         document.getElementById('tab-upgrades-btn').addEventListener('click', () => toggleShopTab('upgrades'));
         document.getElementById('tab-skins-btn').addEventListener('click', () => toggleShopTab('skins'));
         
@@ -935,66 +918,54 @@
             }
         }
 
-        // --- CRATE OPENING CONTROLLER ---
-        function registerCrateEvent(tier) {
-            document.getElementById(`crate-btn-${tier}`).addEventListener('click', () => {
-                const config = CRATE_POOLS[tier];
-                if (gameData.skinCoins >= config.cost) {
-                    gameData.skinCoins -= config.cost;
-                    
-                    const item = config.skins[Math.floor(Math.random() * config.skins.length)];
-                    let outputMessage = "";
-                    
-                    if (!gameData.unlockedSkins.includes(item)) {
-                        gameData.unlockedSkins.push(item);
-                        outputMessage = `NEW UNLOCK: ${SKIN_REGISTRY[item].name}!`;
-                    } else {
-                        gameData.skinCoins += Math.floor(config.cost * 0.4);
-                        outputMessage = `Duplicate! Converted to +${Math.floor(config.cost * 0.4)} Coins.`;
-                    }
-                    
-                    document.getElementById('drop-alert').innerText = outputMessage;
-                    document.getElementById('drop-alert').style.color = SKIN_REGISTRY[item].color;
-                    saveData();
-                    renderGraphicalSkinInventory();
+        // --- SINGLE CRATE SYSTEM ---
+        document.getElementById(`crate-btn-omni`).addEventListener('click', () => {
+            const config = CRATE_POOLS['omni'];
+            if (gameData.skinCoins >= config.cost) {
+                gameData.skinCoins -= config.cost;
+                
+                const item = config.skins[Math.floor(Math.random() * config.skins.length)];
+                let outputMessage = "";
+                
+                if (!gameData.unlockedSkins.includes(item)) {
+                    gameData.unlockedSkins.push(item);
+                    outputMessage = `NEW UNLOCK: ${SKIN_REGISTRY[item].name}!`;
+                } else {
+                    gameData.skinCoins += Math.floor(config.cost * 0.4);
+                    outputMessage = `Duplicate! Converted to +${Math.floor(config.cost * 0.4)} Coins.`;
                 }
-            });
-        }
-        registerCrateEvent('common');
-        registerCrateEvent('uncommon');
-        registerCrateEvent('rare');
-        registerCrateEvent('epic');
-        registerCrateEvent('mythical');
+                
+                document.getElementById('drop-alert').innerText = outputMessage;
+                document.getElementById('drop-alert').style.color = SKIN_REGISTRY[item].color;
+                saveData();
+                renderGraphicalSkinInventory();
+            }
+        });
 
-        // UPGRADED FEATURE: GENERATE VISUAL RENDERING CANVAS PICTURES INSIDE INVENTORY GRID
+        // --- FULL SKIN INDEX ---
         function renderGraphicalSkinInventory() {
             const container = document.getElementById('skin-inventory-container');
             container.innerHTML = "";
             
             Object.keys(SKIN_REGISTRY).forEach(id => {
-                if (!gameData.unlockedSkins.includes(id)) return;
-                
                 const skin = SKIN_REGISTRY[id];
+                const isUnlocked = gameData.unlockedSkins.includes(id);
                 const isActive = gameData.equippedSkin === id;
                 
-                // Outer Card
                 const card = document.createElement('div');
-                card.className = `inventory-card ${isActive ? 'active-skin' : ''}`;
+                card.className = `inventory-card ${isActive ? 'active-skin' : ''} ${!isUnlocked ? 'locked-skin' : ''}`;
                 card.style.color = skin.color;
                 card.style.borderColor = isActive ? skin.color : '#333';
                 
-                // Canvas Thumbnail Picture
                 const cvs = document.createElement('canvas');
                 cvs.className = 'skin-canvas-preview';
                 cvs.width = 80;
                 cvs.height = 80;
                 const cCtx = cvs.getContext('2d');
                 
-                // Render the specific visual skin graphic onto the picture preview container
                 drawSkinPreviewPicture(cCtx, skin, id);
                 card.appendChild(cvs);
                 
-                // Tier Label Badge
                 const badge = document.createElement('div');
                 badge.className = 'skin-badge-meta';
                 badge.innerText = skin.tier;
@@ -1002,13 +973,11 @@
                 badge.style.color = '#000';
                 card.appendChild(badge);
                 
-                // Skin Header Title
                 const title = document.createElement('div');
                 title.className = 'skin-meta-title';
                 title.innerText = skin.name;
                 card.appendChild(title);
                 
-                // Direct Action Equip Control Button
                 const eqBtn = document.createElement('button');
                 eqBtn.className = 'skin-action-btn';
                 eqBtn.style.color = skin.color;
@@ -1019,20 +988,24 @@
                     eqBtn.style.background = skin.color;
                     eqBtn.style.color = "#000";
                     eqBtn.disabled = true;
-                } else {
+                } else if (isUnlocked) {
                     eqBtn.innerText = "EQUIP";
                     eqBtn.addEventListener('click', () => {
                         gameData.equippedSkin = id;
                         saveData();
                         renderGraphicalSkinInventory();
                     });
+                } else {
+                    eqBtn.innerText = "LOCKED";
+                    eqBtn.style.color = "#888";
+                    eqBtn.style.borderColor = "#555";
+                    eqBtn.disabled = true;
                 }
                 card.appendChild(eqBtn);
                 container.appendChild(card);
             });
         }
 
-        // UTILITY PIPELINE: GENERATES UNIQUE RENDER DESIGNS PER TIER PICTURE
         function drawSkinPreviewPicture(cCtx, skin, id) {
             cCtx.clearRect(0,0,80,80);
             cCtx.save();
@@ -1041,8 +1014,7 @@
             cCtx.shadowBlur = 10;
             cCtx.shadowColor = skin.color;
             
-            if (id === 'singularity') {
-                // Mythical custom geometry engine render logic
+            if (skin.tier === 'mythical') {
                 let r = 14;
                 cCtx.beginPath();
                 cCtx.arc(0, -2, r + 4, 0, Math.PI*2);
@@ -1059,12 +1031,10 @@
                 cCtx.fillStyle = '#fff'; cCtx.fill();
                 cCtx.strokeStyle = skin.color; cCtx.lineWidth = 3; cCtx.stroke();
                 
-                // Energy Core Ring Shards
                 cCtx.fillStyle = '#ff8800';
                 cCtx.fillRect(-3, 16, 6, 6);
             } 
             else if (skin.tier === 'epic') {
-                // Epic geometric framework design rendering 
                 let r = 13;
                 cCtx.beginPath();
                 cCtx.moveTo(0, -r * 1.5);
@@ -1073,13 +1043,11 @@
                 cCtx.closePath();
                 cCtx.fillStyle = '#111'; cCtx.fill();
                 cCtx.strokeStyle = skin.color; cCtx.lineWidth = 3; cCtx.stroke();
-                // Core lines
                 cCtx.beginPath();
                 cCtx.moveTo(0, -r*1.5); cCtx.lineTo(0, r);
                 cCtx.strokeStyle = '#fff'; cCtx.lineWidth = 1; cCtx.stroke();
             } 
             else {
-                // Standard visual array layout representation
                 let r = 12;
                 cCtx.beginPath();
                 cCtx.moveTo(0, -r * 1.5);
@@ -1176,10 +1144,8 @@
             updateItem('speed', 'upg-speed-lvl', 'upg-speed-cost', 'buy-speed-btn', 'upg-speed-cost-text');
             updateItem('amplitude', 'upg-amp-lvl', 'upg-amp-cost', 'buy-amp-btn', 'upg-amp-cost-text');
 
-            Object.keys(CRATE_POOLS).forEach(tier => {
-                const targetBtn = document.getElementById(`crate-btn-${tier}`);
-                if(targetBtn) targetBtn.disabled = gameData.skinCoins < CRATE_POOLS[tier].cost;
-            });
+            const omniBtn = document.getElementById(`crate-btn-omni`);
+            if(omniBtn) omniBtn.disabled = gameData.skinCoins < CRATE_POOLS['omni'].cost;
         }
 
         function updateProgressionUI() {
@@ -1238,7 +1204,6 @@
         document.getElementById('opt-joystick').addEventListener('click', () => setControlMode('joystick'));
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0) setControlMode('touch');
 
-        // UPGRADED HIGH GRAPHICS FILTER MATRIX CONSTANTS
         function setGraphicsQuality(quality) {
             graphicsQuality = quality;
             ['gq-low', 'gq-med', 'gq-high'].forEach(id => document.getElementById(id).classList.remove('active'));
@@ -1450,9 +1415,7 @@
                 ctx.save();
                 if (this.invulnerable) ctx.globalAlpha = Math.random() > 0.5 ? 0.3 : 0.9;
                 
-                // --- UPGRADED SKIN TEXTURE DESIGN LAYOUT ENGINE ---
                 if (this.tier === 'mythical') {
-                    // MYTHICAL EXCLUSIVE TEXTURE MAP: SHIFTING ENERGY REEF WITH ROTATING ORBITALS
                     let pulseRadius = this.radius * (1.4 + Math.sin(performance.now() * 0.008) * 0.25);
                     ctx.save();
                     ctx.shadowBlur = shadowPower * 1.5;
@@ -1464,7 +1427,6 @@
                     ctx.stroke();
                     ctx.restore();
                     
-                    // Main Ship Body Geometry Overhaul
                     ctx.save();
                     ctx.shadowBlur = shadowPower;
                     ctx.shadowColor = this.color;
@@ -1475,13 +1437,11 @@
                     ctx.lineTo(this.x - this.radius * 0.5, this.y + this.radius * 0.4);
                     ctx.lineTo(this.x - this.radius * 1.6, this.y + this.radius * 1.2);
                     ctx.closePath();
-                    // Gold Metallic Texture Gradient Simulation
                     let grad = ctx.createLinearGradient(this.x - 20, this.y, this.x + 20, this.y);
                     grad.addColorStop(0, '#d4af37'); grad.addColorStop(0.5, '#fff'); grad.addColorStop(1, '#aa7c11');
                     ctx.fillStyle = grad; ctx.fill();
                     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke();
                     
-                    // Inside Glowing Matrix Core Shard
                     ctx.fillStyle = '#ff0055';
                     ctx.beginPath();
                     ctx.arc(this.x, this.y - 2, 5, 0, Math.PI*2);
@@ -1489,7 +1449,6 @@
                     ctx.restore();
                 } 
                 else if (this.tier === 'epic') {
-                    // EPIC TEXTURE MAP: INTERWOVEN PLASMA GRID lines
                     ctx.save();
                     if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                     ctx.beginPath();
@@ -1500,7 +1459,6 @@
                     ctx.fillStyle = '#111222'; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
                     
-                    // Tech cross-lines texture overlay
                     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.moveTo(this.x - 8, this.y); ctx.lineTo(this.x + 8, this.y);
@@ -1509,7 +1467,6 @@
                     ctx.restore();
                 } 
                 else if (this.tier === 'rare') {
-                    // RARE TEXTURE MAP: SHARP MATRIX EDGE TRIANGLES
                     ctx.save();
                     if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                     ctx.beginPath();
@@ -1523,7 +1480,6 @@
                     ctx.restore();
                 }
                 else {
-                    // Common / Default Skin Rendering
                     if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
                     ctx.beginPath();
                     ctx.moveTo(this.x, this.y - this.radius * 1.5); 
@@ -1535,7 +1491,6 @@
                     ctx.lineWidth = 2; ctx.strokeStyle = this.color; ctx.stroke();
                 }
                 
-                // Dynamic Engine Exhaust Thruster Plume
                 ctx.beginPath();
                 ctx.moveTo(this.x - this.radius * 0.4, this.y + this.radius * 0.6);
                 ctx.lineTo(this.x, this.y + this.radius * (1.4 + Math.random() * 0.6));
@@ -1568,16 +1523,13 @@
                 this.history.push({x: this.x, y: this.y});
                 if(this.history.length > 15) this.history.shift();
 
-                // --- UPGRADED SKIN PARTICLE EFFECTS GRAPHICS CONTROLLER ---
                 if (this.tier === 'mythical') {
-                    // MYTHICAL EFFECT: GOLD DUST STARBURST ENGINE FLUID STREAM
                     if (maxParticlesAllowed > 0 && Math.random() > 0.1) {
                         particles.push(new Particle(this.x + (Math.random() - 0.5) * 24, this.y + 12, {x: (Math.random() - 0.5) * 3, y: Math.random() * 4 + 4}, Math.random() * 4 + 2, '#ffff00', 0.015));
                         particles.push(new Particle(this.x + (Math.random() - 0.5) * 10, this.y + 10, {x: (Math.random() - 0.5) * 1, y: Math.random() * 2 + 1}, Math.random() * 3 + 1, '#ff3300', 0.02));
                     }
                 } 
                 else if (this.tier === 'epic') {
-                    // EPIC EFFECT: HOLO TRANS-DIMENSIONAL GLITCH TRAILS
                     if(this.history.length > 8 && Math.random() > 0.5) {
                         ctx.save(); ctx.globalAlpha = 0.35;
                         ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 1.5;
@@ -1587,7 +1539,6 @@
                     }
                 } 
                 else if (this.tier === 'rare') {
-                    // RARE EFFECT: AMBIENT VAPOR BUBBLE EMISSIONS
                     if(Math.random() > 0.5 && maxParticlesAllowed > 0) {
                         particles.push(new Particle(this.x, this.y + 10, {x: (Math.random()-0.5)*2, y: Math.random()*2+2}, Math.random()*5+3, 'rgba(0,223,255,0.25)', 0.03));
                     }
@@ -1628,38 +1579,32 @@
                 ctx.save(); 
                 if (shadowPower > 0) { ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color; }
 
-                // --- UPGRADED ATTACK VISUAL EFFECTS MATRIX ---
                 if (this.isMythicalWave) {
-                    // MYTHICAL EFFECT: WIDE GEOMETRIC EXPANDING COSMIC PLASMA WAVE BARRIER
                     let waveWidth = this.radius * 4.5 + Math.sin(performance.now() * 0.08) * 12;
                     ctx.fillStyle = 'rgba(255, 255, 0, 0.25)';
                     ctx.strokeStyle = '#ffff00';
                     ctx.lineWidth = 3;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, waveWidth, Math.PI, 0); // Forward crescent arc
+                    ctx.arc(this.x, this.y, waveWidth, Math.PI, 0); 
                     ctx.closePath();
                     ctx.fill(); ctx.stroke();
                     
-                    // Pure white structural beam core line
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(this.x - waveWidth * 0.7, this.y - 2, waveWidth * 1.4, 4);
                 } 
                 else if (this.tier === 'epic') {
-                    // EPIC EFFECT: LASER PULSE RAIL MATRIX LOGIC
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 3;
                     ctx.fillRect(this.x - 3, this.y - 12, 6, 24);
                     ctx.strokeRect(this.x - 3, this.y - 12, 6, 24);
                 } 
                 else if (this.tier === 'rare') {
-                    // RARE EFFECT: SWIRLING CYCLONE ORBIT SHARDS
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.PI * 2);
                     ctx.fillStyle = '#00dfff'; ctx.fill();
                     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
                 }
                 else {
-                    // Common Weapon Shape
                     ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                     ctx.fillStyle = '#fff'; ctx.fill();
                     ctx.strokeStyle = this.color; ctx.lineWidth = 1.5; ctx.stroke();
@@ -1842,10 +1787,8 @@
             }, 1000);
         }
 
-        // --- UPGRADED HIGH GRAPHICS RENDER PIPELINE INTERFACE ---
         function drawMapBackground() {
             if(highGraphicsBloom && graphicsQuality === 'high') {
-                // Apply visual engine WebGL styled compound filter stack
                 ctx.filter = "drop-shadow(0px 0px 8px rgba(0, 255, 255, 0.4)) saturate(1.4)";
             } else {
                 ctx.filter = "none";
@@ -1914,7 +1857,6 @@
 
                 let RecoilOffset = player.tier === 'mythical' ? -14 : -16;
 
-                // Fire custom weapon tiers configuration array
                 projectiles.push(new Projectile(player.x, player.y - player.radius, { x: 0, y: RecoilOffset }, baseColor));
                 if (spreadLvl >= 1) {
                     projectiles.push(new Projectile(player.x, player.y - player.radius, { x: -3, y: RecoilOffset + 1 }, baseColor, 3));
@@ -1952,13 +1894,11 @@
                 for (let j = projectiles.length - 1; j >= 0; j--) {
                     const proj = projectiles[j];
                     
-                    // Mythical wave calculation logic box check offset
                     let hitRadius = proj.isMythicalWave ? proj.radius * 4.5 : proj.radius;
                     
                     if (Math.hypot(proj.x - enemy.x, proj.y - enemy.y) - enemy.radius - hitRadius < 0) {
                         createExplosion(enemy.x, enemy.y, proj.color);
                         
-                        // Mythical project weapons pierce standard metrics targets
                         if (!proj.isMythicalWave) {
                             projectiles.splice(j, 1);
                         }
