@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Surge</title>
+    <title>Neon Surge - Ultra Edition</title>
     <style>
         body {
             margin: 0;
@@ -456,7 +456,6 @@
             upgrades: { fireRate: 0, spread: 0, shield: 0, speed: 0, amplitude: 0 }
         };
 
-        // Fallback validation if older save state exists without new upgrades
         if(gameData.upgrades.speed === undefined) gameData.upgrades.speed = 0;
         if(gameData.upgrades.amplitude === undefined) gameData.upgrades.amplitude = 0;
 
@@ -471,8 +470,10 @@
         // Graphics Scaling Matrices
         let graphicsQuality = 'med'; 
         let renderScale = 1.0;
-        let shadowPower = 15;
-        let maxParticlesAllowed = 150;
+        let shadowPower = 10;
+        let maxParticlesAllowed = 80;
+        let ultraMotionBlur = false;
+        let screenShakeIntensity = 0;
 
         // Virtual Coordinate Resolution Caching
         let vWidth = window.innerWidth;
@@ -604,14 +605,16 @@
             ['gq-low', 'gq-med', 'gq-high', 'gq-ultra'].forEach(id => document.getElementById(id).classList.remove('active'));
             document.getElementById(`gq-${quality}`).classList.add('active');
             
+            ultraMotionBlur = false;
             if (quality === 'low') {
                 renderScale = 0.75; shadowPower = 0; maxParticlesAllowed = 0;
             } else if (quality === 'med') {
                 renderScale = 1.0; shadowPower = 10; maxParticlesAllowed = 80;
             } else if (quality === 'high') {
-                renderScale = 1.5; shadowPower = 20; maxParticlesAllowed = 250;
+                renderScale = 1.35; shadowPower = 22; maxParticlesAllowed = 250;
             } else if (quality === 'ultra') {
-                renderScale = 2.0; shadowPower = 35; maxParticlesAllowed = 600;
+                renderScale = 1.65; shadowPower = 45; maxParticlesAllowed = 600;
+                ultraMotionBlur = true;
             }
             resize();
         }
@@ -631,7 +634,6 @@
         let enemies = [];
         let particles = [];
         
-        // Map elements
         let stars = [];
         let gridY = 0;
         let nebulaClouds = [];
@@ -711,22 +713,56 @@
                 this.joystickSpeed = UPGRADE_CONFIG.speed.action(gameData.upgrades.speed);
                 this.shields = UPGRADE_CONFIG.shield.action(gameData.upgrades.shield);
                 this.invulnerable = false;
+                this.history = []; // Position matrix cache for Ultra Motion trails
             }
             draw() {
                 ctx.save();
                 if (this.invulnerable) {
                     ctx.globalAlpha = Math.random() > 0.5 ? 0.4 : 1.0;
                 }
+
+                // Ultra Mode Exclusive: Multi-pass Vector Chromatic Aberration Trails
+                if (ultraMotionBlur && this.history.length > 1) {
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter';
+                    for (let i = 0; i < this.history.length; i++) {
+                        let ratio = (i + 1) / this.history.length;
+                        let pt = this.history[i];
+                        ctx.globalAlpha = ratio * 0.25;
+                        
+                        // Red offset channel pass
+                        ctx.strokeStyle = '#f0f';
+                        ctx.beginPath();
+                        ctx.moveTo(pt.x - 3, pt.y - this.radius * 1.5);
+                        ctx.lineTo(pt.x + this.radius * 1.2 - 3, pt.y + this.radius);
+                        ctx.lineTo(pt.x - 3, pt.y + this.radius * 0.3);
+                        ctx.lineTo(pt.x - this.radius * 1.2 - 3, pt.y + this.radius);
+                        ctx.closePath();
+                        ctx.stroke();
+
+                        // Cyan offset channel pass
+                        ctx.strokeStyle = '#0ff';
+                        ctx.beginPath();
+                        ctx.moveTo(pt.x + 3, pt.y - this.radius * 1.5);
+                        ctx.lineTo(pt.x + this.radius * 1.2 + 3, pt.y + this.radius);
+                        ctx.lineTo(pt.x + 3, pt.y + this.radius * 0.3);
+                        ctx.lineTo(pt.x - this.radius * 1.2 + 3, pt.y + this.radius);
+                        ctx.closePath();
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+
                 if (shadowPower > 0) {
                     ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
 
                 // Sharp Arrow Starfighter Vector Implementation
                 ctx.beginPath();
-                ctx.moveTo(this.x, this.y - this.radius * 1.5); // Arrow Apex Head
-                ctx.lineTo(this.x + this.radius * 1.2, this.y + this.radius); // Starboard Rear Wing
-                ctx.lineTo(this.x, this.y + this.radius * 0.3); // Core Structural Tail Indent
-                ctx.lineTo(this.x - this.radius * 1.2, this.y + this.radius); // Port Rear Wing
+                ctx.moveTo(this.x, this.y - this.radius * 1.5); 
+                ctx.lineTo(this.x + this.radius * 1.2, this.y + this.radius); 
+                ctx.lineTo(this.x, this.y + this.radius * 0.3); 
+                ctx.lineTo(this.x - this.radius * 1.2, this.y + this.radius); 
                 ctx.closePath();
 
                 ctx.fillStyle = '#fff'; ctx.fill(); 
@@ -735,7 +771,7 @@
                 // Thermal Core Thrust Exhaust Indicator
                 ctx.beginPath();
                 ctx.moveTo(this.x - this.radius * 0.4, this.y + this.radius * 0.6);
-                ctx.lineTo(this.x, this.y + this.radius * 1.2);
+                ctx.lineTo(this.x, this.y + this.radius * (ultraMotionBlur ? 1.6 : 1.2));
                 ctx.lineTo(this.x + this.radius * 0.4, this.y + this.radius * 0.6);
                 ctx.closePath();
                 ctx.fillStyle = Math.random() > 0.5 ? '#ff00ff' : '#00ffff';
@@ -764,6 +800,14 @@
                 }
                 this.x = Math.max(this.radius, Math.min(vWidth - this.radius, this.x + this.velocity.x));
                 this.y = Math.max(this.radius, Math.min(vHeight - this.radius, this.y + this.velocity.y));
+                
+                if (ultraMotionBlur) {
+                    this.history.push({x: this.x, y: this.y});
+                    if (this.history.length > 5) this.history.shift();
+                } else {
+                    this.history = [];
+                }
+
                 this.draw();
             }
             takeDamage() {
@@ -773,8 +817,8 @@
                     this.shields--;
                     this.invulnerable = true;
                     createExplosion(this.x, this.y, '#0f0');
+                    screenShakeIntensity = 25; // Trigger powerful dynamic vibration
                     
-                    // Shockwave sweeps area
                     enemies.forEach((enemy, i) => {
                         if (Math.hypot(this.x - enemy.x, this.y - enemy.y) < 150) {
                             createExplosion(enemy.x, enemy.y, enemy.color);
@@ -792,18 +836,43 @@
         class Projectile {
             constructor(x, y, velocity, color='#0ff', radius=4) {
                 this.x = x; this.y = y; this.velocity = velocity; 
-                // Core Radius supplemented by Photon Amplitude Upgrade configuration
                 this.radius = radius + (UPGRADE_CONFIG.amplitude.action(gameData.upgrades.amplitude) - 4); 
                 this.color = color;
+                this.lastX = x;
+                this.lastY = y;
             }
             update() {
+                this.lastX = this.x;
+                this.lastY = this.y;
                 this.x += this.velocity.x; this.y += this.velocity.y;
+                
                 ctx.save(); 
                 if (shadowPower > 0) {
                     ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+
+                if (ultraMotionBlur) {
+                    // Draw a continuous high-speed optical streak laser trail
+                    ctx.beginPath();
+                    ctx.lineWidth = this.radius * 2.2;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = this.color;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 1.5, this.y - this.velocity.y * 1.5);
+                    ctx.stroke();
+
+                    // Core bright internal flash line
+                    ctx.beginPath();
+                    ctx.lineWidth = this.radius * 0.8;
+                    ctx.strokeStyle = '#fff';
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 1.2, this.y - this.velocity.y * 1.2);
+                    ctx.stroke();
+                } else {
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff'; ctx.fill();
+                }
+                ctx.restore();
             }
         }
 
@@ -811,6 +880,7 @@
             constructor(x, y, type) {
                 this.x = x; this.y = y; this.type = type;
                 this.angle = 0;
+                this.history = [];
                 let speedScale = 1 + (score * 0.0002);
                 let angleToPlayer = Math.atan2(player.y - y, player.x - x);
 
@@ -837,7 +907,33 @@
                 }
             }
             draw() {
-                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+                ctx.save();
+                
+                // Motion blur vector echo trails for Ultra High graphics setting
+                if (ultraMotionBlur && this.history.length > 0) {
+                    ctx.save();
+                    for (let i = 0; i < this.history.length; i++) {
+                        let ratio = (i + 1) / this.history.length;
+                        ctx.globalAlpha = ratio * 0.15;
+                        ctx.save();
+                        ctx.translate(this.history[i].x, this.history[i].y);
+                        ctx.rotate(this.history[i].angle);
+                        ctx.beginPath();
+                        for (let j = 0; j < this.edges; j++) {
+                            const a = (Math.PI * 2 * j) / this.edges;
+                            const px = Math.cos(a) * this.radius; const py = Math.sin(a) * this.radius;
+                            if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                        }
+                        ctx.closePath();
+                        ctx.strokeStyle = this.color;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                    ctx.restore();
+                }
+
+                ctx.translate(this.x, this.y); ctx.rotate(this.angle);
                 if (shadowPower > 0) {
                     ctx.shadowBlur = shadowPower; ctx.shadowColor = this.color;
                 }
@@ -861,7 +957,16 @@
                     this.velocity.x = Math.cos(this.baseAngle) * this.speed + Math.cos(this.baseAngle + Math.PI/2) * waveOffset;
                     this.velocity.y = Math.sin(this.baseAngle) * this.speed + Math.sin(this.baseAngle + Math.PI/2) * waveOffset;
                 }
-                this.x += this.velocity.x; this.y += this.velocity.y; this.angle += this.spin; this.draw();
+                this.x += this.velocity.x; this.y += this.velocity.y; this.angle += this.spin;
+                
+                if (ultraMotionBlur) {
+                    this.history.push({x: this.x, y: this.y, angle: this.angle});
+                    if (this.history.length > 4) this.history.shift();
+                } else {
+                    this.history = [];
+                }
+
+                this.draw();
             }
         }
 
@@ -873,11 +978,22 @@
                 this.velocity.x *= 0.96; this.velocity.y *= 0.96;
                 this.x += this.velocity.x; this.y += this.velocity.y; this.alpha -= 0.02;
                 ctx.save(); ctx.globalAlpha = this.alpha; 
-                if (shadowPower > 0) {
-                    ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color;
+                
+                if (ultraMotionBlur) {
+                    // Ultra Mode Exclusive: Spark expansion lines
+                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
+                    ctx.lineWidth = this.radius;
+                    ctx.strokeStyle = this.color;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 2, this.y - this.velocity.y * 2);
+                    ctx.stroke();
+                } else {
+                    if (shadowPower > 0) { ctx.shadowBlur = shadowPower / 2; ctx.shadowColor = this.color; }
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color; ctx.fill();
                 }
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
+                ctx.restore();
             }
         }
 
@@ -900,10 +1016,14 @@
         }
 
         function createExplosion(x, y, color) {
-            if (maxParticlesAllowed === 0) return; // Completely skips processing if LOW quality graphics active
-            const count = Math.min(15, maxParticlesAllowed - particles.length);
+            if (maxParticlesAllowed === 0) return; 
+            const count = Math.min(ultraMotionBlur ? 40 : 15, maxParticlesAllowed - particles.length);
             for (let i = 0; i < count; i++) {
-                particles.push(new Particle(x, y, {x: (Math.random()-0.5)*8, y: (Math.random()-0.5)*8}, Math.random()*3+1, color));
+                let speedMult = ultraMotionBlur ? 14 : 8;
+                particles.push(new Particle(x, y, {x: (Math.random()-0.5)*speedMult, y: (Math.random()-0.5)*speedMult}, Math.random()*3+1, color));
+            }
+            if (ultraMotionBlur) {
+                screenShakeIntensity = Math.min(18, screenShakeIntensity + 8); // Add structured screen shake metrics
             }
         }
 
@@ -919,6 +1039,7 @@
                 uiElements.levelUp.classList.add('level-up-active');
                 
                 createExplosion(player.x, player.y, '#fff'); createExplosion(player.x, player.y, '#0ff');
+                if(ultraMotionBlur) screenShakeIntensity = 20;
                 setTimeout(() => uiElements.levelUp.classList.remove('level-up-active'), 2500);
             }
         }
@@ -930,7 +1051,7 @@
             player = new Player();
             mouse.x = vWidth / 2; mouse.y = vHeight * 0.7;
             projectiles = []; enemies = []; particles = [];
-            score = 0; level = 1; spawnDelay = 1000;
+            score = 0; level = 1; spawnDelay = 1000; screenShakeIntensity = 0;
             uiElements.score.innerText = score; uiElements.level.innerText = level;
             
             initBackgrounds();
@@ -1001,11 +1122,19 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             ctx.save();
-            // Scaling engine rendering buffers dynamically via device memory parameters
+            
+            // Ultra Mode Shader Physics: Screen Shake Transformation matrix
+            if (ultraMotionBlur && screenShakeIntensity > 0.1) {
+                let dx = (Math.random() - 0.5) * screenShakeIntensity;
+                let dy = (Math.random() - 0.5) * screenShakeIntensity;
+                ctx.translate(dx, dy);
+                screenShakeIntensity *= 0.92; // Decay over time
+            }
+
             ctx.scale(renderScale, renderScale);
 
-            // Shading Filter Layer Composition for glow parameters
-            if (graphicsQuality === 'ultra') {
+            // Turn on Additive Blending Compositing Filters for High Intensity Glows
+            if (ultraMotionBlur) {
                 ctx.globalCompositeOperation = 'source-over';
             }
 
@@ -1037,6 +1166,9 @@
                 lastShotTime = currentTime;
             }
 
+            // High Intensity Additive pass for lighting up projectiles and blast zones
+            if (ultraMotionBlur) ctx.globalCompositeOperation = 'lighter';
+
             for (let i = particles.length - 1; i >= 0; i--) {
                 if (particles[i].alpha <= 0) particles.splice(i, 1); else particles[i].update();
             }
@@ -1045,6 +1177,8 @@
                 projectiles[i].update();
                 if (projectiles[i].y < 0 || projectiles[i].x < 0 || projectiles[i].x > vWidth) projectiles.splice(i, 1);
             }
+
+            if (ultraMotionBlur) ctx.globalCompositeOperation = 'source-over';
 
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
