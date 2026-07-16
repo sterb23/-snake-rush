@@ -6,7 +6,7 @@
     <title>Sokol Vyšehrad U17 | Oficiální stránky</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* 1. ANIMACE PŘEJÍŽDĚNÍ (SMOOTH SCROLL) */
+        /* ANIMACE PŘEJÍŽDĚNÍ (SMOOTH SCROLL) */
         html {
             scroll-behavior: smooth;
         }
@@ -34,7 +34,7 @@
             overflow-x: hidden;
         }
 
-        /* POZADÍ S EFEKTEM HLOUBKY */
+        /* POZADÍ */
         .page-wrapper {
             background: radial-gradient(circle at 50% 0%, #0a1330 0%, #020204 70%);
         }
@@ -72,45 +72,36 @@
             text-shadow: 0 0 10px var(--neon-blue);
         }
 
-        /* HEADER & LOGO */
+        /* HEADER (BEZ LOGA) */
         header {
-            height: 100vh;
+            height: 80vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             padding: 20px;
-        }
-
-        .logo-box {
-            width: 320px;
-            height: 320px;
-            margin-bottom: 30px;
             position: relative;
-        }
-
-        /* SVG LOGO - NASEKANÝ EFEKT */
-        .logo-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 0 20px rgba(0, 68, 255, 0.4));
         }
 
         h1 {
             font-family: 'Oswald', sans-serif;
-            font-size: 4rem;
+            font-size: 5rem;
             text-transform: uppercase;
-            margin-bottom: 5px;
-            letter-spacing: -1px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            background: linear-gradient(180deg, #ffffff 50%, #7782a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .tagline {
             color: var(--neon-light);
             font-weight: 700;
-            letter-spacing: 5px;
+            letter-spacing: 8px;
             text-transform: uppercase;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
         }
 
         /* SEKCE */
@@ -173,31 +164,59 @@
             text-transform: uppercase;
         }
 
-        /* O NÁS A ODKAZ */
+        /* O NÁS A ODKAZY */
         .about-content {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: var(--text-gray);
             max-width: 800px;
-            margin: 0 auto 40px;
+            margin: 0 auto 50px;
+        }
+
+        .links-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
         }
 
         .btn-link {
             display: inline-block;
-            padding: 15px 40px;
-            background: var(--neon-blue);
+            padding: 15px 35px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--neon-blue);
             color: white;
             text-decoration: none;
-            font-weight: 900;
+            font-weight: 700;
             border-radius: 50px;
             text-transform: uppercase;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 68, 255, 0.3);
+            transition: 0.3s ease;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
         }
 
         .btn-link:hover {
-            background: var(--neon-light);
-            transform: scale(1.05);
-            box-shadow: 0 5px 25px rgba(0, 210, 255, 0.5);
+            background: var(--neon-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 25px rgba(0, 68, 255, 0.4);
+        }
+
+        /* Speciální barva pro Instagram tlačítko */
+        .btn-ig {
+            border-color: #e1306c;
+        }
+        .btn-ig:hover {
+            background: #e1306c;
+            box-shadow: 0 5px 25px rgba(225, 48, 108, 0.4);
+        }
+
+        /* Speciální barva pro Email tlačítko */
+        .btn-email {
+            border-color: #00d2ff;
+        }
+        .btn-email:hover {
+            background: #00d2ff;
+            color: #000;
+            box-shadow: 0 5px 25px rgba(0, 210, 255, 0.4);
         }
 
         footer {
@@ -209,9 +228,10 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
+            h1 { font-size: 3rem; }
+            .tagline { font-size: 1.1rem; letter-spacing: 4px; }
             nav a { margin: 0 8px; font-size: 0.7rem; }
-            .logo-box { width: 250px; height: 250px; }
+            .links-container { flex-direction: column; align-items: stretch; max-width: 300px; margin: 0 auto; }
         }
     </style>
 </head>
@@ -227,35 +247,6 @@
         </nav>
 
         <header id="domu">
-            <div class="logo-box">
-                <svg viewBox="0 0 500 500" class="logo-svg" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <filter id="glow">
-                            <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
-                        <clipPath id="cut-mask">
-                            <path d="M0,0 L500,0 L500,500 L0,500 Z M-100,150 L600,80 L600,100 L-100,170 Z M-100,280 L600,210 L600,230 L-100,300 Z M-100,410 L600,340 L600,360 L-100,430 Z" clip-rule="evenodd"/>
-                        </clipPath>
-                    </defs>
-                    
-                    <circle cx="250" cy="250" r="240" fill="none" stroke="#0044ff" stroke-width="4" filter="url(#glow)" />
-                    
-                    <g clip-path="url(#cut-mask)">
-                        <circle cx="250" cy="250" r="235" fill="#050505" />
-                        <rect x="-100" y="0" width="700" height="120" fill="#111" transform="rotate(-12, 250, 250)" />
-                        <rect x="-100" y="150" width="700" height="100" fill="#0a0a0a" transform="rotate(-12, 250, 250)" />
-                        <rect x="-100" y="300" width="700" height="200" fill="#151515" transform="rotate(-12, 250, 250)" />
-                        
-                        <text x="250" y="320" font-family="'Montserrat', sans-serif" font-weight="900" font-size="220" fill="white" text-anchor="middle">SV</text>
-                    </g>
-
-                    <text x="250" y="420" font-family="'Oswald', sans-serif" font-weight="700" font-size="80" fill="#00d2ff" text-anchor="middle" filter="url(#glow)">U17</text>
-                </svg>
-            </div>
             <h1>Sokol Vyšehrad</h1>
             <p class="tagline">Basketball U17</p>
         </header>
@@ -264,23 +255,28 @@
             <h2>Novinky</h2>
             <div class="coming-soon-box">
                 <span class="status-badge">Již brzy</span>
-                <p>Momentálně připravujeme aktuality pro nadcházející sezónu. Sledujte nás brzy!</p>
+                <p>Aktuality a novinky z týmu budeme přidávat po zahájení nové sezóny.</p>
             </div>
         </section>
 
         <section id="o-nas">
             <h2>O našem týmu</h2>
             <div class="about-content">
-                Jsme tým Sokol Vyšehrad U17. Naším cílem je basketbalový růst, týmová spolupráce a vítězný duch. Naše příprava probíhá v plném proudu, abychom do sezóny vstoupili v té nejlepší formě.
+                Jsme mládežnický basketbalový tým TJ Sokol Vyšehrad U17. Soustředíme se na tvrdý trénink, rozvoj individuálních dovedností i týmové chemie. Připravujeme se na to, abychom v nadcházející sezóně předvedli ty nejlepší výkony. Sledujte naši cestu!
             </div>
-            <a href="https://basketvysehrad.cz" target="_blank" class="btn-link">Oficiální web klubu</a>
+            
+            <div class="links-container">
+                <a href="https://basketvysehrad.cz" target="_blank" class="btn-link">Web Vyšehrad</a>
+                <a href="https://www.instagram.com/vysehrad.u17?igsh=d2xjdDZqMzY2bnow&utm_source=qr" target="_blank" class="btn-link btn-ig">Instagram</a>
+                <a href="mailto:vysehradu17mladez@gmail.com" class="btn-link btn-email">E-mail</a>
+            </div>
         </section>
 
         <section id="zapasy">
             <h2>Nadcházející zápasy</h2>
             <div class="coming-soon-box">
                 <span class="status-badge">Již brzy</span>
-                <p>Rozpis zápasů bude zveřejněn po losování soutěže na začátku sezóny.</p>
+                <p>Rozpis zápasů se zde objeví hned, jakmile bude rozlosována nová sezóna.</p>
             </div>
         </section>
 
@@ -288,12 +284,12 @@
             <h2>Soupiska</h2>
             <div class="coming-soon-box">
                 <span class="status-badge">Již brzy</span>
-                <p>Soupiska týmu pro sezónu 2026/27 se právě finalizuje.</p>
+                <p>Finální soupiska hráčů bude zveřejněna před prvním ligovým zápasem.</p>
             </div>
         </section>
 
         <footer>
-            <p>&copy; 2026 Sokol Vyšehrad U17 | Všechny informace budou aktualizovány se začátkem sezóny.</p>
+            <p>&copy; 2026 Sokol Vyšehrad U17 | Webové sekce budou plně spuštěny se startem sezóny.</p>
         </footer>
     </div>
 
